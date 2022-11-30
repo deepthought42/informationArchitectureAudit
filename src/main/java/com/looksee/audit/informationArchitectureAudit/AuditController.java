@@ -18,8 +18,6 @@ package com.looksee.audit.informationArchitectureAudit;
 // [START cloudrun_pubsub_handler]
 // [START run_pubsub_handler]
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -38,14 +36,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.looksee.audit.informationArchitecture.mapper.Body;
+import com.looksee.audit.informationArchitecture.models.Audit;
+import com.looksee.audit.informationArchitecture.models.AuditProgressUpdate;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
-import com.looksee.audit.informationArchitecture.models.PageAuditRecord;
-import com.looksee.audit.informationArchitecture.models.dto.PageBuiltMessage;
-import com.looksee.audit.informationArchitecture.models.enums.ExecutionStatus;
+import com.looksee.audit.informationArchitecture.models.PageState;
+import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
+import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
 import com.looksee.audit.informationArchitecture.services.AuditRecordService;
+import com.looksee.audit.informationArchitecture.services.PageStateService;
+import com.looksee.audit.informationArchitectureAudit.gcp.PubSubAuditRecordPublisherImpl;
 import com.looksee.audit.informationArchitectureAudit.gcp.PubSubErrorPublisherImpl;
-import com.looksee.audit.informationArchitectureAudit.gcp.PubSubPublisherImpl;
-
+import com.looksee.audit.informationArchitectureAudit.models.message.AuditError;
+import com.looksee.audit.informationArchitectureAudit.models.message.PageAuditMessage;
+import com.looksee.models.audit.informationarchitecture.LinksAudit;
+import com.looksee.models.audit.informationarchitecture.MetadataAudit;
+import com.looksee.models.audit.informationarchitecture.SecurityAudit;
+import com.looksee.models.audit.informationarchitecture.TitleAndHeaderAudit;
 // PubsubController consumes a Pub/Sub message.
 @RestController
 public class AuditController {
@@ -55,91 +61,226 @@ public class AuditController {
 	private AuditRecordService audit_record_service;
 	
 	@Autowired
-	private PubSubPublisherImpl pubSubPublisherImpl;
+	private PageStateService page_state_service;
+	
+	@Autowired
+	private PubSubAuditRecordPublisherImpl pubSubPageAuditPublisherImpl;
 	
 	@Autowired
 	private PubSubErrorPublisherImpl pubSubErrorPublisherImpl;
+
+	@Autowired
+	private LinksAudit links_auditor;
 	
-  @RequestMapping(value = "/", method = RequestMethod.POST)
-  public ResponseEntity receiveMessage(@RequestBody Body body) throws JsonMappingException, JsonProcessingException, ExecutionException, InterruptedException {
+	@Autowired
+	private MetadataAudit metadata_auditor;
+
+	@Autowired
+	private TitleAndHeaderAudit title_and_header_auditor;
+
+	@Autowired
+	private SecurityAudit security_audit;
+	
+	@RequestMapping(value = "/", method = RequestMethod.POST)
+	public ResponseEntity receiveMessage(@RequestBody Body body) 
+			throws JsonMappingException, JsonProcessingException, ExecutionException, InterruptedException 
+	{
 	  log.warn("body :: "+body);
 	  // Get PubSub message from request body.
-    Body.Message message = body.getMessage();
-    log.warn("message " + message);
-    /*
-    if (message == null) {
-      String msg = "Bad Request: invalid Pub/Sub message format";
-      System.out.println(msg);
-      return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
-    }
-*/
-    String data = message.getData();
-    log.warn("data :: "+data);
-  //retrieve audit record and determine type of audit record
+	  Body.Message message = body.getMessage();
+	  log.warn("message " + message);
+	    /*
+	    if (message == null) {
+	      String msg = "Bad Request: invalid Pub/Sub message format";
+	      System.out.println(msg);
+	      return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+	    }
+	*/
+	  String data = message.getData();
+	  log.warn("data :: "+data);
+	  //retrieve audit record and determine type of audit record
     
-    byte[] decodedBytes = Base64.getUrlDecoder().decode(data);
-    String decoded_json = new String(decodedBytes);
+	  byte[] decodedBytes = Base64.getUrlDecoder().decode(data);
+	  String decoded_json = new String(decodedBytes);
 
-    //create ObjectMapper instance
-    ObjectMapper objectMapper = new ObjectMapper();
+	  //create ObjectMapper instance
+	  ObjectMapper objectMapper = new ObjectMapper();
     
-    //convert json string to object
-    PageBuiltMessage audit_record_msg = objectMapper.readValue(decoded_json, PageBuiltMessage.class);
-    log.warn("audit record = " + audit_record_msg);
-    try {
-	
-		AuditRecord audit_record = new PageAuditRecord(ExecutionStatus.BUILDING_PAGE, true);
+	  //convert json string to object
+	  PageAuditMessage audit_record_msg = objectMapper.readValue(decoded_json, PageAuditMessage.class);
+	    
+	  JsonMapper mapper = new JsonMapper().builder().addModule(new JavaTimeModule()).build();;
+
+	  try {
+
+		  AuditRecord audit_record = audit_record_service.findById(audit_record_msg.getPageAuditId()).get();
+		  PageState page = page_state_service.findById(audit_record.getId()).get();
+		  //AuditRecord audit_record = audit_record_service.findById(audit_record_msg.getPageAuditId()).get();
+		  //PageState page = audit_record_msg.getPageState(); //audit_record_service.getPageStateForAuditRecord(audit_record.getId());
+		  //generate audit report
+			
+		  AuditProgressUpdate audit_update = new AuditProgressUpdate(
+													audit_record_msg.getAccountId(),
+													audit_record.getId(),
+													(1.0/5.0),
+													"Reviewing links",
+													AuditCategory.INFORMATION_ARCHITECTURE,
+													AuditLevel.PAGE, 
+													audit_record_msg.getDomainId());
+
+		  	
+		  String audit_record_json = mapper.writeValueAsString(audit_update);
+		  pubSubPageAuditPublisherImpl.publish(audit_record_json);
+		  
+		  try {
+			  Audit link_audit = links_auditor.execute(page, audit_record, null);
+		   		
+			  AuditProgressUpdate audit_update2 = new AuditProgressUpdate(
+														audit_record_msg.getAccountId(),
+														audit_record.getId(),
+														(2.0/5.0),
+														"Reviewing title and header page title and header",
+														AuditCategory.INFORMATION_ARCHITECTURE,
+														AuditLevel.PAGE, 
+														audit_record_msg.getDomainId());
 		
-		audit_record = audit_record_service.save(audit_record);
-		audit_record_service.addPageAuditToDomainAudit(audit_record_msg.getDomainAuditId(), audit_record.getId());
-		
-		audit_record_service.addPageToAuditRecord(audit_record.getId(), audit_record_msg.getPageId());
-		
-		Map<String, String> attributeMap = new HashMap<String, String>();
-		attributeMap.put("accountId", audit_record_msg.getAccountId());
-		attributeMap.put("domainAuditId", audit_record_msg.getDomainAuditId()+"");
-		attributeMap.put("pageAuditId", audit_record.getId()+"");
-		attributeMap.put("pageId", audit_record_msg.getPageId()+"");
-		
-		/*
-	    PubsubMessage pubsubMessage = PubsubMessage.newBuilder()
-	            .putAllAttributes(attributeMap)
-	            .setData(ByteString.copyFromUtf8("Audit record not found"))
-	            .setMessageId(UUID.randomUUID().toString())
-	            .build();
-	    */
-		JsonMapper mapper = new JsonMapper().builder().addModule(new JavaTimeModule()).build();;
-	    String audit_record_json = mapper.writeValueAsString(attributeMap);
+			  audit_record_service.addAudit(audit_record_msg.getPageAuditId(), link_audit.getId());
+			  audit_record_json = mapper.writeValueAsString(audit_update2);
 				
-		//TODO: SEND PUB SUB MESSAGE THAT AUDIT RECORD NOT FOUND WITH PAGE DATA EXTRACTION MESSAGE
-		pubSubPublisherImpl.publish(audit_record_json);
+			  pubSubPageAuditPublisherImpl.publish(audit_record_json);	
+		  } 
+		  catch(Exception e) {
+			  AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
+					  								audit_record_msg.getPageAuditId(), 
+					  								"An error occurred while reviewing title and header", 
+					  								AuditCategory.INFORMATION_ARCHITECTURE, 
+					  								(2.0/5.0),
+					  								audit_record_msg.getDomainId());
+			
+			//getContext().getParent().tell(audit_err, getSelf());
+			e.printStackTrace();
+			audit_record_json = mapper.writeValueAsString(audit_err);
+			pubSubErrorPublisherImpl.publish(audit_record_json);
+		}
 		
-		/*
-		log.warn("Initiating page audit = "+audit_record.getId());
-		ActorRef audit_manager = actor_system.actorOf(SpringExtProvider.get(actor_system)
-	   												.props("singlePageAuditManager"), "singlePageAuditManager"+UUID.randomUUID());
-		audit_manager.tell(message, ActorRef.noSender());
-		*/
-    }catch(Exception e) {
-    	e.printStackTrace();
-    	//send audit error message
-    	Map<String, String> attributeMap = new HashMap<>();
-		attributeMap.put("accountId", audit_record_msg.getAccountId());
-		attributeMap.put("domainAuditId", audit_record_msg.getDomainAuditId()+"");
-		attributeMap.put("pageId", audit_record_msg.getPageId()+"");
-		
-		/*
-	    PubsubMessage pubsubMessage = PubsubMessage.newBuilder()
-	            .putAllAttributes(attributeMap)
-	            .setData(ByteString.copyFromUtf8("Audit record not found"))
-	            .setMessageId(UUID.randomUUID().toString())
-	            .build();
-	    */
-		JsonMapper mapper = new JsonMapper().builder().addModule(new JavaTimeModule()).build();;
-	    String audit_record_json = mapper.writeValueAsString(attributeMap);
+		try {
+			Audit title_and_headers = title_and_header_auditor.execute(page, audit_record, null);
+			
+			AuditProgressUpdate audit_update3 = new AuditProgressUpdate(
+														audit_record_msg.getAccountId(),
+														audit_record.getId(),
+														(3.0/5.0),
+														"Checking that page is secure",
+														AuditCategory.INFORMATION_ARCHITECTURE,
+														AuditLevel.PAGE, 
+														audit_record_msg.getDomainId());
+
+			  audit_record_service.addAudit(audit_record_msg.getPageAuditId(), title_and_headers.getId());
+			  audit_record_json = mapper.writeValueAsString(audit_update3);
 				
-		pubSubPublisherImpl.publish(audit_record_json);
-    }
+			  pubSubPageAuditPublisherImpl.publish(audit_record_json);
+			
+		} 
+		catch(Exception e) {
+			AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
+												  audit_record_msg.getPageAuditId(), 
+												  "An error occurred while reviewing page security", 
+												  AuditCategory.INFORMATION_ARCHITECTURE, 
+												  (3.0/5.0),
+												  audit_record_msg.getDomainId());
+			
+			audit_record_json = mapper.writeValueAsString(audit_err);
+			pubSubErrorPublisherImpl.publish(audit_record_json);
+			e.printStackTrace();
+		}
+		
+		try {
+			Audit security = security_audit.execute(page, audit_record, null);
+			
+			AuditProgressUpdate audit_update4 = new AuditProgressUpdate(
+														audit_record_msg.getAccountId(),
+														audit_record.getId(),
+														(4.0/5.0),
+														"Reviewing SEO",
+														AuditCategory.INFORMATION_ARCHITECTURE,
+														AuditLevel.PAGE, 
+														audit_record_msg.getDomainId());
+			
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security.getId());
+			audit_record_json = mapper.writeValueAsString(audit_update4);
+			
+			pubSubPageAuditPublisherImpl.publish(audit_record_json);
+		} 
+		catch(Exception e) {
+			AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
+												  audit_record_msg.getPageAuditId(), 
+												  "An error occurred while reviewing SEO", 
+												  AuditCategory.INFORMATION_ARCHITECTURE, 
+												  (4.0/5.0),
+												  audit_record_msg.getDomainId());
+			
+			//getContext().getParent().tell(audit_err, getSelf());
+			audit_record_json = mapper.writeValueAsString(audit_err);
+			pubSubErrorPublisherImpl.publish(audit_record_json);
+			e.printStackTrace();
+		}
+		
+		try {
+			Audit metadata = metadata_auditor.execute(page, audit_record, null);
+			
+			AuditProgressUpdate audit_update5 = new AuditProgressUpdate(
+														audit_record_msg.getAccountId(),
+														audit_record.getId(),
+														1.0,
+														"Completed information architecture audit",
+														AuditCategory.INFORMATION_ARCHITECTURE,
+														AuditLevel.PAGE, 
+														audit_record_msg.getDomainId());
+			
+			//getSender().tell(audit_update5, getSelf());
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), metadata.getId());
+			audit_record_json = mapper.writeValueAsString(audit_update5);
+				
+			pubSubPageAuditPublisherImpl.publish(audit_record_json);
+		}
+		catch(Exception e) {
+			AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
+												  audit_record_msg.getPageAuditId(), 
+												  "An error occurred while reviewing metadata", 
+												  AuditCategory.INFORMATION_ARCHITECTURE, 
+												  1.0,
+												  audit_record_msg.getDomainId());
+			
+			audit_record_json = mapper.writeValueAsString(audit_err);
+			
+			pubSubErrorPublisherImpl.publish(audit_record_json);
+			e.printStackTrace();
+		}
+	} catch(Exception e) {
+		log.warn("exception caught during Information Architecture audit");
+		e.printStackTrace();
+		log.warn("-------------------------------------------------------------");
+		log.warn("-------------------------------------------------------------");
+		log.warn("THERE WAS AN ISSUE DURING INFO ARCHITECTURE AUDIT");
+		log.warn("-------------------------------------------------------------");
+		log.warn("-------------------------------------------------------------");
+		
+	}
+	finally {
+
+		AuditProgressUpdate audit_update5 = new AuditProgressUpdate(
+														audit_record_msg.getAccountId(),
+														audit_record_msg.getPageAuditId(),
+														1.0,
+														"Completed information architecture audit",
+														AuditCategory.INFORMATION_ARCHITECTURE,
+														AuditLevel.PAGE,
+														audit_record_msg.getDomainId());
+		
+		String audit_record_json = mapper.writeValueAsString(audit_update5);
+		pubSubPageAuditPublisherImpl.publish(audit_record_json);
+	}
+	  
     return new ResponseEntity("Successfully sent message to audit manager", HttpStatus.OK);
     
     /*
