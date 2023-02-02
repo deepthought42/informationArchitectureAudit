@@ -1,4 +1,4 @@
-package com.looksee.informationArchitectureAudit.models.recommend;
+package com.looksee.audit.informationArchitecture.models.recommend;
 
 import java.util.UUID;
 

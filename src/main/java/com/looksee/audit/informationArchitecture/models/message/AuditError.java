@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitectureAudit.models.message;
+package com.looksee.audit.informationArchitecture.models.message;
 
 import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 

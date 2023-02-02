@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitectureAudit.gcp;
+package com.looksee.audit.informationArchitecture.gcp;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;

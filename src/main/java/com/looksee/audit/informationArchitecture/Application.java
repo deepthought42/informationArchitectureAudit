@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitectureAudit;
+package com.looksee.audit.informationArchitecture;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 @PropertySources({
 	@PropertySource("classpath:application.properties")
 })
-@EnableNeo4jRepositories("com.looksee.audit_service.model.repository")
-@EntityScan(basePackages = { "com.looksee.audit.contentAudit.model"} )
+@EnableNeo4jRepositories("com.looksee.audit.informationArchitecture.models.repository")
+@EntityScan(basePackages = { "com.looksee.audit.informationArchitecture.models"} )
 public class Application {
 	@SuppressWarnings("unused")
 	private final Logger log = LoggerFactory.getLogger(this.getClass());

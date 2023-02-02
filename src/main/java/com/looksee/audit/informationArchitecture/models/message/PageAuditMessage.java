@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitectureAudit.models.message;
+package com.looksee.audit.informationArchitecture.models.message;
 
 public class PageAuditMessage extends Message {
 	private long page_audit_id;
@@ -7,12 +7,14 @@ public class PageAuditMessage extends Message {
 	public PageAuditMessage() {}
 	
 	public PageAuditMessage(long account_id,
+							long domain_id,
 							long domain_audit_id,
-							long page_id,
 							long page_audit_id, 
-							long domain_id
+							long page_id
 	) {
 		super(account_id, domain_audit_id, domain_id);
+		setPageAuditId(page_audit_id);
+		setPageId(page_id);
 	}
 
 	public long getPageAuditId() {

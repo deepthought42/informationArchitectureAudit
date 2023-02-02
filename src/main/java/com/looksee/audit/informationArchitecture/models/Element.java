@@ -16,7 +16,6 @@ import org.springframework.data.neo4j.core.schema.Relationship.Direction;
 import com.looksee.audit.informationArchitecture.models.enums.ElementClassification;
 
 
-
 /**
  * Contains all the pertinent information for an element on a page. A ElementState
  *  may be a Parent and/or child of another ElementState. This heirarchy is not

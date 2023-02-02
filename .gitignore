@@ -3,3 +3,18 @@ target/*
 
 *.properties
 src/main/resources/GCP-MyFirstProject-1c31159db52c.json
+/target/
+
+.settings/
+
+GCP-MyFirstProject-1c31159db52c.json
+
+gmail_credentials.json
+
+src/main/resources/application.properties.prod
+
+src/main/resources/auth0.properties.prod
+
+.project
+
+.classpath

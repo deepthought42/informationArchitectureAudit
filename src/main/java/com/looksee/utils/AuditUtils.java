@@ -20,7 +20,6 @@ import com.looksee.audit.informationArchitecture.models.enums.AuditName;
 import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
 
 
-
 public class AuditUtils {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(AuditUtils.class.getName());
@@ -160,14 +159,14 @@ public class AuditUtils {
 	public static boolean isPageAuditComplete(AuditRecord audit_record) {
 		return audit_record.getAestheticAuditProgress() >= 1 
 			&& audit_record.getContentAuditProgress() >= 1
-			&& audit_record.getInfoArchitechtureAuditProgress() >= 1
+			&& audit_record.getContentAuditProgress() >= 1
 			&& audit_record.getDataExtractionProgress() >= 1;
 	}
 
 	public static String getExperienceRating(PageAuditRecord audit_record) {
 		double score = audit_record.getAestheticAuditProgress();
 		score += audit_record.getContentAuditProgress();
-		score += audit_record.getInfoArchitechtureAuditProgress();
+		score += audit_record.getContentAuditProgress();
 		
 		double final_score = score / 3;
 		if(final_score >= 80) {

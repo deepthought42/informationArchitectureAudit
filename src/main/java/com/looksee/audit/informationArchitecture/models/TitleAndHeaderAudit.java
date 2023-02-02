@@ -1,4 +1,4 @@
-package com.looksee.models.audit.informationarchitecture;
+package com.looksee.audit.informationArchitecture.models;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -15,14 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.models.Audit;
-import com.looksee.audit.informationArchitecture.models.AuditRecord;
-import com.looksee.audit.informationArchitecture.models.DesignSystem;
-import com.looksee.audit.informationArchitecture.models.IExecutablePageStateAudit;
-import com.looksee.audit.informationArchitecture.models.PageState;
-import com.looksee.audit.informationArchitecture.models.PageStateIssueMessage;
-import com.looksee.audit.informationArchitecture.models.Score;
-import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
 import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
 import com.looksee.audit.informationArchitecture.models.enums.AuditName;

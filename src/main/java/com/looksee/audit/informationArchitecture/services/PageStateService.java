@@ -10,13 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.looksee.audit.informationArchitecture.models.enums.AuditName;
+import com.looksee.audit.informationArchitecture.models.repository.ElementStateRepository;
+import com.looksee.audit.informationArchitecture.models.repository.PageStateRepository;
 import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.PageAuditRecord;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.Screenshot;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.repository.PageStateRepository;
 
 import io.github.resilience4j.retry.annotation.Retry;
 
@@ -34,6 +35,9 @@ public class PageStateService {
 	
 	@Autowired
 	private PageStateRepository page_state_repo;
+	
+	@Autowired
+	private ElementStateRepository element_state_repo;
 
 	/**
 	 * Save a {@link PageState} object and its associated objects
@@ -81,15 +85,15 @@ public class PageStateService {
 		assert page_key != null;
 		assert !page_key.isEmpty();
 		
-		return page_state_repo.getElementStates(page_key);
+		return element_state_repo.getElementStates(page_key);
 	}
 	
 	public List<ElementState> getElementStates(long page_state_id){
-		return page_state_repo.getElementStates(page_state_id);
+		return element_state_repo.getElementStates(page_state_id);
 	}
 	
 	public List<ElementState> getLinkElementStates(long page_state_id){
-		return page_state_repo.getLinkElementStates(page_state_id);
+		return element_state_repo.getLinkElementStates(page_state_id);
 	}
 	
 	public List<Screenshot> getScreenshots(String user_id, String page_key){
@@ -173,5 +177,13 @@ public class PageStateService {
 
 	public void addAllElements(long page_state_id, List<Long> element_ids) {
 		page_state_repo.addAllElements(page_state_id, element_ids);
+	}
+
+	public PageState findByDomainAudit(long domainAuditRecordId, long page_state_id) {
+		return page_state_repo.findByDomainAudit(domainAuditRecordId, page_state_id);
+	}
+
+	public PageState getPageStateForAuditRecord(long page_audit_id) {
+		return page_state_repo.getPageStateForAuditRecord(page_audit_id);
 	}
 }

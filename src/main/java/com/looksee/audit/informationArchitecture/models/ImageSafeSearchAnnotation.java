@@ -1,9 +1,6 @@
-package com.looksee.audit.informationArchitectureAudit.gcp;
+package com.looksee.audit.informationArchitecture.models;
 
 import java.util.UUID;
-
-import com.looksee.audit.informationArchitecture.models.LookseeObject;
-
 
 public class ImageSafeSearchAnnotation extends LookseeObject{
 	private String spoof;

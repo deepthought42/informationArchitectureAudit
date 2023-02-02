@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitectureAudit.gcp;
+package com.looksee.audit.informationArchitecture.gcp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PubSubPublisherImpl extends PubSubPublisher {
+public class PubSubAuditUpdatePublisherImpl extends PubSubPublisher {
 
-    private static Logger LOG = LoggerFactory.getLogger(PubSubPublisherImpl.class);
+    @SuppressWarnings("unused")
+	private static Logger LOG = LoggerFactory.getLogger(PubSubAuditUpdatePublisherImpl.class);
 
-    @Value("${pubsub.topic}")
+    @Value("${pubsub.audit_update}")
     private String topic;
     
     @Override

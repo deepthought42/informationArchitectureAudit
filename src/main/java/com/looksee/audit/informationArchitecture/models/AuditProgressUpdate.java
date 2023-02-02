@@ -2,7 +2,7 @@ package com.looksee.audit.informationArchitecture.models;
 
 import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitectureAudit.models.message.Message;
+import com.looksee.audit.informationArchitecture.models.message.Message;
 
 /**
  * Intended to contain information about progress an audit

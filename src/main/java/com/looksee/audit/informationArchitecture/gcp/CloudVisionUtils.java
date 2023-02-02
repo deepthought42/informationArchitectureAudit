@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitectureAudit.gcp;
+package com.looksee.audit.informationArchitecture.gcp;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -35,6 +35,7 @@ import com.google.protobuf.ByteString;
 import com.looksee.audit.informationArchitecture.models.ColorUsageStat;
 import com.looksee.audit.informationArchitecture.models.ImageFaceAnnotation;
 import com.looksee.audit.informationArchitecture.models.ImageLandmarkInfo;
+import com.looksee.audit.informationArchitecture.models.ImageSafeSearchAnnotation;
 import com.looksee.audit.informationArchitecture.models.ImageSearchAnnotation;
 import com.looksee.audit.informationArchitecture.models.Label;
 import com.looksee.audit.informationArchitecture.models.LatLng;

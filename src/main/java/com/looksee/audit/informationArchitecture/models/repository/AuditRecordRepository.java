@@ -106,9 +106,6 @@ public interface AuditRecordRepository extends Neo4jRepository<AuditRecord, Long
 	@Deprecated
 	public PageState getPageStateForAuditRecord(@Param("page_audit_key") String page_audit_key);
 
-	@Query("MATCH (page_audit:PageAuditRecord)-[]->(page_state:PageState) WHERE id(page_audit)=$page_audit_id RETURN page_state LIMIT 1")
-	public PageState getPageStateForAuditRecord(@Param("page_audit_id") long page_audit_id);
-	
 	@Query("MATCH (domain_audit:DomainAuditRecord)-[]->(page_state:PageState) WHERE id(domain_audit)=$domain_audit_id RETURN page_state")
 	public Set<PageState> getPageStatesForDomainAuditRecord(@Param("domain_audit_id") long domain_audit_id);
 	
@@ -165,5 +162,8 @@ public interface AuditRecordRepository extends Neo4jRepository<AuditRecord, Long
 
 	@Query("MATCH (audit_record:DomainAuditRecord) WITH audit_record WHERE id(audit_record)=$audit_record_id MATCH (audit_record)-[:HAS]->(page:PageState) WHERE page.url=$page_url RETURN page")
 	public PageState findPageWithUrl(@Param("audit_record_id") long audit_record_id, @Param("page_url") String page_url);
+
+	@Query("MATCH (audit_record:DomainAuditRecord) WITH audit_record WHERE id(audit_record)=$audit_record_id MATCH (audit_record)-[:HAS]->(page:PageState) WHERE id(page)=$page_id RETURN audit_record")
+	public AuditRecord findPageWithId(@Param("audit_record_id") long audit_record_id, @Param("page_id") long page_id);
 	
 }

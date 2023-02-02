@@ -1,4 +1,4 @@
-package com.looksee.informationArchitectureAudit.models.recommend;
+package com.looksee.audit.informationArchitecture.models.recommend;
 
 public class ColorContrastRecommendation extends Recommendation{
 	private String color1_rgb;

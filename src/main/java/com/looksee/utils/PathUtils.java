@@ -23,7 +23,7 @@ public class PathUtils {
 	 * 
 	 * @pre pathObjects != null
 	 */
-	public static com.looksee.audit.informationArchitecture.models.PageState getLastPageStateOLD(List<LookseeObject> path_objects) {
+	public static PageState getLastPageStateOLD(List<LookseeObject> path_objects) {
 		assert(path_objects != null);
 				
 		for(int idx = path_objects.size()-1; idx >= 0; idx--){

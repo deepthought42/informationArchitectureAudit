@@ -8,8 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import com.looksee.audit.informationArchitecture.models.enums.FormType;
-import com.looksee.audit.informationArchitectureAudit.models.message.BugMessage;
-
+import com.looksee.audit.informationArchitecture.models.message.BugMessage;
 
 /**
  * Represents a form tag and the encompassed inputs in a web browser

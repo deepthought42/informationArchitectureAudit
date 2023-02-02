@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
+import com.looksee.audit.informationArchitecture.models.enums.ExecutionStatus;
+import com.looksee.audit.informationArchitecture.models.repository.AuditRecordRepository;
 import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
 import com.looksee.audit.informationArchitecture.models.DesignSystem;
@@ -18,9 +21,6 @@ import com.looksee.audit.informationArchitecture.models.Label;
 import com.looksee.audit.informationArchitecture.models.PageAuditRecord;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.ExecutionStatus;
-import com.looksee.audit.informationArchitecture.models.repository.AuditRecordRepository;
 
 import io.github.resilience4j.retry.annotation.Retry;
 
@@ -267,7 +267,7 @@ public class AuditRecordService {
 	}
 
 	public PageState getPageStateForAuditRecord(long page_audit_id) {
-		return audit_record_repo.getPageStateForAuditRecord(page_audit_id);
+		return page_state_service.getPageStateForAuditRecord(page_audit_id);
 	}
 
 	public Set<UXIssueMessage> getIssues(long audit_record_id) {
@@ -358,8 +358,8 @@ public class AuditRecordService {
 			audit_record.setAestheticMsg(message);
 		}
 		else if(AuditCategory.INFORMATION_ARCHITECTURE.equals(category)) {
-			audit_record.setInfoArchitectureAuditProgress( progress );
-			audit_record.setInfoArchMsg(message);
+			audit_record.setContentAuditProgress( progress );
+			audit_record.setContentAuditMsg(message);
 		}
 		
 		return save(audit_record, account_id, domain_id);
@@ -373,5 +373,15 @@ public class AuditRecordService {
 	 */
 	public PageState findPageWithUrl(long audit_record_id, String url) {
 		return audit_record_repo.findPageWithUrl(audit_record_id, url);
+	}
+	
+	/**
+	 * Retrieves {@link PageState} with given URL for {@link DomainAuditRecord}  
+	 * @param audit_record_id
+	 * @param current_url
+	 * @return
+	 */
+	public AuditRecord findPageWithId(long audit_record_id, long page_id) {
+		return audit_record_repo.findPageWithId(audit_record_id, page_id);
 	}
 }

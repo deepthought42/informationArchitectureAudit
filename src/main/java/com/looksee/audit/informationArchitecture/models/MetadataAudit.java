@@ -1,4 +1,4 @@
-package com.looksee.models.audit.informationarchitecture;
+package com.looksee.audit.informationArchitecture.models;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -14,22 +14,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.models.Audit;
-import com.looksee.audit.informationArchitecture.models.AuditRecord;
-import com.looksee.audit.informationArchitecture.models.DesignSystem;
-import com.looksee.audit.informationArchitecture.models.IExecutablePageStateAudit;
-import com.looksee.audit.informationArchitecture.models.PageState;
-import com.looksee.audit.informationArchitecture.models.Score;
-import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
 import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
 import com.looksee.audit.informationArchitecture.models.enums.AuditName;
 import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
 import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
 import com.looksee.audit.informationArchitecture.models.enums.Priority;
+import com.looksee.audit.informationArchitecture.models.recommend.Recommendation;
 import com.looksee.audit.informationArchitecture.services.AuditService;
 import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
-import com.looksee.informationArchitectureAudit.models.recommend.Recommendation;
 import com.looksee.utils.ContentUtils;
 
 import io.whelk.flesch.kincaid.ReadabilityCalculator;

@@ -7,11 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.looksee.audit.informationArchitecture.models.repository.ColorContrastIssueMessageRepository;
+import com.looksee.audit.informationArchitecture.models.repository.UXIssueMessageRepository;
 import com.looksee.audit.informationArchitecture.models.ColorContrastIssueMessage;
 import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
-import com.looksee.audit.informationArchitecture.models.repository.ColorContrastIssueMessageRepository;
-import com.looksee.audit.informationArchitecture.models.repository.UXIssueMessageRepository;
 
 import io.github.resilience4j.retry.annotation.Retry;
 

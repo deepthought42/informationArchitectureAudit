@@ -17,6 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.looksee.audit.informationArchitecture.models.enums.AuditName;
+import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
+import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
+import com.looksee.audit.informationArchitecture.models.repository.AuditRepository;
 import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.ElementStateIssueMessage;
@@ -26,10 +30,6 @@ import com.looksee.audit.informationArchitecture.models.PageStateAudits;
 import com.looksee.audit.informationArchitecture.models.SimpleElement;
 import com.looksee.audit.informationArchitecture.models.SimplePage;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
-import com.looksee.audit.informationArchitecture.models.repository.AuditRepository;
 
 import io.github.resilience4j.retry.annotation.Retry;
 

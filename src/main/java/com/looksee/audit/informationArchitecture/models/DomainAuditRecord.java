@@ -42,8 +42,8 @@ public class DomainAuditRecord extends AuditRecord {
 		setLevel( AuditLevel.DOMAIN);
 		setStartTime(LocalDateTime.now());
 		setAestheticAuditProgress(0.0);
-		setContentAuditProgress(0.0);
 		setInfoArchitectureAuditProgress(0.0);
+		setContentAuditProgress(0.0);
 		setDataExtractionProgress(0.0);
 		setTotalPages(0);
 		setKey(generateKey());
