@@ -3,19 +3,18 @@ package com.looksee.audit.informationArchitecture.models.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
- * Defines all types of {@link AuditDetail} that exist in the system
+ * ready - ready for expansion
+ * expanded - path has already been expanded and is ready for exploration
  */
-public enum AuditType {
-	TABLE("table"), 
-	FILMSTRIP("filmstrip"), 
-	OPPORTUNITY("opportunity"), 
-	NODE("node"), 
-	DEBUG_DATA("debugdata"), 
-	UNKNOWN("unknown");
+public enum JourneyStatus {
+	READY("READY"), 
+	EXPANDED("EXPANDED"),
+	DISCARDED("DISCARDED"),
+	EXAMINED("EXAMINED");
 	
 	private String shortName;
 
-    AuditType (String shortName) {
+	JourneyStatus (String shortName) {
         this.shortName = shortName;
     }
 
@@ -25,11 +24,11 @@ public enum AuditType {
     }
 
     @JsonCreator
-    public static AuditType create (String value) {
+    public static JourneyStatus create (String value) {
         if(value == null) {
-            return UNKNOWN;
+            throw new IllegalArgumentException();
         }
-        for(AuditType v : values()) {
+        for(JourneyStatus v : values()) {
             if(value.equalsIgnoreCase(v.getShortName())) {
                 return v;
             }

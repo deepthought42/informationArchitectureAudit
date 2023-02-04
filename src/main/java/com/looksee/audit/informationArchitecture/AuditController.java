@@ -39,7 +39,6 @@ import com.looksee.audit.informationArchitecture.gcp.PubSubAuditUpdatePublisherI
 import com.looksee.audit.informationArchitecture.gcp.PubSubErrorPublisherImpl;
 import com.looksee.audit.informationArchitecture.mapper.Body;
 import com.looksee.audit.informationArchitecture.models.Audit;
-import com.looksee.audit.informationArchitecture.models.AuditProgressUpdate;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
 import com.looksee.audit.informationArchitecture.models.LinksAudit;
 import com.looksee.audit.informationArchitecture.models.MetadataAudit;
@@ -49,6 +48,7 @@ import com.looksee.audit.informationArchitecture.models.TitleAndHeaderAudit;
 import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
 import com.looksee.audit.informationArchitecture.models.message.AuditError;
+import com.looksee.audit.informationArchitecture.models.message.AuditProgressUpdate;
 import com.looksee.audit.informationArchitecture.models.message.PageAuditMessage;
 import com.looksee.audit.informationArchitecture.services.AuditRecordService;
 
@@ -76,7 +76,7 @@ public class AuditController {
 	private TitleAndHeaderAudit title_and_header_auditor;
 
 	@Autowired
-	private SecurityAudit security_audit;
+	private SecurityAudit security_auditor;
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public ResponseEntity<String> receiveMessage(@RequestBody Body body) 
@@ -100,12 +100,13 @@ public class AuditController {
 		
     	AuditProgressUpdate audit_update = new AuditProgressUpdate(
 												audit_record_msg.getAccountId(),
-												audit_record.getId(),
+												audit_record_msg.getDomainAuditRecordId(),
 												(1.0/5.0),
 												"Reviewing links",
 												AuditCategory.INFORMATION_ARCHITECTURE,
 												AuditLevel.PAGE, 
-												audit_record_msg.getDomainId());
+												audit_record_msg.getDomainId(),
+												audit_record_msg.getPageAuditId());
 
 	  	
     	String audit_record_json = mapper.writeValueAsString(audit_update);
@@ -116,12 +117,13 @@ public class AuditController {
 	   		
     		AuditProgressUpdate audit_update2 = new AuditProgressUpdate(
 													audit_record_msg.getAccountId(),
-													audit_record.getId(),
+													audit_record_msg.getDomainAuditRecordId(),
 													(2.0/5.0),
 													"Reviewing title and header page title and header",
 													AuditCategory.INFORMATION_ARCHITECTURE,
 													AuditLevel.PAGE, 
-													audit_record_msg.getDomainId());
+													audit_record_msg.getDomainId(),
+													audit_record_msg.getPageAuditId());
 	
     		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), link_audit.getId());
     		audit_record_json = mapper.writeValueAsString(audit_update2);
@@ -130,7 +132,7 @@ public class AuditController {
     	} 
     	catch(Exception e) {
     		AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
-				  								audit_record_msg.getPageAuditId(), 
+												audit_record_msg.getDomainAuditRecordId(),
 				  								"An error occurred while reviewing title and header", 
 				  								AuditCategory.INFORMATION_ARCHITECTURE, 
 				  								(2.0/5.0),
@@ -146,12 +148,13 @@ public class AuditController {
 		
     		AuditProgressUpdate audit_update3 = new AuditProgressUpdate(
 													audit_record_msg.getAccountId(),
-													audit_record.getId(),
+													audit_record_msg.getDomainAuditRecordId(),
 													(3.0/5.0),
 													"Checking that page is secure",
 													AuditCategory.INFORMATION_ARCHITECTURE,
 													AuditLevel.PAGE, 
-													audit_record_msg.getDomainId());
+													audit_record_msg.getDomainId(),
+													audit_record_msg.getPageAuditId());
 
     		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), title_and_headers.getId());
     		audit_record_json = mapper.writeValueAsString(audit_update3);
@@ -172,18 +175,19 @@ public class AuditController {
     	}
 	
     	try {
-    		Audit security = security_audit.execute(page, audit_record, null);
+    		Audit security_audit = security_auditor.execute(page, audit_record, null);
 		
     		AuditProgressUpdate audit_update4 = new AuditProgressUpdate(
 													audit_record_msg.getAccountId(),
-													audit_record.getId(),
+													audit_record_msg.getDomainAuditRecordId(),
 													(4.0/5.0),
 													"Reviewing SEO",
 													AuditCategory.INFORMATION_ARCHITECTURE,
 													AuditLevel.PAGE, 
-													audit_record_msg.getDomainId());
+													audit_record_msg.getDomainId(),
+													audit_record_msg.getPageAuditId());
 		
-			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security.getId());
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security_audit.getId());
 			audit_record_json = mapper.writeValueAsString(audit_update4);
 			
 			audit_update_topic.publish(audit_record_json);
@@ -207,12 +211,13 @@ public class AuditController {
 			
 			AuditProgressUpdate audit_update5 = new AuditProgressUpdate(
 														audit_record_msg.getAccountId(),
-														audit_record.getId(),
+														audit_record_msg.getDomainAuditRecordId(),
 														1.0,
 														"Completed information architecture audit",
 														AuditCategory.INFORMATION_ARCHITECTURE,
 														AuditLevel.PAGE, 
-														audit_record_msg.getDomainId());
+														audit_record_msg.getDomainId(),
+														audit_record_msg.getPageAuditId());
 			
 			//getSender().tell(audit_update5, getSelf());
 			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), metadata.getId());
@@ -222,7 +227,7 @@ public class AuditController {
 		}
 		catch(Exception e) {
 			AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
-												  audit_record_msg.getPageAuditId(), 
+												  audit_record_msg.getDomainAuditRecordId(),
 												  "An error occurred while reviewing metadata", 
 												  AuditCategory.INFORMATION_ARCHITECTURE, 
 												  1.0,
@@ -236,12 +241,13 @@ public class AuditController {
 
 		AuditProgressUpdate audit_update5 = new AuditProgressUpdate(
 														audit_record_msg.getAccountId(),
-														audit_record_msg.getPageAuditId(),
+														audit_record_msg.getDomainAuditRecordId(),
 														1.0,
 														"Completed information architecture audit",
 														AuditCategory.INFORMATION_ARCHITECTURE,
 														AuditLevel.PAGE,
-														audit_record_msg.getDomainId());
+														audit_record_msg.getDomainId(),
+														audit_record_msg.getPageAuditId());
 		
 		audit_record_json = mapper.writeValueAsString(audit_update5);
 		audit_update_topic.publish(audit_record_json);

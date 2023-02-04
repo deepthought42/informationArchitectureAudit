@@ -3,7 +3,9 @@ package com.looksee.audit.informationArchitecture.models.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum FormStatus {
-	DISCOVERED("discovered"), ACTION_REQUIRED("action_required"), CLASSIFIED("classified");
+	DISCOVERED("discovered"), 
+	ACTION_REQUIRED("action_required"), 
+	CLASSIFIED("classified");
 	
 	private String shortName;
 
@@ -22,7 +24,7 @@ public enum FormStatus {
             throw new IllegalArgumentException();
         }
         for(FormStatus v : values()) {
-            if(value.equals(v.getShortName())) {
+            if(value.equalsIgnoreCase(v.getShortName())) {
                 return v;
             }
         }

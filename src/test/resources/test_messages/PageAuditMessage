@@ -1,15 +1,16 @@
 ####################################
 # Test page audit and journey paths
 ###################################
-{
-	"messageId": "28f61eab-228d-4360-9c48-3fb91d136ca2",
-	"publishTime": "2023-01-28T22:12:20.229",
-	"accountId": 0,
-	"domainId": 10859,
-	"domainAuditRecordId": 4237,
-	"pageAuditId": 8333,
-	"pageId": 6730
-}
+
+	{
+		"messageId": "a46748fd-001d-4736-981d-7f0040a01072",
+		"publishTime": "2023-02-03T01:28:57.351",
+		"accountId": 0,
+		"domainId": 10859,
+		"domainAuditRecordId": 4237,
+		"pageId": 25848,
+		"pageAuditId": 28103
+	}
 
 ####################################
 # Test single page audit path
