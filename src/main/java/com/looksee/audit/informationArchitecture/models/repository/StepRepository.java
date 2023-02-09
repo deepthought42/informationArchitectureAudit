@@ -11,8 +11,11 @@ import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.journeys.Step;
 
+import io.github.resilience4j.retry.annotation.Retry;
+
 
 @Repository
+@Retry(name = "neoforj")
 public interface StepRepository extends Neo4jRepository<Step, Long>{
 
 	public Step findByKey(@Param("key") String step_key);

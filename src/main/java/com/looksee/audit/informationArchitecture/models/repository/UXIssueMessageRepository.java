@@ -8,7 +8,10 @@ import org.springframework.stereotype.Repository;
 import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
 
+import io.github.resilience4j.retry.annotation.Retry;
+
 @Repository
+@Retry(name="neoforj")
 public interface UXIssueMessageRepository extends Neo4jRepository<UXIssueMessage, Long>  {
 	public UXIssueMessage findByKey(@Param("key") String key);
 

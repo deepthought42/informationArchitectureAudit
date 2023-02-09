@@ -9,8 +9,11 @@ import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.journeys.SimpleStep;
 
+import io.github.resilience4j.retry.annotation.Retry;
+
 
 @Repository
+@Retry(name = "neoforj")
 public interface SimpleStepRepository extends Neo4jRepository<SimpleStep, Long> {
 
 	@Query("MATCH (step:SimpleStep{key:$step_key}) RETURN step")

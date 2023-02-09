@@ -31,14 +31,11 @@ import com.looksee.audit.informationArchitecture.models.SimpleElement;
 import com.looksee.audit.informationArchitecture.models.SimplePage;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
 
-import io.github.resilience4j.retry.annotation.Retry;
-
 /**
  * Contains business logic for interacting with and managing audits
  *
  */
 @Service
-@Retry(name = "neoforj")
 public class AuditService {
 	private static Logger log = LoggerFactory.getLogger(AuditService.class);
 

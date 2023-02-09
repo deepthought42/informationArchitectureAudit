@@ -10,8 +10,11 @@ import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.TestUser;
 import com.looksee.audit.informationArchitecture.models.journeys.LoginStep;
 
+import io.github.resilience4j.retry.annotation.Retry;
+
 
 @Repository
+@Retry(name = "neoforj")
 public interface LoginStepRepository extends Neo4jRepository<LoginStep, Long> {
 
 	@Query("MATCH (step:LoginStep{key:$step_key}) RETURN step")

@@ -12,11 +12,14 @@ import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
 
+import io.github.resilience4j.retry.annotation.Retry;
+
 
 /**
  * Repository interface for Spring Data Neo4j to handle interactions with {@link Audit} objects
  */
 @Repository
+@Retry(name = "neoforj")
 public interface AuditRepository extends Neo4jRepository<Audit, Long> {
 	public Audit findByKey(@Param("key") String key);
 

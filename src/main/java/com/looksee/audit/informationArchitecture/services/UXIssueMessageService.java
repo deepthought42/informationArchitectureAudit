@@ -13,10 +13,8 @@ import com.looksee.audit.informationArchitecture.models.ColorContrastIssueMessag
 import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
 
-import io.github.resilience4j.retry.annotation.Retry;
 
 @Service
-@Retry(name="neoforj")
 public class UXIssueMessageService {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(UXIssueMessageService.class);

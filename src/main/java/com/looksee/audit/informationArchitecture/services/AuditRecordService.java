@@ -22,14 +22,11 @@ import com.looksee.audit.informationArchitecture.models.PageAuditRecord;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
 
-import io.github.resilience4j.retry.annotation.Retry;
-
 /**
  * Contains business logic for interacting with and managing audits
  *
  */
 @Service
-@Retry(name = "neoforj")
 public class AuditRecordService {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(AuditRecordService.class);
