@@ -23,7 +23,7 @@ import com.looksee.audit.informationArchitecture.services.AuditService;
 import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Responsible for executing an audit on the security on a page for the information architecture audit category
  */
 @Component
 public class SecurityAudit implements IExecutablePageStateAudit {
@@ -43,7 +43,7 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Identifies colors used on page, the color scheme type used, and the ultimately the score for how the colors used conform to scheme
+	 * Checks if 
 	 *  
 	 * @throws MalformedURLException 
 	 * @throws URISyntaxException 
@@ -119,7 +119,7 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 		//page_state = page_state_service.findById(page_state.getId()).get();
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.SECURITY,
-								 AuditName.FONT,
+								 AuditName.ENCRYPTED,
 								 points_earned,
 								 new HashSet<>(),
 								 AuditLevel.PAGE,

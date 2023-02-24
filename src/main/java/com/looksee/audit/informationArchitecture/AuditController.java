@@ -33,10 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.looksee.audit.informationArchitecture.gcp.PubSubAuditUpdatePublisherImpl;
-import com.looksee.audit.informationArchitecture.gcp.PubSubErrorPublisherImpl;
 import com.looksee.audit.informationArchitecture.mapper.Body;
 import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
@@ -45,10 +41,6 @@ import com.looksee.audit.informationArchitecture.models.MetadataAudit;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.SecurityAudit;
 import com.looksee.audit.informationArchitecture.models.TitleAndHeaderAudit;
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.message.AuditError;
-import com.looksee.audit.informationArchitecture.models.message.AuditProgressUpdate;
 import com.looksee.audit.informationArchitecture.models.message.PageAuditMessage;
 import com.looksee.audit.informationArchitecture.services.AuditRecordService;
 
@@ -60,12 +52,6 @@ public class AuditController {
 	@Autowired
 	private AuditRecordService audit_record_service;
 	
-	@Autowired
-	private PubSubAuditUpdatePublisherImpl audit_update_topic;
-	
-	@Autowired
-	private PubSubErrorPublisherImpl pubSubErrorPublisherImpl;
-
 	@Autowired
 	private LinksAudit links_auditor;
 	
@@ -90,18 +76,20 @@ public class AuditController {
 	    ObjectMapper input_mapper = new ObjectMapper();
 	    PageAuditMessage audit_record_msg = input_mapper.readValue(target, PageAuditMessage.class);
 	    
-	    JsonMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+	    //JsonMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 	    
     	AuditRecord audit_record = audit_record_service.findById(audit_record_msg.getPageAuditId()).get();
 	  
     	log.warn("audit record id : " + audit_record.getId());
     	PageState page = audit_record_service.getPageStateForAuditRecord(audit_record.getId());
     	//generate audit report
+    	
+    	/*
 		
     	AuditProgressUpdate audit_update = new AuditProgressUpdate(
 												audit_record_msg.getAccountId(),
 												audit_record_msg.getDomainAuditRecordId(),
-												(1.0/5.0),
+												0.05,
 												"Reviewing links",
 												AuditCategory.INFORMATION_ARCHITECTURE,
 												AuditLevel.PAGE, 
@@ -111,10 +99,12 @@ public class AuditController {
 	  	
     	String audit_record_json = mapper.writeValueAsString(audit_update);
     	audit_update_topic.publish(audit_record_json);
-	  
+	  */
     	try {
     		Audit link_audit = links_auditor.execute(page, audit_record, null);
-	   		
+    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), link_audit.getId());
+
+    		/*
     		AuditProgressUpdate audit_update2 = new AuditProgressUpdate(
 													audit_record_msg.getAccountId(),
 													audit_record_msg.getDomainAuditRecordId(),
@@ -125,12 +115,14 @@ public class AuditController {
 													audit_record_msg.getDomainId(),
 													audit_record_msg.getPageAuditId());
 	
-    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), link_audit.getId());
+    		
     		audit_record_json = mapper.writeValueAsString(audit_update2);
 			
-    		audit_update_topic.publish(audit_record_json);	
+    		audit_update_topic.publish(audit_record_json);
+    		*/
     	} 
     	catch(Exception e) {
+    		/*
     		AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
 												audit_record_msg.getDomainAuditRecordId(),
 				  								"An error occurred while reviewing title and header", 
@@ -138,14 +130,17 @@ public class AuditController {
 				  								(2.0/5.0),
 				  								audit_record_msg.getDomainId());
 		
-    		e.printStackTrace();
     		audit_record_json = mapper.writeValueAsString(audit_err);
     		pubSubErrorPublisherImpl.publish(audit_record_json);
+*/
+    		e.printStackTrace();
     	}
 	
     	try {
     		Audit title_and_headers = title_and_header_auditor.execute(page, audit_record, null);
-		
+    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), title_and_headers.getId());
+
+    		/*
     		AuditProgressUpdate audit_update3 = new AuditProgressUpdate(
 													audit_record_msg.getAccountId(),
 													audit_record_msg.getDomainAuditRecordId(),
@@ -156,12 +151,13 @@ public class AuditController {
 													audit_record_msg.getDomainId(),
 													audit_record_msg.getPageAuditId());
 
-    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), title_and_headers.getId());
     		audit_record_json = mapper.writeValueAsString(audit_update3);
 			
     		audit_update_topic.publish(audit_record_json);
+    		*/
     	} 
     	catch(Exception e) {
+    		/*
     		AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
 											  audit_record_msg.getPageAuditId(), 
 											  "An error occurred while reviewing page security", 
@@ -171,12 +167,16 @@ public class AuditController {
 		
     		audit_record_json = mapper.writeValueAsString(audit_err);
     		pubSubErrorPublisherImpl.publish(audit_record_json);
+    		*/
+    		
     		e.printStackTrace();
     	}
 	
     	try {
     		Audit security_audit = security_auditor.execute(page, audit_record, null);
-		
+    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security_audit.getId());
+
+    		/*
     		AuditProgressUpdate audit_update4 = new AuditProgressUpdate(
 													audit_record_msg.getAccountId(),
 													audit_record_msg.getDomainAuditRecordId(),
@@ -187,12 +187,12 @@ public class AuditController {
 													audit_record_msg.getDomainId(),
 													audit_record_msg.getPageAuditId());
 		
-			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security_audit.getId());
 			audit_record_json = mapper.writeValueAsString(audit_update4);
-			
 			audit_update_topic.publish(audit_record_json);
+    		 */
     	} 
     	catch(Exception e) {
+    		/*
 			AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
 												  audit_record_msg.getPageAuditId(), 
 												  "An error occurred while reviewing SEO", 
@@ -203,12 +203,15 @@ public class AuditController {
 			//getContext().getParent().tell(audit_err, getSelf());
 			audit_record_json = mapper.writeValueAsString(audit_err);
 			pubSubErrorPublisherImpl.publish(audit_record_json);
+			*/
 			e.printStackTrace();
     	}
 	
 		try {
 			Audit metadata = metadata_auditor.execute(page, audit_record, null);
-			
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), metadata.getId());
+
+			/*
 			AuditProgressUpdate audit_update5 = new AuditProgressUpdate(
 														audit_record_msg.getAccountId(),
 														audit_record_msg.getDomainAuditRecordId(),
@@ -220,12 +223,13 @@ public class AuditController {
 														audit_record_msg.getPageAuditId());
 			
 			//getSender().tell(audit_update5, getSelf());
-			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), metadata.getId());
 			audit_record_json = mapper.writeValueAsString(audit_update5);
 				
 			audit_update_topic.publish(audit_record_json);
+			*/
 		}
 		catch(Exception e) {
+			/*
 			AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
 												  audit_record_msg.getDomainAuditRecordId(),
 												  "An error occurred while reviewing metadata", 
@@ -236,9 +240,11 @@ public class AuditController {
 			audit_record_json = mapper.writeValueAsString(audit_err);
 			
 			pubSubErrorPublisherImpl.publish(audit_record_json);
+			*/
 			e.printStackTrace();
 		}
 
+		/*
 		AuditProgressUpdate audit_update5 = new AuditProgressUpdate(
 														audit_record_msg.getAccountId(),
 														audit_record_msg.getDomainAuditRecordId(),
@@ -251,7 +257,7 @@ public class AuditController {
 		
 		audit_record_json = mapper.writeValueAsString(audit_update5);
 		audit_update_topic.publish(audit_record_json);
-	  
+	  */
     return new ResponseEntity<String>("Successfully audited information architecture", HttpStatus.OK);
   }
   
