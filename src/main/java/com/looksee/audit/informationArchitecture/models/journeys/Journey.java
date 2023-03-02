@@ -25,6 +25,7 @@ public class Journey extends LookseeObject {
 	private List<Long> orderedIds;
 	
 	public Journey() {
+		super();
 		setSteps(new ArrayList<>());
 		setOrderedIds(new ArrayList<>());
 		setKey(generateKey());
