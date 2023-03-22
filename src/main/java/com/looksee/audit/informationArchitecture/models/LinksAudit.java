@@ -76,6 +76,8 @@ public class LinksAudit implements IExecutablePageStateAudit {
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
 		assert page_state != null;
 		assert audit_record != null;
+
+		//check if page state already had a link audit performed.
 		
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
 		List<ElementState> link_elements = page_state_service.getLinkElementStates(page_state.getId());

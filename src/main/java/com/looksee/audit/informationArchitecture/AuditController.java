@@ -18,6 +18,7 @@ package com.looksee.audit.informationArchitecture;
 // [START cloudrun_pubsub_handler]
 // [START run_pubsub_handler]
 import java.util.Base64;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ import com.looksee.audit.informationArchitecture.models.MetadataAudit;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.SecurityAudit;
 import com.looksee.audit.informationArchitecture.models.TitleAndHeaderAudit;
+import com.looksee.audit.informationArchitecture.models.enums.AuditName;
+import com.looksee.audit.informationArchitecture.models.enums.AuditType;
 import com.looksee.audit.informationArchitecture.models.message.PageAuditMessage;
 import com.looksee.audit.informationArchitecture.services.AuditRecordService;
 
@@ -76,14 +79,13 @@ public class AuditController {
 	    ObjectMapper input_mapper = new ObjectMapper();
 	    PageAuditMessage audit_record_msg = input_mapper.readValue(target, PageAuditMessage.class);
 	    
-	    //JsonMapper mapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
-	    
+	    log.warn("page audit record id = "+audit_record_msg.getPageAuditId());
     	AuditRecord audit_record = audit_record_service.findById(audit_record_msg.getPageAuditId()).get();
 	  
     	log.warn("audit record id : " + audit_record.getId());
     	PageState page = audit_record_service.getPageStateForAuditRecord(audit_record.getId());
-    	//generate audit report
     	
+    	Set<Audit> audits = audit_record_service.getAllAudits(audit_record.getId());
     	/*
 		
     	AuditProgressUpdate audit_update = new AuditProgressUpdate(
@@ -101,8 +103,10 @@ public class AuditController {
     	audit_update_topic.publish(audit_record_json);
 	  */
     	try {
-    		Audit link_audit = links_auditor.execute(page, audit_record, null);
-    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), link_audit.getId());
+    		if(!auditAlreadyExists(audits, AuditName.LINKS)) {    			
+    			Audit link_audit = links_auditor.execute(page, audit_record, null);
+    			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), link_audit.getId());
+    		}
 
     		/*
     		AuditProgressUpdate audit_update2 = new AuditProgressUpdate(
@@ -137,9 +141,10 @@ public class AuditController {
     	}
 	
     	try {
-    		Audit title_and_headers = title_and_header_auditor.execute(page, audit_record, null);
-    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), title_and_headers.getId());
-
+    		if(!auditAlreadyExists(audits, AuditName.TITLES)) {    				
+	    		Audit title_and_headers = title_and_header_auditor.execute(page, audit_record, null);
+	    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), title_and_headers.getId());
+    		}
     		/*
     		AuditProgressUpdate audit_update3 = new AuditProgressUpdate(
 													audit_record_msg.getAccountId(),
@@ -173,9 +178,11 @@ public class AuditController {
     	}
 	
     	try {
-    		Audit security_audit = security_auditor.execute(page, audit_record, null);
-    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security_audit.getId());
-
+    		if(!auditAlreadyExists(audits, AuditName.ENCRYPTED)) {    			
+	    		Audit security_audit = security_auditor.execute(page, audit_record, null);
+	    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security_audit.getId());
+    		}
+    		
     		/*
     		AuditProgressUpdate audit_update4 = new AuditProgressUpdate(
 													audit_record_msg.getAccountId(),
@@ -208,9 +215,10 @@ public class AuditController {
     	}
 	
 		try {
-			Audit metadata = metadata_auditor.execute(page, audit_record, null);
-			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), metadata.getId());
-
+    		if(!auditAlreadyExists(audits, AuditName.METADATA)) {    			
+				Audit metadata = metadata_auditor.execute(page, audit_record, null);
+				audit_record_service.addAudit(audit_record_msg.getPageAuditId(), metadata.getId());
+    		}
 			/*
 			AuditProgressUpdate audit_update5 = new AuditProgressUpdate(
 														audit_record_msg.getAccountId(),
@@ -260,5 +268,29 @@ public class AuditController {
 	  */
     return new ResponseEntity<String>("Successfully audited information architecture", HttpStatus.OK);
   }
+
+	/**
+	 * Checks if the any of the provided {@link Audit audits} have a name that matches 
+	 * 		the provided {@linkplain AuditName}
+	 * 
+	 * @param audits
+	 * @param audit_name
+	 * 
+	 * @return
+	 * 
+	 * @pre audits != null
+	 * @pre audit_name != null
+	 */
+	private boolean auditAlreadyExists(Set<Audit> audits, AuditName audit_name) {
+		assert audits != null;
+		assert audit_name != null;
+		
+		for(Audit audit : audits) {
+			if(audit_name.equals(audit.getName())) {
+				return true;
+			}
+		}
+		return false;
+	}
   
 }
