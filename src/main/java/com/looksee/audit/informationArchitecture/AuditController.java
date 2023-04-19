@@ -43,9 +43,9 @@ import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.SecurityAudit;
 import com.looksee.audit.informationArchitecture.models.TitleAndHeaderAudit;
 import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditType;
 import com.looksee.audit.informationArchitecture.models.message.PageAuditMessage;
 import com.looksee.audit.informationArchitecture.services.AuditRecordService;
+import com.looksee.audit.informationArchitecture.services.PageStateService;
 
 // PubsubController consumes a Pub/Sub message.
 @RestController
@@ -67,6 +67,9 @@ public class AuditController {
 	@Autowired
 	private SecurityAudit security_auditor;
 	
+	@Autowired
+	private PageStateService page_state_service;
+	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public ResponseEntity<String> receiveMessage(@RequestBody Body body) 
 			throws JsonMappingException, JsonProcessingException, ExecutionException, InterruptedException 
@@ -83,7 +86,7 @@ public class AuditController {
     	AuditRecord audit_record = audit_record_service.findById(audit_record_msg.getPageAuditId()).get();
 	  
     	log.warn("audit record id : " + audit_record.getId());
-    	PageState page = audit_record_service.getPageStateForAuditRecord(audit_record.getId());
+    	PageState page = page_state_service.getPageStateForAuditRecord(audit_record.getId());
     	
     	Set<Audit> audits = audit_record_service.getAllAudits(audit_record.getId());
     	/*

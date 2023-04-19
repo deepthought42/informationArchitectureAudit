@@ -121,7 +121,7 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 								 AuditSubcategory.SECURITY,
 								 AuditName.ENCRYPTED,
 								 points_earned,
-								 new HashSet<>(),
+								 issue_messages,
 								 AuditLevel.PAGE,
 								 max_points,
 								 page_state.getUrl(), 
@@ -129,9 +129,9 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 								 description,
 								 false);
 		
-		audit_service.save(audit);
-		audit_service.addAllIssues(audit.getId(), issue_messages);
-		return audit;
+		return audit_service.save(audit);
+		//audit_service.addAllIssues(audit.getId(), issue_messages);
+		//return audit;
 	}
 	
 

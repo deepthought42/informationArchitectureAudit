@@ -423,6 +423,8 @@ public class BrowserService {
         
         //scroll to bottom then back to top to make sure all elements that may be hidden until the page is scrolled
 		String source = browser.getDriver().getPageSource();
+		
+		log.warn("Source = "+source.length());
 		String title = browser.getDriver().getTitle();
 
 		//List<ElementState> elements = extractElementStates(source, url, browser);

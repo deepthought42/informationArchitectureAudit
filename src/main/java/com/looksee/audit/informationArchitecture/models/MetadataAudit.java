@@ -51,7 +51,10 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 	 * @throws URISyntaxException 
 	 */
 	@Override
-	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
+	public Audit execute(PageState page_state, 
+						 AuditRecord audit_record, 
+						 DesignSystem design_system) 
+	{
 		assert page_state != null;
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
 		//List<PageVersion> pages = domain_service.getPages(domain.getHost());
@@ -81,7 +84,7 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 								 AuditSubcategory.SEO,
 								 AuditName.METADATA,
 								 points_earned,
-								 new HashSet<>(),
+								 issue_messages,
 								 AuditLevel.PAGE,
 								 max_points,
 								 page_state.getUrl(), 
@@ -89,9 +92,9 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 								 description, 
 								 false);
 		
-		audit_service.save(audit);
-		audit_service.addAllIssues(audit.getId(), issue_messages);
-		return audit;
+		return audit_service.save(audit);
+		//audit_service.addAllIssues(audit.getId(), issue_messages);
+	//	return audit;
 	}
 
 	/**

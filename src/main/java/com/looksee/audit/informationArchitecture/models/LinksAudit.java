@@ -95,6 +95,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 			Document jsoup_doc = Jsoup.parseBodyFragment(link.getOuterHtml(), page_state.getUrl());
 			Element element = jsoup_doc.getElementsByTag("a").first();
 
+			log.warn("Evaluating link..."+link.getId());
 			if( element.hasAttr("href") ) {
 				String recommendation = "Make sure links have a url set for the href value.";
 				String description = "Link has href attribute";
@@ -138,7 +139,9 @@ public class LinksAudit implements IExecutablePageStateAudit {
 				issue_messages.add(issue_message);
 				continue;
 			}
+			
 			String href = element.attr("href");
+			log.warn("evaluating href value = "+href);
 
 			//if href is a mailto link then give score full remaining value and continue
 			if(href.startsWith("mailto:")) {
@@ -190,7 +193,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 					&& ("presentation".contentEquals(element.attr("role")) 
 							|| "none".contentEquals(element.attr("role")))){
 				//Skip this element because the prensentation/none role removes all semantic meaning from element
-				continue;
+				//continue;
 			}
 
 			//does element have an href value?
@@ -608,7 +611,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 								 AuditSubcategory.NAVIGATION,
 								 AuditName.LINKS,
 								 points_earned,
-								 new HashSet<>(),
+								 issue_messages,
 								 AuditLevel.PAGE,
 								 max_points,
 								 page_state.getUrl(),
@@ -616,8 +619,8 @@ public class LinksAudit implements IExecutablePageStateAudit {
 								 description,
 								 true); 
 		
-		audit_service.save(audit);
-		audit_service.addAllIssues(audit.getId(), issue_messages);
-		return audit;
+		return audit_service.save(audit);
+		//audit_service.addAllIssues(audit.getId(), issue_messages);
+		//return audit;
 	}
 }

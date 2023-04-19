@@ -93,7 +93,7 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 								 AuditSubcategory.SEO,
 								 AuditName.TITLES,
 								 points_earned,
-								 new HashSet<>(),
+								 issue_messages,
 								 AuditLevel.PAGE,
 								 max_points,
 								 page_state.getUrl(),
@@ -101,9 +101,9 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 								 description, 
 								 true);
 		
-		audit_service.save(audit);
-		audit_service.addAllIssues(audit.getId(), issue_messages);
-		return audit;
+		return audit_service.save(audit);
+		//audit_service.addAllIssues(audit.getId(), issue_messages);
+		//return audit;
 	}
 
 	/**
