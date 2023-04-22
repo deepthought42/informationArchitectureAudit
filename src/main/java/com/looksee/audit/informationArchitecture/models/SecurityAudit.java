@@ -67,18 +67,17 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 			Set<Recommendation> recommendations = new HashSet<>();
 			//recommendations.add(new Recommendation(recommendation));
 			
-			UXIssueMessage ux_issue = new UXIssueMessage(
-											Priority.HIGH,
-											description,
-											ObservationType.SECURITY,
-											AuditCategory.INFORMATION_ARCHITECTURE,
-											wcag_compliance,
-											labels,
-											why_it_matters,
-											title,
-											0, 
-											1, 
-											recommendation);
+			UXIssueMessage ux_issue = new UXIssueMessage(Priority.HIGH,
+														description,
+														ObservationType.SECURITY,
+														AuditCategory.INFORMATION_ARCHITECTURE,
+														wcag_compliance,
+														labels,
+														why_it_matters,
+														title,
+														0, 
+														1, 
+														recommendation);
 			
 			issue_messages.add(issue_message_service.save(ux_issue));
 		}
@@ -90,18 +89,17 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 			Set<Recommendation> recommendations = new HashSet<>();
 			//recommendations.add(new Recommendation(recommendation));
 			
-			UXIssueMessage ux_issue = new UXIssueMessage(
-											Priority.NONE,
-											description,
-											ObservationType.SECURITY,
-											AuditCategory.INFORMATION_ARCHITECTURE,
-											wcag_compliance,
-											labels,
-											why_it_matters,
-											title,
-											1, 
-											1, 
-											recommendation);
+			UXIssueMessage ux_issue = new UXIssueMessage(Priority.NONE,
+														description,
+														ObservationType.SECURITY,
+														AuditCategory.INFORMATION_ARCHITECTURE,
+														wcag_compliance,
+														labels,
+														why_it_matters,
+														title,
+														1, 
+														1, 
+														recommendation);
 
 			issue_messages.add(issue_message_service.save(ux_issue));
 		}

@@ -82,15 +82,12 @@ public class AuditController {
 	    ObjectMapper input_mapper = new ObjectMapper();
 	    PageAuditMessage audit_record_msg = input_mapper.readValue(target, PageAuditMessage.class);
 	    
-	    log.warn("page audit record id = "+audit_record_msg.getPageAuditId());
     	AuditRecord audit_record = audit_record_service.findById(audit_record_msg.getPageAuditId()).get();
-	  
-    	log.warn("audit record id : " + audit_record.getId());
     	PageState page = page_state_service.getPageStateForAuditRecord(audit_record.getId());
     	
     	Set<Audit> audits = audit_record_service.getAllAudits(audit_record.getId());
+    	
     	/*
-		
     	AuditProgressUpdate audit_update = new AuditProgressUpdate(
 												audit_record_msg.getAccountId(),
 												audit_record_msg.getDomainAuditRecordId(),
@@ -104,8 +101,9 @@ public class AuditController {
 	  	
     	String audit_record_json = mapper.writeValueAsString(audit_update);
     	audit_update_topic.publish(audit_record_json);
-	  */
-    	try {
+	    */
+    	
+    	//try {
     		if(!auditAlreadyExists(audits, AuditName.LINKS)) {    			
     			Audit link_audit = links_auditor.execute(page, audit_record, null);
     			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), link_audit.getId());
@@ -126,9 +124,9 @@ public class AuditController {
     		audit_record_json = mapper.writeValueAsString(audit_update2);
 			
     		audit_update_topic.publish(audit_record_json);
-    		*/
     	} 
     	catch(Exception e) {
+    		 */
     		/*
     		AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
 												audit_record_msg.getDomainAuditRecordId(),
@@ -139,11 +137,12 @@ public class AuditController {
 		
     		audit_record_json = mapper.writeValueAsString(audit_err);
     		pubSubErrorPublisherImpl.publish(audit_record_json);
-*/
+    		
     		e.printStackTrace();
     	}
+    		 */
 	
-    	try {
+//    	try {
     		if(!auditAlreadyExists(audits, AuditName.TITLES)) {    				
 	    		Audit title_and_headers = title_and_header_auditor.execute(page, audit_record, null);
 	    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), title_and_headers.getId());
@@ -162,9 +161,9 @@ public class AuditController {
     		audit_record_json = mapper.writeValueAsString(audit_update3);
 			
     		audit_update_topic.publish(audit_record_json);
-    		*/
     	} 
     	catch(Exception e) {
+    		 */
     		/*
     		AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
 											  audit_record_msg.getPageAuditId(), 
@@ -175,12 +174,12 @@ public class AuditController {
 		
     		audit_record_json = mapper.writeValueAsString(audit_err);
     		pubSubErrorPublisherImpl.publish(audit_record_json);
-    		*/
     		
     		e.printStackTrace();
     	}
+    		 */
 	
-    	try {
+    	//try {
     		if(!auditAlreadyExists(audits, AuditName.ENCRYPTED)) {    			
 	    		Audit security_audit = security_auditor.execute(page, audit_record, null);
 	    		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security_audit.getId());
@@ -199,9 +198,9 @@ public class AuditController {
 		
 			audit_record_json = mapper.writeValueAsString(audit_update4);
 			audit_update_topic.publish(audit_record_json);
-    		 */
     	} 
     	catch(Exception e) {
+    		 */
     		/*
 			AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
 												  audit_record_msg.getPageAuditId(), 
@@ -213,11 +212,11 @@ public class AuditController {
 			//getContext().getParent().tell(audit_err, getSelf());
 			audit_record_json = mapper.writeValueAsString(audit_err);
 			pubSubErrorPublisherImpl.publish(audit_record_json);
-			*/
 			e.printStackTrace();
     	}
+    		 */
 	
-		try {
+	//	try {
     		if(!auditAlreadyExists(audits, AuditName.METADATA)) {    			
 				Audit metadata = metadata_auditor.execute(page, audit_record, null);
 				audit_record_service.addAudit(audit_record_msg.getPageAuditId(), metadata.getId());
@@ -237,9 +236,9 @@ public class AuditController {
 			audit_record_json = mapper.writeValueAsString(audit_update5);
 				
 			audit_update_topic.publish(audit_record_json);
-			*/
 		}
 		catch(Exception e) {
+			 */
 			/*
 			AuditError audit_err = new AuditError(audit_record_msg.getAccountId(), 
 												  audit_record_msg.getDomainAuditRecordId(),
@@ -251,9 +250,9 @@ public class AuditController {
 			audit_record_json = mapper.writeValueAsString(audit_err);
 			
 			pubSubErrorPublisherImpl.publish(audit_record_json);
-			*/
 			e.printStackTrace();
 		}
+			 */
 
 		/*
 		AuditProgressUpdate audit_update5 = new AuditProgressUpdate(

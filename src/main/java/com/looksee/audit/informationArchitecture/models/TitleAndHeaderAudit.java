@@ -19,6 +19,7 @@ import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
 import com.looksee.audit.informationArchitecture.models.enums.AuditName;
 import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
+import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
 import com.looksee.audit.informationArchitecture.models.enums.Priority;
 import com.looksee.audit.informationArchitecture.services.AuditService;
 import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
@@ -57,6 +58,8 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 
 		Score title_score = scorePageTitles(page_state);
 		Score favicon_score = scoreFavicon(page_state);
+		
+		//TODO : heading scores need to have issue messages created and added to issues list
 		Score heading_score = scoreHeadings(page_state);
 		
 		issue_messages.addAll(title_score.getIssueMessages());
@@ -250,21 +253,21 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 			String title = "Favicon is present and accounted for";
 			String description = "Well done! This page has a favicon defined which helps improve recognition of your brand by showing the icon in the browser tab. When users open another tab they'll be able to easily identify which tab is your website.";
 			String recommendation = "";
-
-			PageStateIssueMessage favicon_issue = new PageStateIssueMessage(
-															null, 
+			
+			UXIssueMessage favicon_issue = new UXIssueMessage(Priority.NONE,
 															description, 
-															recommendation,
-															Priority.HIGH, 
+															ObservationType.PAGE_STATE,
 															AuditCategory.INFORMATION_ARCHITECTURE,
-															labels,
 															ada_compliance,
+															labels,
+															"",
 															title,
 															1,
-															1);
+															1,
+															recommendation);
 			
-			favicon_issue = (PageStateIssueMessage) issue_message_service.save(favicon_issue);
-			issue_message_service.addPage(favicon_issue.getId(), page_state.getId());
+			favicon_issue = issue_message_service.save(favicon_issue);
+			//issue_message_service.addPage(favicon_issue.getId(), page_state.getId());
 			issue_messages.add(favicon_issue);
 		}
 		else {
@@ -274,21 +277,21 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 			String title = "favicon is missing";
 			String description = "Your page doesn't have a favicon defined. This results in browser tabs not displaying your logo which can reduce recognition of your website when users leave your site temporarily.";
 			String recommendation = "Create an icon that is 16x16 for your brand logo and include it as your favicon by inclding the following code in your head tag <link rel=\"shortcut icon\" href=\"your_favicon.ico\" type=\"image/x-icon\"> . Don't forget to put the location of your favicon in place of the href value";
-
-			PageStateIssueMessage favicon_issue = new PageStateIssueMessage(
-															null, 
-															description, 
-															recommendation,
-															Priority.HIGH, 
-															AuditCategory.INFORMATION_ARCHITECTURE,
-															labels,
-															ada_compliance,
-															title,
-															0,
-															1);
 			
-			favicon_issue = (PageStateIssueMessage) issue_message_service.save(favicon_issue);
-			issue_message_service.addPage(favicon_issue.getId(), page_state.getId());
+			UXIssueMessage favicon_issue = new UXIssueMessage(Priority.HIGH,
+																description, 
+																ObservationType.PAGE_STATE,
+																AuditCategory.INFORMATION_ARCHITECTURE,
+																ada_compliance,
+																labels,
+																"",
+																title,
+																0,
+																1,
+																recommendation);
+			
+			favicon_issue = issue_message_service.save(favicon_issue);
+			//issue_message_service.addPage(favicon_issue.getId(), page_state.getId());
 			issue_messages.add(favicon_issue);
 			points += 0;			
 		}
@@ -343,20 +346,20 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 			Set<String> categories = new HashSet<>();
 			categories.add(AuditCategory.AESTHETICS.toString());
 
-			PageStateIssueMessage title_issue = new PageStateIssueMessage(
-															null, 
+			UXIssueMessage title_issue = new UXIssueMessage(Priority.NONE,
 															description, 
-															recommendation,
-															Priority.HIGH,
+															ObservationType.PAGE_STATE,
 															AuditCategory.INFORMATION_ARCHITECTURE,
-															labels,
 															ada_compliance,
+															labels,
+															"",
 															issue_title,
 															1,
-															1);
-
-			title_issue = (PageStateIssueMessage) issue_message_service.save(title_issue);
-			issue_message_service.addPage(title_issue.getId(), page_state.getId());
+															1,
+															recommendation);
+			
+			title_issue = issue_message_service.save(title_issue);
+			//issue_message_service.addPage(title_issue.getId(), page_state.getId());
 			issue_messages.add(title_issue);
 		}
 		else {
@@ -370,22 +373,21 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 			Set<String> categories = new HashSet<>();
 			categories.add(AuditCategory.AESTHETICS.toString());
 
-			PageStateIssueMessage title_issue = new PageStateIssueMessage(
-															null, 
+			UXIssueMessage title_issue = new UXIssueMessage(Priority.HIGH,
 															description, 
-															recommendation,
-															Priority.HIGH,
+															ObservationType.PAGE_STATE,
 															AuditCategory.INFORMATION_ARCHITECTURE,
-															labels,
 															ada_compliance,
+															labels,
+															"",
 															issue_title,
 															0,
-															1);
+															1,
+															recommendation);
 			
-			title_issue = (PageStateIssueMessage) issue_message_service.save(title_issue);
-			issue_message_service.addPage(title_issue.getId(), page_state.getId());
+			title_issue = issue_message_service.save(title_issue);
+			//issue_message_service.addPage(title_issue.getId(), page_state.getId());
 			issue_messages.add(title_issue);
-			points += 0;				
 		}
 		
 		return new Score(points, max_points, issue_messages);

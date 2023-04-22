@@ -97,6 +97,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 
 			log.warn("Evaluating link..."+link.getId());
 			if( element.hasAttr("href") ) {
+				log.warn("link has href value present ");
 				String recommendation = "Make sure links have a url set for the href value.";
 				String description = "Link has href attribute";
 				String title = "Link has href attribute";
@@ -105,7 +106,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE,
 																description,
 																recommendation, 
-																null,
+																link,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -113,7 +114,9 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																1,
 																1);
 
+				
 				issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
+				log.warn("adding link = "+link.getId() + " to issue message = "+issue_message.getId());
 				issue_message_service.addElement(issue_message.getId(), link.getId());
 				issue_messages.add(issue_message);
 			}
@@ -126,7 +129,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.HIGH,
 																description,
 																recommendation, 
-																null,
+																link,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -153,7 +156,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE,
 																description,
 																recommendation, 
-																null,
+																link,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -176,7 +179,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE,
 																description,
 																recommendation, 
-																null,
+																link,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -206,7 +209,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE, 
 																description, 
 																recommendation, 
-																null,
+																link,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -227,7 +230,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.HIGH, 
 																description, 
 																recommendation, 
-																null,
+																link,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -272,7 +275,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE, 
 																description, 
 																recommendation, 
-																null,
+																link,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -292,7 +295,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.HIGH, 
 																description, 
 																recommendation, 
-																null,
+																link,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -318,7 +321,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	Priority.HIGH,
 																	description,
 																	recommendation, 
-																	null,
+																	link,
 																	AuditCategory.INFORMATION_ARCHITECTURE,
 																	labels,
 																	ada_compliance,
@@ -340,7 +343,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																		Priority.NONE,
 																		description,
 																		recommendation, 
-																		null,
+																		link,
 																		AuditCategory.INFORMATION_ARCHITECTURE,
 																		labels,
 																		ada_compliance,
@@ -361,7 +364,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																		Priority.HIGH,
 																		description,
 																		recommendation, 
-																		null,
+																		link,
 																		AuditCategory.INFORMATION_ARCHITECTURE,
 																		labels,
 																		ada_compliance,
@@ -385,7 +388,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.HIGH,
 																description,
 																recommendation, 
-																null, 
+																link, 
 																AuditCategory.INFORMATION_ARCHITECTURE, 
 																labels,
 																ada_compliance,
@@ -394,7 +397,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																4);
 
 				issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-				issue_message_service.addElement(issue_message.getId(), link.getId());
+				//issue_message_service.addElement(issue_message.getId(), link.getId());
 				issue_messages.add(issue_message);
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -405,7 +408,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																			Priority.HIGH,
 																			description,
 																			recommendation, 
-																			null, 
+																			link, 
 																			AuditCategory.INFORMATION_ARCHITECTURE, 
 																			labels,
 																			ada_compliance,
@@ -414,7 +417,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																			4);
 
 				issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-				issue_message_service.addElement(issue_message.getId(), link.getId());
+				//issue_message_service.addElement(issue_message.getId(), link.getId());
 				issue_messages.add(issue_message);
 				log.warn("Exception thrown during links audit :: "+e.getMessage());
 				e.printStackTrace();
@@ -434,7 +437,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	Priority.MEDIUM,
 																	description, 
 																	recommendation, 
-																	null,
+																	link,
 																	AuditCategory.INFORMATION_ARCHITECTURE,
 																	labels,
 																	ada_compliance,
@@ -443,7 +446,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	4);
 
 					issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-					issue_message_service.addElement(issue_message.getId(), link.getId());
+					//issue_message_service.addElement(issue_message.getId(), link.getId());
 					issue_messages.add(issue_message);
 				}
 				else {
@@ -454,7 +457,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	Priority.NONE,
 																	description, 
 																	recommendation, 
-																	null,
+																	link,
 																	AuditCategory.INFORMATION_ARCHITECTURE,
 																	labels,
 																	ada_compliance,
@@ -463,7 +466,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	4);
 	
 					issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-					issue_message_service.addElement(issue_message.getId(), link.getId());
+					//issue_message_service.addElement(issue_message.getId(), link.getId());
 					issue_messages.add(issue_message);
 				}
 			}
@@ -512,7 +515,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	Priority.HIGH,
 																	description, 
 																	recommendation, 
-																	null,
+																	link,
 																	AuditCategory.INFORMATION_ARCHITECTURE,
 																	labels,
 																	ada_compliance,
@@ -521,7 +524,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	4);
 					 //does element use image as links?
 					issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-					issue_message_service.addElement(issue_message.getId(), link.getId());
+					//issue_message_service.addElement(issue_message.getId(), link.getId());
 					issue_messages.add(issue_message);				 
 				 }
 				 else {
@@ -532,7 +535,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 					 ElementStateIssueMessage issue_message = new ElementStateIssueMessage(Priority.HIGH,
 																							description, 
 																							recommendation, 
-																							null,
+																							link,
 																							AuditCategory.INFORMATION_ARCHITECTURE,
 																							labels,
 																							ada_compliance,
@@ -541,7 +544,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																							4);
 	
 					issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-					issue_message_service.addElement(issue_message.getId(), link.getId());
+					//issue_message_service.addElement(issue_message.getId(), link.getId());
 					issue_messages.add(issue_message);
 				 }
 			}

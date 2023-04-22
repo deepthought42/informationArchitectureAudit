@@ -119,7 +119,7 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 		assert page_state != null;
 
 		int points_achieved = 0;
-		int max_points = 0;
+		int max_points = 1;
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
 		
 		//extract title from page_state
@@ -147,16 +147,16 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 			//recommendations.add(new Recommendation(recommendation));
 			
 			UXIssueMessage ux_issue = new UXIssueMessage(Priority.NONE, 
-												  description, 
-												  type, 
-												  category, 
-												  wcag_compliance, 
-												  labels, 
-												  why_it_matters, 
-												  title, 
-												  1, 
-												  1, 
-												  recommendation);
+														  description, 
+														  type, 
+														  category, 
+														  wcag_compliance, 
+														  labels, 
+														  why_it_matters, 
+														  title, 
+														  1, 
+														  1, 
+														  recommendation);
 			
 			issue_messages.add(issue_message_service.save(ux_issue));
 
@@ -174,7 +174,6 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 				title = "Title is too long";
 			}
 			
-			Priority priority = Priority.MEDIUM;
 			String description = "For best results you should aim to keep your description between 50 and 60 characters long. Google typically displays the first 50–60 characters of a title tag, however there isn't an exact character limit, because characters can vary in width and Google's display titles max out (currently) at 600 pixels.";
 			
 			ObservationType type = ObservationType.SEO;
@@ -187,7 +186,7 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 			Set<Recommendation> recommendations = new HashSet<>();
 			//recommendations.add(new Recommendation(recommendation));
 			
-			UXIssueMessage ux_issue = new UXIssueMessage(priority, 
+			UXIssueMessage ux_issue = new UXIssueMessage(Priority.MEDIUM, 
 														  description, 
 														  type, 
 														  category, 

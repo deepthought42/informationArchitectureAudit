@@ -32,7 +32,7 @@ public class UXIssueMessageService {
 	public ColorContrastIssueMessage saveColorContrast(ColorContrastIssueMessage ux_issue) {
 		return contrast_issue_message_repo.save(ux_issue);
 	}
-
+	
 	/**
 	 * Find {@link UXIssueMessage} with a given key
 	 * @param key used for identifying {@link UXIssueMessage}
@@ -115,4 +115,5 @@ public class UXIssueMessageService {
 	public void addPage(long issue_id, long page_id) {
 		issue_message_repo.addPage(issue_id, page_id);
 	}
+
 }
