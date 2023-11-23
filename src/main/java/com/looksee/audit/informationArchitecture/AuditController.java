@@ -18,6 +18,7 @@ package com.looksee.audit.informationArchitecture;
 // [START cloudrun_pubsub_handler]
 // [START run_pubsub_handler]
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -39,13 +40,19 @@ import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
 import com.looksee.audit.informationArchitecture.models.LinksAudit;
 import com.looksee.audit.informationArchitecture.models.MetadataAudit;
+import com.looksee.audit.informationArchitecture.models.PageAuditRecord;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.SecurityAudit;
 import com.looksee.audit.informationArchitecture.models.TitleAndHeaderAudit;
+import com.looksee.audit.informationArchitecture.models.dto.PageAuditDto;
+import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 import com.looksee.audit.informationArchitecture.models.enums.AuditName;
+import com.looksee.audit.informationArchitecture.models.enums.ExecutionStatus;
 import com.looksee.audit.informationArchitecture.models.message.PageAuditMessage;
 import com.looksee.audit.informationArchitecture.services.AuditRecordService;
+import com.looksee.audit.informationArchitecture.services.MessageBroadcaster;
 import com.looksee.audit.informationArchitecture.services.PageStateService;
+import com.looksee.utils.AuditUtils;
 
 // PubsubController consumes a Pub/Sub message.
 @RestController
@@ -69,6 +76,9 @@ public class AuditController {
 	
 	@Autowired
 	private PageStateService page_state_service;
+	
+	@Autowired
+	private MessageBroadcaster pusher;
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public ResponseEntity<String> receiveMessage(@RequestBody Body body) 
@@ -268,8 +278,79 @@ public class AuditController {
 		audit_record_json = mapper.writeValueAsString(audit_update5);
 		audit_update_topic.publish(audit_record_json);
 	  */
+ //   PageAuditRecord audit_record = (PageAuditRecord) audit_record_service.findById(audit_record_msg.getPageAuditId()).get();
+	PageAuditDto audit_dto = builPagedAuditdDto(audit_record_msg.getPageAuditId(), page.getUrl());
+	pusher.sendAuditUpdate(Long.toString( audit_record_msg.getAccountId() ), audit_dto);
     return new ResponseEntity<String>("Successfully audited information architecture", HttpStatus.OK);
   }
+
+	/**
+	 * Creates an {@linkplain PageAuditDto} using page audit ID and the provided page_url
+	 * @param pageAuditId
+	 * @param page_url
+	 * @return
+	 */
+	private PageAuditDto builPagedAuditdDto(long pageAuditId, String page_url) {
+		//get all audits
+		Set<Audit> audits = audit_record_service.getAllAudits(pageAuditId);
+		Set<AuditName> audit_labels = new HashSet<AuditName>();
+		audit_labels.add(AuditName.TEXT_BACKGROUND_CONTRAST);
+		audit_labels.add(AuditName.NON_TEXT_BACKGROUND_CONTRAST);
+		audit_labels.add(AuditName.TITLES);
+		audit_labels.add(AuditName.IMAGE_COPYRIGHT);
+		audit_labels.add(AuditName.IMAGE_POLICY);
+		audit_labels.add(AuditName.LINKS);
+		audit_labels.add(AuditName.ALT_TEXT);
+		audit_labels.add(AuditName.METADATA);
+		audit_labels.add(AuditName.READING_COMPLEXITY);
+		audit_labels.add(AuditName.PARAGRAPHING);
+		audit_labels.add(AuditName.ENCRYPTED);
+		//count audits for each category
+		//calculate content score
+		//calculate aesthetics score
+		//calculate information architecture score
+		double visual_design_progress = AuditUtils.calculateProgress(AuditCategory.AESTHETICS, 
+																 1, 
+																 audits, 
+																 AuditUtils.getAuditLabels(AuditCategory.AESTHETICS, audit_labels));
+		double content_progress = AuditUtils.calculateProgress(AuditCategory.CONTENT, 
+																1, 
+																audits, 
+																audit_labels);
+		double info_architecture_progress = AuditUtils.calculateProgress(AuditCategory.INFORMATION_ARCHITECTURE, 
+																		1, 
+																		audits, 
+																		audit_labels);
+
+		double content_score = AuditUtils.calculateScoreByCategory(audits, AuditCategory.CONTENT);
+		double info_architecture_score = AuditUtils.calculateScoreByCategory(audits, AuditCategory.INFORMATION_ARCHITECTURE);
+		double visual_design_score = AuditUtils.calculateScoreByCategory(audits, AuditCategory.AESTHETICS);
+		double a11y_score = AuditUtils.calculateScoreByCategory(audits, AuditCategory.ACCESSIBILITY);
+
+		double data_extraction_progress = 1;
+		String message = "";
+		ExecutionStatus execution_status = ExecutionStatus.UNKNOWN;
+		if(visual_design_progress < 1 || content_progress < 1 || visual_design_progress < 1) {
+			execution_status = ExecutionStatus.IN_PROGRESS;
+		}
+		else {
+			execution_status = ExecutionStatus.COMPLETE;
+		}
+		
+		return new PageAuditDto(pageAuditId, 
+								page_url, 
+								content_score, 
+								content_progress, 
+								info_architecture_score, 
+								info_architecture_progress, 
+								a11y_score,
+								visual_design_score,
+								visual_design_progress,
+								data_extraction_progress, 
+								message, 
+								execution_status);
+	}
+	
 
 	/**
 	 * Checks if the any of the provided {@link Audit audits} have a name that matches 

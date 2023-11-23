@@ -25,7 +25,7 @@ public class AuditProgressUpdate extends Message {
 			long domain_id, 
 			long page_audit_id
 	) {
-		super(account_id, audit_record_id, domain_id);
+		super(account_id);
 		setProgress(progress);
 		setMessage(message);
 		setCategory(category);

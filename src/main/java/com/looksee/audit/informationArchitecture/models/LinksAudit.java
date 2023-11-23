@@ -106,7 +106,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE,
 																description,
 																recommendation, 
-																link,
+																null,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -129,7 +129,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.HIGH,
 																description,
 																recommendation, 
-																link,
+																null,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -156,7 +156,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE,
 																description,
 																recommendation, 
-																link,
+																null,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -179,7 +179,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE,
 																description,
 																recommendation, 
-																link,
+																null,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -209,7 +209,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE, 
 																description, 
 																recommendation, 
-																link,
+																null,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -230,7 +230,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.HIGH, 
 																description, 
 																recommendation, 
-																link,
+																null,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -275,7 +275,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.NONE, 
 																description, 
 																recommendation, 
-																link,
+																null,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -295,7 +295,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.HIGH, 
 																description, 
 																recommendation, 
-																link,
+																null,
 																AuditCategory.INFORMATION_ARCHITECTURE,
 																labels,
 																ada_compliance,
@@ -321,7 +321,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	Priority.HIGH,
 																	description,
 																	recommendation, 
-																	link,
+																	null,
 																	AuditCategory.INFORMATION_ARCHITECTURE,
 																	labels,
 																	ada_compliance,
@@ -343,7 +343,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																		Priority.NONE,
 																		description,
 																		recommendation, 
-																		link,
+																		null,
 																		AuditCategory.INFORMATION_ARCHITECTURE,
 																		labels,
 																		ada_compliance,
@@ -364,7 +364,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																		Priority.HIGH,
 																		description,
 																		recommendation, 
-																		link,
+																		null,
 																		AuditCategory.INFORMATION_ARCHITECTURE,
 																		labels,
 																		ada_compliance,
@@ -388,7 +388,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																Priority.HIGH,
 																description,
 																recommendation, 
-																link, 
+																null, 
 																AuditCategory.INFORMATION_ARCHITECTURE, 
 																labels,
 																ada_compliance,
@@ -408,7 +408,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																			Priority.HIGH,
 																			description,
 																			recommendation, 
-																			link, 
+																			null, 
 																			AuditCategory.INFORMATION_ARCHITECTURE, 
 																			labels,
 																			ada_compliance,
@@ -437,7 +437,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	Priority.MEDIUM,
 																	description, 
 																	recommendation, 
-																	link,
+																	null,
 																	AuditCategory.INFORMATION_ARCHITECTURE,
 																	labels,
 																	ada_compliance,
@@ -446,7 +446,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	4);
 
 					issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-					//issue_message_service.addElement(issue_message.getId(), link.getId());
+					issue_message_service.addElement(issue_message.getId(), link.getId());
 					issue_messages.add(issue_message);
 				}
 				else {
@@ -457,7 +457,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	Priority.NONE,
 																	description, 
 																	recommendation, 
-																	link,
+																	null,
 																	AuditCategory.INFORMATION_ARCHITECTURE,
 																	labels,
 																	ada_compliance,
@@ -466,7 +466,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	4);
 	
 					issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-					//issue_message_service.addElement(issue_message.getId(), link.getId());
+					issue_message_service.addElement(issue_message.getId(), link.getId());
 					issue_messages.add(issue_message);
 				}
 			}
@@ -515,7 +515,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	Priority.HIGH,
 																	description, 
 																	recommendation, 
-																	link,
+																	null,
 																	AuditCategory.INFORMATION_ARCHITECTURE,
 																	labels,
 																	ada_compliance,
@@ -535,7 +535,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 					 ElementStateIssueMessage issue_message = new ElementStateIssueMessage(Priority.HIGH,
 																							description, 
 																							recommendation, 
-																							link,
+																							null,
 																							AuditCategory.INFORMATION_ARCHITECTURE,
 																							labels,
 																							ada_compliance,

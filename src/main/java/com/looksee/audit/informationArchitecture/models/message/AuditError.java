@@ -2,7 +2,7 @@ package com.looksee.audit.informationArchitecture.models.message;
 
 import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 
-public class AuditError extends Message {
+public class AuditError extends Message{
 	private String error_message;
 	private AuditCategory audit_category;
 	private double progress;
@@ -14,7 +14,7 @@ public class AuditError extends Message {
 					  double progress, 
 					  long domainId
 	) {
-		super(accountId, auditRecordId, domainId);
+		super(accountId);
 		setErrorMessage(error_message);
 		setAuditCategory(category);
 		setProgress(progress);
