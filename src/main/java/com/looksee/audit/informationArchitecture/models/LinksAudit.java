@@ -397,7 +397,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																4);
 
 				issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-				//issue_message_service.addElement(issue_message.getId(), link.getId());
+				issue_message_service.addElement(issue_message.getId(), link.getId());
 				issue_messages.add(issue_message);
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -417,7 +417,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																			4);
 
 				issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-				//issue_message_service.addElement(issue_message.getId(), link.getId());
+				issue_message_service.addElement(issue_message.getId(), link.getId());
 				issue_messages.add(issue_message);
 				log.warn("Exception thrown during links audit :: "+e.getMessage());
 				e.printStackTrace();
@@ -426,7 +426,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 			//Does link contain a text label inside it
 			if(!link.getAllText().isEmpty()) {
 				
-				//Does text contain any of the 
+				//Does text contain any of the common poor link text
 				String link_text = link.getAllText();
 				
 				if(bad_link_text_list.contains(link_text.toLowerCase().trim())) {
@@ -524,7 +524,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																	4);
 					 //does element use image as links?
 					issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-					//issue_message_service.addElement(issue_message.getId(), link.getId());
+					issue_message_service.addElement(issue_message.getId(), link.getId());
 					issue_messages.add(issue_message);				 
 				 }
 				 else {
@@ -532,7 +532,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 					 String description = "Link contains text and is setup correctly. Well done!";
 					 String title = "Link is setup correctly and considered accessible";
 	
-					 ElementStateIssueMessage issue_message = new ElementStateIssueMessage(Priority.HIGH,
+					 ElementStateIssueMessage issue_message = new ElementStateIssueMessage(Priority.NONE,
 																							description, 
 																							recommendation, 
 																							null,
@@ -544,7 +544,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 																							4);
 	
 					issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-					//issue_message_service.addElement(issue_message.getId(), link.getId());
+					issue_message_service.addElement(issue_message.getId(), link.getId());
 					issue_messages.add(issue_message);
 				 }
 			}
@@ -623,7 +623,5 @@ public class LinksAudit implements IExecutablePageStateAudit {
 								 true); 
 		
 		return audit_service.save(audit);
-		//audit_service.addAllIssues(audit.getId(), issue_messages);
-		//return audit;
 	}
 }

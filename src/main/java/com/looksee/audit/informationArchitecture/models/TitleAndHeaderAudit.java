@@ -51,7 +51,10 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	 * @throws URISyntaxException 
 	 */
 	@Override
-	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
+	public Audit execute(PageState page_state, 
+						 AuditRecord audit_record, 
+						 DesignSystem design_system
+	 ) {
 		assert page_state != null;
 
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
