@@ -559,6 +559,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 				
 				//TODO :does target content relate to link?
 			
+			
 		}
 		
 		
@@ -586,7 +587,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 		int max_points = 0;
 		for(UXIssueMessage issue_msg : issue_messages) {
 			points_earned += issue_msg.getPoints();
-			max_points += issue_msg.getMaxPoints();		   
+			max_points += issue_msg.getMaxPoints();		 
 /*
 			if(issue_msg.getScore() < 90 && issue_msg instanceof ElementStateIssueMessage) {
 				ElementStateIssueMessage element_issue_msg = (ElementStateIssueMessage)issue_msg;

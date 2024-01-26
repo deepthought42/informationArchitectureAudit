@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.looksee.audit.informationArchitecture.models.repository.ColorContrastIssueMessageRepository;
@@ -25,10 +26,22 @@ public class UXIssueMessageService {
 	@Autowired
 	private ColorContrastIssueMessageRepository contrast_issue_message_repo;
 	
+	/**
+	 * Saves a {@linkplain UXIssueMessage}
+	 * @param ux_issue
+	 * @return
+	 */
+	@Retryable
 	public UXIssueMessage save(UXIssueMessage ux_issue) {
 		return issue_message_repo.save(ux_issue);
 	}
 	
+	/**
+	 * Saves {@link ColorContrastIssueMessage}
+	 * @param ux_issue
+	 * @return
+	 */
+	@Retryable
 	public ColorContrastIssueMessage saveColorContrast(ColorContrastIssueMessage ux_issue) {
 		return contrast_issue_message_repo.save(ux_issue);
 	}
@@ -42,6 +55,7 @@ public class UXIssueMessageService {
 	 * @pre key != null
 	 * @pre !key.isEmpty()
 	 */
+	@Retryable
 	public UXIssueMessage findByKey(String key) {
 		assert key != null;
 		assert !key.isEmpty();
@@ -62,6 +76,7 @@ public class UXIssueMessageService {
 	 * @pre priority != null
 	 * @pre priority.isEmpty()
 	 */
+	@Retryable
 	public UXIssueMessage addRecommendation(String key, String recommendation) {
 		assert key != null;
 		assert !key.isEmpty();
@@ -84,6 +99,7 @@ public class UXIssueMessageService {
 	 * @pre priority != null
 	 * @pre priority.isEmpty()
 	 */
+	@Retryable
 	public UXIssueMessage updatePriority(String key, String priority) {
 		assert key != null;
 		assert !key.isEmpty();
@@ -95,10 +111,12 @@ public class UXIssueMessageService {
     	return save(observation);	
 	}
 
+	@Retryable
 	public ElementState getElement(long id) {
 		return issue_message_repo.getElement(id);
 	}
 
+	@Retryable
 	public Iterable<UXIssueMessage> saveAll(List<UXIssueMessage> issue_messages) {
 		return issue_message_repo.saveAll(issue_messages);
 		
@@ -108,6 +126,7 @@ public class UXIssueMessageService {
 		return issue_message_repo.getGoodExample(issue_id);
 	}
 
+	@Retryable
 	public void addElement(long issue_id, long element_id) {
 		issue_message_repo.addElement(issue_id, element_id);
 	}
