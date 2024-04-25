@@ -10,14 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.ExecutionStatus;
-import com.looksee.audit.informationArchitecture.models.repository.AuditRecordRepository;
-import com.looksee.audit.informationArchitecture.models.repository.AuditRepository;
-import com.looksee.audit.informationArchitecture.services.AuditRecordService;
-
-import io.github.resilience4j.retry.annotation.Retry;
-
 import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
 import com.looksee.audit.informationArchitecture.models.DesignSystem;
@@ -26,6 +18,12 @@ import com.looksee.audit.informationArchitecture.models.Label;
 import com.looksee.audit.informationArchitecture.models.PageAuditRecord;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
+import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
+import com.looksee.audit.informationArchitecture.models.enums.ExecutionStatus;
+import com.looksee.audit.informationArchitecture.models.repository.AuditRecordRepository;
+import com.looksee.audit.informationArchitecture.models.repository.AuditRepository;
+
+import io.github.resilience4j.retry.annotation.Retry;
 
 /**
  * Contains business logic for interacting with and managing audits
@@ -344,15 +342,12 @@ public class AuditRecordService {
 
 		if(AuditCategory.CONTENT.equals(category)) {
 			audit_record.setContentAuditProgress( progress );
-			audit_record.setContentAuditMsg( message);
 		}
 		else if(AuditCategory.AESTHETICS.equals(category)) {
 			audit_record.setAestheticAuditProgress( progress);
-			audit_record.setAestheticMsg(message);
 		}
 		else if(AuditCategory.INFORMATION_ARCHITECTURE.equals(category)) {
 			audit_record.setInfoArchitectureAuditProgress( progress );
-			audit_record.setInfoArchMsg(message);
 		}
 		
 		return save(audit_record, account_id, domain_id);
