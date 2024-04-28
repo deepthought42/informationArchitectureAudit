@@ -1,22 +1,5 @@
 package com.looksee.audit.informationArchitecture;
 
-/*
- * Copyright 2019 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-// [START cloudrun_pubsub_handler]
-// [START run_pubsub_handler]
 import java.util.Base64;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -43,13 +26,14 @@ import com.looksee.audit.informationArchitecture.models.MetadataAudit;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.SecurityAudit;
 import com.looksee.audit.informationArchitecture.models.TitleAndHeaderAudit;
+import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
+import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
 import com.looksee.audit.informationArchitecture.models.enums.AuditName;
 import com.looksee.audit.informationArchitecture.models.message.AuditProgressUpdate;
 import com.looksee.audit.informationArchitecture.models.message.PageAuditMessage;
 import com.looksee.audit.informationArchitecture.services.AuditRecordService;
 import com.looksee.audit.informationArchitecture.services.PageStateService;
 
-// PubsubController consumes a Pub/Sub message.
 @RestController
 public class AuditController {
 	private static Logger log = LoggerFactory.getLogger(AuditController.class);
@@ -103,26 +87,27 @@ public class AuditController {
 		}
 
 	
-		if(!auditAlreadyExists(audits, AuditName.ENCRYPTED)) {    			
+		if(!auditAlreadyExists(audits, AuditName.ENCRYPTED)) {
 			Audit security_audit = security_auditor.execute(page, audit_record, null);
 			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security_audit.getId());
 		}
-	    		
-		if(!auditAlreadyExists(audits, AuditName.METADATA)) {    			
+
+		if(!auditAlreadyExists(audits, AuditName.METADATA)) {
 			Audit metadata = metadata_auditor.execute(page, audit_record, null);
 			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), metadata.getId());
 		}
-	
-			
-		AuditProgressUpdate audit_update = new AuditProgressUpdate(
-														audit_record_msg.getAccountId(),
-														audit_record_msg.getPageAuditId(),
-														"Completed information architecture audit");
 		
+		AuditProgressUpdate audit_update = new AuditProgressUpdate(audit_record_msg.getAccountId(),
+															1.0,
+															"Completed information architecture audit",
+																	AuditCategory.INFORMATION_ARCHITECTURE, 
+																	AuditLevel.PAGE,
+																	audit_record_msg.getPageAuditId());
+
 		String audit_record_json = mapper.writeValueAsString(audit_update);
 		audit_update_topic.publish(audit_record_json);
 		
-	    return new ResponseEntity<String>("Successfully audited information architecture", HttpStatus.OK);
+		return new ResponseEntity<String>("Successfully audited information architecture", HttpStatus.OK);
 	}
 
 	/**
