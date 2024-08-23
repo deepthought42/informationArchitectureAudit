@@ -21,15 +21,15 @@ public class PageStateIssueMessage extends UXIssueMessage {
 	public PageStateIssueMessage() {}
 	
 	public PageStateIssueMessage(
-				PageState page, 
+				PageState page,
 				String description,
-				String recommendation, 
-				Priority priority, 
-				AuditCategory category, 
+				String recommendation,
+				Priority priority,
+				AuditCategory category,
 				Set<String> labels,
-				String wcag_compliance, 
-				String title, 
-				int points_awarded, 
+				String wcag_compliance,
+				String title,
+				int points_awarded,
 				int max_points
 	) {
 		super(	priority, 

@@ -21,6 +21,7 @@ import com.looksee.audit.informationArchitecture.gcp.PubSubAuditUpdatePublisherI
 import com.looksee.audit.informationArchitecture.mapper.Body;
 import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
+import com.looksee.audit.informationArchitecture.models.HeaderStructureAudit;
 import com.looksee.audit.informationArchitecture.models.LinksAudit;
 import com.looksee.audit.informationArchitecture.models.MetadataAudit;
 import com.looksee.audit.informationArchitecture.models.PageState;
@@ -41,6 +42,9 @@ public class AuditController {
 	@Autowired
 	private AuditRecordService audit_record_service;
 	
+	@Autowired
+	private HeaderStructureAudit header_structure_auditor;
+
 	@Autowired
 	private LinksAudit links_auditor;
 	
@@ -75,18 +79,23 @@ public class AuditController {
     	PageState page = page_state_service.getPageStateForAuditRecord(audit_record.getId());
     	
     	Set<Audit> audits = audit_record_service.getAllAudits(audit_record.getId());
-    		
-		if(!auditAlreadyExists(audits, AuditName.LINKS)) {    			
+    	
+		//WCAG 2.1 Section 1.3.1 - Structure (headers)
+		if(!auditAlreadyExists(audits, AuditName.HEADER_STRUCTURE)) {
+			Audit header_structure_audit = header_structure_auditor.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), header_structure_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.LINKS)) {
 			Audit link_audit = links_auditor.execute(page, audit_record, null);
 			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), link_audit.getId());
 		}
 
-		if(!auditAlreadyExists(audits, AuditName.TITLES)) {    				
+		if(!auditAlreadyExists(audits, AuditName.TITLES)) {
     		Audit title_and_headers = title_and_header_auditor.execute(page, audit_record, null);
     		audit_record_service.addAudit(audit_record_msg.getPageAuditId(), title_and_headers.getId());
 		}
 
-	
 		if(!auditAlreadyExists(audits, AuditName.ENCRYPTED)) {
 			Audit security_audit = security_auditor.execute(page, audit_record, null);
 			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), security_audit.getId());

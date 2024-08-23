@@ -13,7 +13,6 @@ import com.looksee.audit.informationArchitecture.models.AuditRecord;
 import com.looksee.audit.informationArchitecture.models.DesignSystem;
 import com.looksee.audit.informationArchitecture.models.Domain;
 import com.looksee.audit.informationArchitecture.models.DomainAuditRecord;
-import com.looksee.audit.informationArchitecture.models.Element;
 import com.looksee.audit.informationArchitecture.models.Form;
 import com.looksee.audit.informationArchitecture.models.PageLoadAnimation;
 import com.looksee.audit.informationArchitecture.models.PageState;
@@ -46,9 +45,6 @@ public interface DomainRepository extends Neo4jRepository<Domain, Long> {
 	@Query("MATCH (d:Domain)-[]->(p:PageState) WHERE id(d)=$domain_id RETURN p")
 	public Set<PageState> getPageStates(@Param("domain_id") long domain_id);
 
-	@Query("MATCH (:Account{username:$username})-[:HAS_DOMAIN]-(d:Domain{url:$url}) MATCH (d)-[]->(t:Test) MATCH (t)-[]->(e:ElementState) OPTIONAL MATCH b=(e)-->() RETURN b")
-	public Set<Element> getElementStates(@Param("url") String url, @Param("username") String username);
-	
 	@Query("MATCH (account:Account)-[:HAS_DOMAIN]->(d:Domain{url:$url}) MATCH (d)-[]->(p:Page) MATCH (p)-[]->(ps:PageState) MATCH (ps)-[]->(f:Form) MATCH a=(f)-[:DEFINED_BY]->() MATCH b=(f)-[:HAS]->(e) OPTIONAL MATCH c=(e)-->() WHERE id(account)=$account_id return a,b,c")
 	public Set<Form> getForms(@Param("account_id") long account_id, @Param("url") String url);
 	

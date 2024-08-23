@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.looksee.audit.informationArchitecture.gcp.GoogleCloudStorage;
 import com.looksee.audit.informationArchitecture.models.Browser;
 import com.looksee.audit.informationArchitecture.models.ColorData;
+import com.looksee.audit.informationArchitecture.models.Domain;
 import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.PageLoadAnimation;
 import com.looksee.audit.informationArchitecture.models.PageState;
@@ -331,23 +332,6 @@ public class BrowserUtils {
 			}
 		}
 		return link_urls;
-	}
-	
-	/**
-	 * Extracts a {@link List list} of link urls by looking up `a` html tags and extracting the href values
-	 * 
-	 * @param source valid html source
-	 * @return {@link List list} of link urls
-	 */
-	public static List<com.looksee.audit.informationArchitecture.models.Element> extractLinks(List<com.looksee.audit.informationArchitecture.models.Element> elements) {
-		List<com.looksee.audit.informationArchitecture.models.Element> links = new ArrayList<>();
-		
-		for(com.looksee.audit.informationArchitecture.models.Element element : elements) {
-			if(element.getName().equalsIgnoreCase("a")) {
-				links.add(element);
-			}
-		}
-		return links;
 	}
 	
 	/**

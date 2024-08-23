@@ -8,11 +8,8 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -28,6 +25,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.looksee.audit.informationArchitecture.models.enums.BrowserType;
 import com.looksee.audit.informationArchitecture.services.BrowserService;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * A reference to a web page
  *
@@ -37,148 +37,206 @@ public class PageState extends LookseeObject {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(PageState.class);
 
+	@Getter
+	@Setter
+	private long auditRecordId;
+
+	@Getter
+	@Setter
 	private String src;
+
+	@Getter
+	@Setter
+	private String generalizedSrc;
+
+	@Getter
+	@Setter
 	private String url;
+
+	@Getter
+	@Setter
 	private String urlAfterLoading;
 
-	private boolean loginRequired;
-	private boolean isSecure;
-
+	@Getter
+	@Setter
 	private String viewportScreenshotUrl;
-	private String fullPageScreenshotUrlOnload;
-	private String fullPageScreenshotUrlComposite;
-	private String browser;
-	private boolean landable;
-	private long scrollXOffset;
-	private long scrollYOffset;
-	private int viewportWidth;
-	private int viewportHeight;
-	private int fullPageWidth;
-	private int fullPageHeight;
+
+	@Getter
+	@Setter
+	private String fullPageScreenshotUrl;
+
+	@Getter
+	@Setter
 	private String pageName;
 
+	@Getter
+	@Setter
+	private BrowserType browser;
+
+	@Getter
+	@Setter
 	private String title;
-	private Set<String> script_urls;
-	private Set<String> stylesheet_urls;
-	private Set<String> metadata;	
-	private Set<String> favicon_url;
-	private Set<String> keywords;
-	private int httpStatus;
+
+	@Getter
+	@Setter
+	private boolean loginRequired;
+
+	@Getter
+	@Setter
+	private boolean secured;
+
+	@Getter
+	@Setter
+	private boolean elementExtractionComplete;
 	
+	@Getter
+	@Setter
+	private boolean interactiveElementExtractionComplete;
+	
+	@Getter
+	@Setter
+	private long scrollXOffset;
+
+	@Getter
+	@Setter
+	private long scrollYOffset;
+	
+	@Getter
+	@Setter
+	private int viewportWidth;
+
+	@Getter
+	@Setter
+	private int viewportHeight;
+
+	@Getter
+	@Setter
+	private int fullPageWidth;
+
+	@Getter
+	@Setter
+	private int fullPageHeight;
+
+	@Getter
+	@Setter
+	private int httpStatus;
+
+	@Getter
+	@Setter
+	private Set<String> scriptUrls;
+
+	@Getter
+	@Setter
+	private Set<String> stylesheetUrls;
+
+	@Getter
+	@Setter
+	private Set<String> metadata;
+
+	@Getter
+	@Setter
+	private Set<String> faviconUrl;
+
+	@Getter
+	@Setter
+	private Set<String> keywords;
+	
+	@Getter
+	@Setter
+	@JsonIgnore
 	@Relationship(type = "HAS", direction = Direction.OUTGOING)
 	private List<ElementState> elements;
 
 
 	public PageState() {
 		super();
-		setElements(new ArrayList<>());
 		setKeywords(new HashSet<>());
 		setScriptUrls(new HashSet<>());
 		setStylesheetUrls(new HashSet<>());
 		setMetadata(new HashSet<>());
 		setFaviconUrl(new HashSet<>());
+		setBrowser(BrowserType.CHROME);
+		setElementExtractionComplete(false);
+		setAuditRecordId(-1L);
 	}
 	
 	/**
 	 * 	 Constructor
 	 * 
 	 * @param screenshot_url
-	 * @param elements
 	 * @param src
 	 * @param isLandable
 	 * @param scroll_x_offset
 	 * @param scroll_y_offset
 	 * @param viewport_width
 	 * @param viewport_height
-	 * @param browser
-	 * @param full_page_screenshot_url_onload
+	 * @param browser_type
+	 * @param full_page_screenshot_url
 	 * @param full_page_width TODO
 	 * @param full_page_height TODO
 	 * @param url
 	 * @param title TODO
 	 * @param is_secure TODO
 	 * @param http_status_code TODO
-	 * @param full_page_screenshot_url_composite TODO
 	 * @param url_after_page_load TODO
 	 * @throws MalformedURLException 
 	 */
 	public PageState(String screenshot_url, 
-			List<ElementState> elements, 
-			String src, 
-			boolean isLandable, 
-			long scroll_x_offset, 
-			long scroll_y_offset,
-			int viewport_width, 
-			int viewport_height, 
-			BrowserType browser, 
-			String full_page_screenshot_url_onload,
-			int full_page_width, 
-			int full_page_height, 
-			String url, 
-			String title, 
-			boolean is_secure, 
-			int http_status_code, 
-			String full_page_screenshot_url_composite, 
-			String url_after_page_load
+					String src,
+					long scroll_x_offset, 
+					long scroll_y_offset, 
+					int viewport_width,
+					int viewport_height, 
+					BrowserType browser_type, 
+					String full_page_screenshot_url, 
+					int full_page_width,
+					int full_page_height, 
+					String url, 
+					String title, 
+					boolean is_secure, 
+					int http_status_code, 
+					String url_after_page_load,
+					long audit_record_id,
+					Set<String> metadata,
+					Set<String> stylesheets,
+					Set<String> script_urls,
+					Set<String> icon_links
 	) {
 		assert screenshot_url != null;
-		assert elements != null;
 		assert src != null;
-		assert browser != null;
-		assert full_page_screenshot_url_onload != null;
+		assert !src.isEmpty();
+		assert browser_type != null;
+		assert full_page_screenshot_url != null;
 		assert url != null;
 		assert !url.isEmpty();
-		
+
 		setViewportScreenshotUrl(screenshot_url);
 		setViewportWidth(viewport_width);
 		setViewportHeight(viewport_height);
-		setBrowser(browser);
-		setElements(elements);
-		setLandable(isLandable);
+		setBrowser(browser_type);
 		setSrc(src);
 		setScrollXOffset(scroll_x_offset);
 		setScrollYOffset(scroll_y_offset);
 	    setLoginRequired(false);
-		setFullPageScreenshotUrlOnload(full_page_screenshot_url_onload);
-		setFullPageScreenshotUrlComposite(full_page_screenshot_url_composite);
+		setFullPageScreenshotUrl(full_page_screenshot_url);
 		setFullPageWidth(full_page_width);
 		setFullPageHeight(full_page_height);
 		setUrl(url);
 		setUrlAfterLoading(url_after_page_load);
 		setTitle(title);
-		setIsSecure(is_secure);
+		setSecured(is_secure);
 		setHttpStatus(http_status_code);
-		
 		setPageName( generatePageName(getUrl()) );
-		setMetadata( BrowserService.extractMetadata(src) );
-		setStylesheetUrls( BrowserService.extractStylesheets(src));
-		setScriptUrls( BrowserService.extractScriptUrls(src));
-		setFaviconUrl(BrowserService.extractIconLinks(src));
+		setMetadata( metadata );
+		setStylesheetUrls( stylesheets);
+		setScriptUrls( script_urls);
+		setFaviconUrl(icon_links);
+		setInteractiveElementExtractionComplete(false);
+		setElementExtractionComplete(false);
 		setKeywords(new HashSet<>());
+		setAuditRecordId(audit_record_id);
+		setGeneralizedSrc(BrowserService.generalizeSrc(src));
 		setKey(generateKey());
-	}
-
-	/**
-	 * Gets counts for all tags based on {@link Element}s passed
-	 *
-	 * @param page_elements
-	 *            list of {@link Element}s
-	 *
-	 * @return Hash of counts for all tag names in list of {@ElementState}s
-	 *         passed
-	 */
-	public Map<String, Integer> countTags(Set<Element> tags) {
-		Map<String, Integer> elem_cnts = new HashMap<String, Integer>();
-		for (Element tag : tags) {
-			if (elem_cnts.containsKey(tag.getName())) {
-				int cnt = elem_cnts.get(tag.getName());
-				cnt += 1;
-				elem_cnts.put(tag.getName(), cnt);
-			} else {
-				elem_cnts.put(tag.getName(), 1);
-			}
-		}
-		return elem_cnts;
 	}
 
 	/**
@@ -240,42 +298,28 @@ public class PageState extends LookseeObject {
 	@Override
 	public PageState clone() {
 		List<ElementState> elements = new ArrayList<ElementState>(getElements());
-		return new PageState(getViewportScreenshotUrl(), 
-							 elements, 
+		PageState page = new PageState(getViewportScreenshotUrl(), 
 							 getSrc(), 
-							 isLandable(), 
 							 getScrollXOffset(), 
 							 getScrollYOffset(), 
 							 getViewportWidth(), 
 							 getViewportHeight(), 
 							 getBrowser(), 
-							 getFullPageScreenshotUrlOnload(), 
+							 getFullPageScreenshotUrl(), 
 							 getFullPageWidth(), 
 							 getFullPageHeight(), 
-							 getUrl(),
+							 getUrl(), 
 							 getTitle(),
-							 isSecure(),
+							 isSecured(),
 							 getHttpStatus(),
-							 getFullPageScreenshotUrlComposite(),
-							 getUrlAfterLoading());
-	}
-
-	@JsonIgnore
-	public List<ElementState> getElements() {
-		return this.elements;
-	}
-
-	@JsonIgnore
-	public void setElements(List<ElementState> elements) {
-		this.elements = elements;
-	}
-
-	public void setLandable(boolean isLandable) {
-		this.landable = isLandable;
-	}
-
-	public boolean isLandable() {
-		return this.landable;
+							 getUrlAfterLoading(),
+							 getAuditRecordId(),
+							 getMetadata(),
+							 getStylesheetUrls(),
+							 getScriptUrls(),
+							 getFaviconUrl());
+		page.setElements(elements);
+		return page;
 	}
 
 	public void addElement(ElementState element) {
@@ -341,211 +385,18 @@ public class PageState extends LookseeObject {
 	 * @pre page != null
 	 */
 	public String generateKey() {
-		/*
-		List<ElementState> elements = new ArrayList<>(this.getElements());
-		Collections.sort(elements);
-		String key = "";
-		for(ElementState element : elements) {
-			key += element.getKey();
-		}
-		*/
-		return "pagestate" + org.apache.commons.codec.digest.DigestUtils.sha256Hex( this.getUrl() + BrowserService.generalizeSrc(BrowserService.extractBody(this.getSrc()) ));
-	}
-
-	public String getSrc() {
-		return new String(Base64.getDecoder().decode(src));
-	}
-
-	public void setSrc(String src) {
-		this.src = Base64.getEncoder().encodeToString(src.getBytes());
-	}
-
-	public long getScrollXOffset() {
-		return scrollXOffset;
-	}
-
-	public void setScrollXOffset(long scrollXOffset) {
-		this.scrollXOffset = scrollXOffset;
-	}
-
-	public long getScrollYOffset() {
-		return scrollYOffset;
-	}
-
-	public void setScrollYOffset(long scrollYOffset) {
-		this.scrollYOffset = scrollYOffset;
-	}
-
-	public String getViewportScreenshotUrl() {
-		return viewportScreenshotUrl;
-	}
-
-	public void setViewportScreenshotUrl(String viewport_screenshot_url) {
-		this.viewportScreenshotUrl = viewport_screenshot_url;
-	}
-
-	public BrowserType getBrowser() {
-		return BrowserType.create(browser);
-	}
-
-	public void setBrowser(BrowserType browser) {
-		this.browser = browser.toString();
-	}
-
-
-	public int getViewportWidth() {
-		return viewportWidth;
-	}
-
-	public void setViewportWidth(int viewport_width) {
-		this.viewportWidth = viewport_width;
-	}
-
-	public int getViewportHeight() {
-		return viewportHeight;
-	}
-
-	public void setViewportHeight(int viewport_height) {
-		this.viewportHeight = viewport_height;
-	}
-
-	public boolean isLoginRequired() {
-		return loginRequired;
-	}
-
-	public void setLoginRequired(boolean login_required) {
-		this.loginRequired = login_required;
-	}
-	
-	public String getFullPageScreenshotUrlOnload() {
-		return fullPageScreenshotUrlOnload;
-	}
-
-	public void setFullPageScreenshotUrlOnload(String full_page_screenshot_url) {
-		this.fullPageScreenshotUrlOnload = full_page_screenshot_url;
-	}
-
-	public int getFullPageWidth() {
-		return fullPageWidth;
-	}
-	
-	public void setFullPageWidth(int full_page_width) {
-		this.fullPageWidth = full_page_width;
-	}
-	
-	public int getFullPageHeight() {
-		return fullPageHeight;
-	}
-
-	public void setFullPageHeight(int full_page_height) {
-		this.fullPageHeight = full_page_height;
+		return "pagestate" + getAuditRecordId()+ org.apache.commons.codec.digest.DigestUtils.sha256Hex( getUrl() + getGeneralizedSrc() +getBrowser());
 	}
 
 	public void addElements(List<ElementState> elements) {
 		//check for duplicates before adding
 		for(ElementState element : elements) {
-			if(element != null && !this.elements.contains(element)) {				
+			if(element != null && !this.elements.contains(element)) {
 				this.elements.add(element);
 			}
 		}
 	}
 
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public String getPageName() {
-		return pageName;
-	}
-
-	public void setPageName(String page_name) {
-		this.pageName = page_name;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public Set<String> getScriptUrls() {
-		return script_urls;
-	}
-
-	public void setScriptUrls(Set<String> script_urls) {
-		this.script_urls = script_urls;
-	}
-
-	public Set<String> getStylesheetUrls() {
-		return stylesheet_urls;
-	}
-
-	public void setStylesheetUrls(Set<String> stylesheet_urls) {
-		this.stylesheet_urls = stylesheet_urls;
-	}
-
-	public Set<String> getMetadata() {
-		return metadata;
-	}
-
-	public void setMetadata(Set<String> metadata) {
-		this.metadata = metadata;
-	}
-
-	public Set<String> getFaviconUrl() {
-		return favicon_url;
-	}
-
-	public void setFaviconUrl(Set<String> favicon_url) {
-		this.favicon_url = favicon_url;
-	}
-
-	public boolean isSecure() {
-		return isSecure;
-	}
-
-	public void setIsSecure(boolean is_secure) {
-		this.isSecure = is_secure;
-	}
-
-	public Set<String> getKeywords() {
-		return keywords;
-	}
-
-	public void setKeywords(Set<String> keywords) {
-		this.keywords = keywords;
-	}
-
-	public int getHttpStatus() {
-		return httpStatus;
-	}
-
-	public String getFullPageScreenshotUrlComposite() {
-		return fullPageScreenshotUrlComposite;
-	}
-
-	public void setFullPageScreenshotUrlComposite(String full_page_screenshot_url_composite) {
-		this.fullPageScreenshotUrlComposite = full_page_screenshot_url_composite;
-	}
-
-	public void setHttpStatus(int http_status) {
-		this.httpStatus = http_status;
-	}
-
-	public String getUrlAfterLoading() {
-		return urlAfterLoading;
-	}
-
-	public void setUrlAfterLoading(String url_after_loading) {
-		this.urlAfterLoading = url_after_loading;
-	}
-	
 	@Override
 	public String toString() {
 		return "(page => { key = "+getKey()+"; url = "+getUrl();

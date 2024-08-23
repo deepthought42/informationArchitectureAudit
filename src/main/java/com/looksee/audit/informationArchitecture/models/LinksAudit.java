@@ -86,8 +86,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 		Set<String> labels = new HashSet<>();
 		labels.add("information architecture");
 		labels.add("accessibility");
-		labels.add("navigation");
-		labels.add("links");
+		labels.add("headers");
 		labels.add("wcag");
 		
 		//score each link element
@@ -247,8 +246,8 @@ public class LinksAudit implements IExecutablePageStateAudit {
 			// Check if element link a valid url
 			String sanitized_href = "";
 			try {
-				String host = new URL(BrowserUtils.sanitizeUrl(page_state.getUrl(), page_state.isSecure())).getHost();
-				sanitized_href = BrowserUtils.formatUrl("http", host, href, page_state.isSecure());
+				String host = new URL(BrowserUtils.sanitizeUrl(page_state.getUrl(), page_state.isSecured())).getHost();
+				sanitized_href = BrowserUtils.formatUrl("http", host, href, page_state.isSecured());
 				if( BrowserUtils.isJavascript(href)
 					|| href.startsWith("itms-apps:")
 					|| href.startsWith("snap:")
@@ -625,4 +624,5 @@ public class LinksAudit implements IExecutablePageStateAudit {
 		
 		return audit_service.save(audit);
 	}
+
 }

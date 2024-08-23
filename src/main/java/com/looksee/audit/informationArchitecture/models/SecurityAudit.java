@@ -18,7 +18,6 @@ import com.looksee.audit.informationArchitecture.models.enums.AuditName;
 import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
 import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
 import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.models.recommend.Recommendation;
 import com.looksee.audit.informationArchitecture.services.AuditService;
 import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
 
@@ -58,13 +57,13 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 		labels.add("information_architecture");
 		labels.add("security");
 		
-		boolean is_secure = page_state.isSecure();
+		boolean is_secure = page_state.isSecured();
 		if(!is_secure) {
 			String title = "Page isn't secure";
 			String description = page_state.getUrl() + " doesn't use https";
 			String wcag_compliance = "";
 			String recommendation = "Enable encryption(SSL) for your site by getting a signed certificate from a certificate authority and enabling ssl on the server that hosts your website.";
-			Set<Recommendation> recommendations = new HashSet<>();
+			//Set<Recommendation> recommendations = new HashSet<>();
 			//recommendations.add(new Recommendation(recommendation));
 			
 			UXIssueMessage ux_issue = new UXIssueMessage(Priority.HIGH,
@@ -86,7 +85,7 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 			String description = page_state.getUrl() + " uses https protocol to provide a secure connection";
 			String wcag_compliance = "";
 			String recommendation = "";
-			Set<Recommendation> recommendations = new HashSet<>();
+			//Set<Recommendation> recommendations = new HashSet<>();
 			//recommendations.add(new Recommendation(recommendation));
 			
 			UXIssueMessage ux_issue = new UXIssueMessage(Priority.NONE,
@@ -113,8 +112,6 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 			max_points += issue_msg.getMaxPoints();
 		}
 		
-		//log.warn("SECURITY AUDIT SCORE   ::   "+ points_earned +" / " +max_points);
-		//page_state = page_state_service.findById(page_state.getId()).get();
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.SECURITY,
 								 AuditName.ENCRYPTED,
@@ -128,8 +125,6 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 								 false);
 		
 		return audit_service.save(audit);
-		//audit_service.addAllIssues(audit.getId(), issue_messages);
-		//return audit;
 	}
 	
 

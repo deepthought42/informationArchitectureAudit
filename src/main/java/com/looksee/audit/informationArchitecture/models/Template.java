@@ -1,17 +1,13 @@
 package com.looksee.audit.informationArchitecture.models;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.Relationship;
 
 import com.looksee.audit.informationArchitecture.models.enums.TemplateType;
 
 
 
 /**
- * 		A Template is defined as a semi-generic string that matches a set of {@link Element}s
+ * 		A Template is defined as a semi-generic string that matches a set of Elements
  */
 @Node
 public class Template extends LookseeObject {
@@ -19,20 +15,16 @@ public class Template extends LookseeObject {
 	private String type;
 	private String template;
 	
-	@Relationship(type = "MATCHES")
-	private List<Element> elements;
 	
 	public Template(){
 		setType(TemplateType.UNKNOWN);
 		setTemplate("");
-		setElements(new ArrayList<>());
 		setKey(generateKey());
 	}
 	
 	public Template(TemplateType type, String template){
 		setType(type);
 		setTemplate(template);
-		setElements(new ArrayList<>());
 		setKey(generateKey());
 	}
 	
@@ -55,13 +47,5 @@ public class Template extends LookseeObject {
 
 	public void setTemplate(String template) {
 		this.template = template;
-	}
-
-	public List<Element> getElements() {
-		return elements;
-	}
-
-	public void setElements(List<Element> elements) {
-		this.elements = elements;
 	}
 }

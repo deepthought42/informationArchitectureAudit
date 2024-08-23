@@ -9,15 +9,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.looksee.audit.informationArchitecture.models.repository.DomainRepository;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
 import com.looksee.audit.informationArchitecture.models.DesignSystem;
 import com.looksee.audit.informationArchitecture.models.Domain;
 import com.looksee.audit.informationArchitecture.models.DomainAuditRecord;
-import com.looksee.audit.informationArchitecture.models.Element;
 import com.looksee.audit.informationArchitecture.models.Form;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.TestUser;
+import com.looksee.audit.informationArchitecture.models.repository.DomainRepository;
 
 @Service
 public class DomainService {
@@ -70,10 +69,6 @@ public class DomainService {
 	
 	public int getFormCount(long account_id, String url) {
 		return domain_repo.getFormCount(account_id, url);
-	}
-
-	public Set<Element> getElementStates(String url, String username) {
-		return domain_repo.getElementStates(url, username);
 	}
 
 	public Set<PageState> getPageStates(long domain_id) {

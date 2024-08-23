@@ -10,12 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.looksee.audit.informationArchitecture.models.repository.ElementStateRepository;
-import com.looksee.models.rules.Rule;
-import com.looksee.api.exception.ExistingRuleException;
 import com.looksee.audit.informationArchitecture.models.Domain;
-import com.looksee.audit.informationArchitecture.models.Element;
 import com.looksee.audit.informationArchitecture.models.ElementState;
+import com.looksee.audit.informationArchitecture.models.PageState;
+import com.looksee.audit.informationArchitecture.models.repository.ElementStateRepository;
 
 @Service
 public class ElementStateService {
@@ -72,29 +70,9 @@ public class ElementStateService {
 	public void removeRule(String user_id, String element_key, String rule_key){
 		element_repo.removeRule(user_id, element_key, rule_key);
 	}
-	
-	public boolean doesElementExistInOtherPageStateWithLowerScrollOffset(Element element){
-		return false;
-	}
 
 	public ElementState findById(long id) {
 		return element_repo.findById(id).get();
-	}
-
-	public Set<Rule> getRules(String user_id, String element_key) {
-		return element_repo.getRules(user_id, element_key);
-	}
-
-	public Set<Rule> addRuleToFormElement(String username, String element_key, Rule rule) {
-		//Check that rule doesn't already exist
-		Rule rule_record = element_repo.getElementRule(username, element_key, rule.getKey());
-		if(rule_record == null) {
-			rule_record = element_repo.addRuleToFormElement(username, element_key, rule.getKey());
-			return element_repo.getRules(username, element_key);
-		}
-		else {
-			throw new ExistingRuleException(rule.getType().toString());
-		}
 	}
 
 	public ElementState findByOuterHtml(long account_id, String snippet) {
@@ -138,7 +116,7 @@ public class ElementStateService {
 	}
 
 	/**
-	 * gets parent element for given {@link Element} within the given {@link PageState}
+	 * gets parent element for given element within the given {@link PageState}
 	 * 
 	 * @param page_state_key
 	 * @param element_state_key
