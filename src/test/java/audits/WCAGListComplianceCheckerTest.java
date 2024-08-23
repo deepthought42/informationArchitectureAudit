@@ -1,7 +1,10 @@
 package audits;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.jsoup.Jsoup;
@@ -10,6 +13,7 @@ import org.jsoup.nodes.Element;
 import org.junit.Test;
 
 import com.looksee.audit.informationArchitecture.models.ListStructureAudit;
+import com.looksee.audit.informationArchitecture.models.WcagEmphasisComplianceAudit;
 
 public class WCAGListComplianceCheckerTest {
 
@@ -90,5 +94,59 @@ public class WCAGListComplianceCheckerTest {
         Element pElement = doc.select("p").first();
 
         ListStructureAudit.areChildrenListItems(pElement);
+    }
+
+    @Test
+    public void testCheckSpecialTextCompliance() {
+        // Test HTML content
+        String htmlContent = "<html><body>"
+                           + "<p>This is a <strong>strong</strong> emphasis.</p>"
+                           + "<p>This is <code>code</code> snippet.</p>"
+                           + "<p>This is an <abbr title=\"abbreviation\">abbr</abbr> example.</p>"
+                           + "<p>This is an <abbr>missing title</abbr> example.</p>"
+                           + "<blockquote>This is a blockquote.</blockquote>"
+                           + "<p>This is <b>bold</b> and <i>italic</i> text.</p>"
+                           + "</body></html>";
+
+        Document doc = Jsoup.parse(htmlContent);
+
+        List<String> nonCompliantSelectors = WcagEmphasisComplianceAudit.checkSpecialTextCompliance(doc);
+        
+        // Expected non-compliant selectors
+        List<String> expectedNonCompliantSelectors = Arrays.asList(
+            "html > body > p:nth-child(1) > strong",
+            "html > body > p:nth-child(2) > code",
+            "html > body > blockquote",
+            "html > body > p:nth-child(4) > abbr"
+            
+        );
+
+        assertEquals(expectedNonCompliantSelectors, nonCompliantSelectors, "The non-compliant selectors should match.");
+    }
+
+    @Test
+    public void testCheckEmphasisCompliance() {
+        // Test HTML content
+        String htmlContent = "<html><body>"
+                           + "<p>This is a <strong>strong</strong> emphasis.</p>"
+                           + "<p>This is <b>bold</b> and <i>italic</i> text.</p>"
+                           + "</body></html>";
+
+        Document doc = Jsoup.parse(htmlContent);
+
+        List<String> complianceResults = WcagEmphasisComplianceAudit.checkEmphasisCompliance(doc);
+
+        for(String selector: complianceResults){
+            System.out.println("selector : "+selector);
+        }
+
+        // Expected compliance results
+        // In this case, <b> and <i> are non-compliant
+        List<String> expectedNonCompliantSelectors = Arrays.asList(
+            "html > body > p:nth-child(2) > b",
+            "html > body > p:nth-child(2) > i"
+        );
+
+        assertEquals(expectedNonCompliantSelectors, complianceResults, "The non-compliant emphasis elements should match.");
     }
 }
