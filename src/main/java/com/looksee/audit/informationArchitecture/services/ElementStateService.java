@@ -194,5 +194,9 @@ public class ElementStateService {
 		return element_states.parallelStream()
 									   .map(element -> save(element))
 									   .collect(Collectors.toList());
-	}	
+	}
+
+    public ElementState findByPageAndCssSelector(long id, String cssSelector) {
+        return element_repo.findByPageAndCssSelector(id, cssSelector);
+    }	
 }

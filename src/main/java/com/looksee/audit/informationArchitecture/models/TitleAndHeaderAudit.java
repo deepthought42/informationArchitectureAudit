@@ -26,7 +26,6 @@ import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
 import com.looksee.utils.BrowserUtils;
 import com.looksee.utils.ElementStateUtils;
 
-
 /**
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
  */

@@ -22,8 +22,11 @@ import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
 import com.looksee.audit.informationArchitecture.models.enums.AuditName;
 import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
+import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
 import com.looksee.audit.informationArchitecture.models.enums.Priority;
 import com.looksee.audit.informationArchitecture.services.AuditService;
+import com.looksee.audit.informationArchitecture.services.ElementStateService;
+import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
 
 /**
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
@@ -34,7 +37,13 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
 
 	@Autowired
-	private AuditService audit_service;
+	private AuditService auditService;
+
+    @Autowired
+    private UXIssueMessageService issueMessageService;
+
+    @Autowired
+    private ElementStateService elementStateService;
 
 	List<String> bad_link_text_list;
 	
@@ -78,35 +87,86 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 		Document jsoup_doc = Jsoup.parse(page_state.getSrc());
 
         Boolean h1CheckPassed = checkH1Headers(jsoup_doc);
+        
         if(h1CheckPassed == null){
-
-        }
-        else if(h1CheckPassed = Boolean.TRUE){
-
+            String description = "The <h1> header is vital for accessibility and WCAG 2.1 compliance, as it guides users with assistive technologies through the main topic of the page, ensuring a clear and accessible content structure.";
+            String title = "H1 level header not found";
+            String recommendation = "To fix the issue of no <h1> header on a webpage, identify the main topic, add an <h1> at the beginning, ensure proper heading hierarchy, and use accessibility tools to test for compliance with WCAG 2.1.";
+            UXIssueMessage favicon_issue = new UXIssueMessage(Priority.NONE,
+															description, 
+															ObservationType.PAGE_STATE,
+															AuditCategory.INFORMATION_ARCHITECTURE,
+															ada_compliance,
+															labels,
+															"",
+															title,
+															0,
+															2,
+															recommendation);
+			
+			favicon_issue = issueMessageService.save(favicon_issue);
+			issue_messages.add(favicon_issue);
         }
         else if(h1CheckPassed = Boolean.FALSE){
+            String description = "Using only one <h1> header per webpage is crucial for accessibility and WCAG 2.1 compliance, ensuring clear content structure and preventing confusion for users, especially those using assistive technologies.\n";
+            String title = "Too many H1 level headers";
+            String recommendation = "To fix the issue of multiple <h1> headers on a webpage, define the primary topic, assign a single <h1> tag, and reorganize additional headings to maintain a clear content hierarchy. Test with accessibility tools to ensure WCAG 2.1 compliance.\n";
+            UXIssueMessage favicon_issue = new UXIssueMessage(Priority.NONE,
+                        description, 
+                        ObservationType.PAGE_STATE,
+                        AuditCategory.INFORMATION_ARCHITECTURE,
+                        ada_compliance,
+                        labels,
+                        "",
+                        title,
+                        1,
+                        2,
+                        recommendation);
 
+            favicon_issue = issueMessageService.save(favicon_issue);
+            issue_messages.add(favicon_issue);
+        }
+        else if(h1CheckPassed = Boolean.TRUE){
+            String description = "";
+            String title = "This page has exactly 1 H1 header!";
+            String recommendation = "";
+            UXIssueMessage favicon_issue = new UXIssueMessage(Priority.NONE,
+                        description,
+                        ObservationType.PAGE_STATE,
+                        AuditCategory.INFORMATION_ARCHITECTURE,
+                        ada_compliance,
+                        labels,
+                        "",
+                        title,
+                        2,
+                        2,
+                        recommendation);
+
+            favicon_issue = issueMessageService.save(favicon_issue);
+            issue_messages.add(favicon_issue);
         }
 
         // Identify and print out-of-order headers
         Map<Element, List<Element>> outOfOrderHeaders = mapHeadersByAncestor(jsoup_doc);
         System.out.println("Out-of-order headers:"+outOfOrderHeaders);
-        String issue_description = "Headers are not in hierarchical order.";
-        String recommendation = "Reconfigure document so that headers are in hierarchical order. When headers are not in hierarchical order, it makes content difficult to understand for people that require assistive technology";
-        String title = "Header Structure";
+        
 
         for (Element header : outOfOrderHeaders.keySet()) {
-            issue_messages.add(new PageStateIssueMessage(page_state, 
-                                                        issue_description, 
-                                                        recommendation, 
-                                                        Priority.MEDIUM, 
-                                                        AuditCategory.ACCESSIBILITY, 
-                                                        labels, 
-                                                        ada_compliance, 
-                                                        title, 
-                                                        0, 
-                                                        1));
-            System.out.println(header.tagName() + ": " + header.text());
+            ElementState header_elem = elementStateService.findByPageAndCssSelector(page_state.getId(), header.cssSelector());
+            String issue_description = "Having headers in hierarchical order is crucial for accessibility and WCAG 2.1 compliance because it provides a clear and logical structure to the content. This hierarchy helps users, especially those using assistive technologies like screen readers, to easily navigate the webpage and understand the relationship between different sections. Properly ordered headers guide users through the content, improving their experience and ensuring the website is accessible to all.\n";
+            String recommendation = "Reconfigure document so that headers are in hierarchical order. When headers are not in hierarchical order, it makes content difficult to understand for people that require assistive technology";
+            String title = "Headers are not in hierarchical order.";
+            issue_messages.add(new ElementStateIssueMessage(
+                Priority.MEDIUM,
+                issue_description,
+                recommendation,
+                header_elem,
+                AuditCategory.ACCESSIBILITY,
+                labels,
+                ada_compliance,
+                title,
+                0,
+                1));
         }
 
 		String why_it_matters = "A well-structured header hierarchy is like a road map for your content—it helps screen readers and assistive technologies navigate the page, making it easier for everyone to understand the content flow. When headers are in the correct order, users can skim and comprehend information more efficiently, which is key to meeting WCAG 2.1 Section 1.3.1 requirements.";
@@ -135,7 +195,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 								 description,
 								 true);
 		
-		return audit_service.save(audit);
+		return auditService.save(audit);
 	}
 
     /**

@@ -71,5 +71,6 @@ public interface ElementStateRepository extends Neo4jRepository<ElementState, Lo
 	@Query("MATCH (p:PageState)-[:HAS]->(e:ElementState{name:'a'}) WHERE id(p)=$page_state_id RETURN DISTINCT e")
 	public List<ElementState> getLinkElementStates(@Param("page_state_id") long page_state_id);
 
-
+	@Query("MATCH (p:PageState)-[:HAS]->(e:ElementState{cssSelector:$selector}) WHERE id(p)=$page_state_id RETURN DISTINCT e")
+    public ElementState findByPageAndCssSelector(@Param("page_state_id") long id, @Param("selector") String cssSelector);
 }
