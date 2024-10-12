@@ -1,14 +1,13 @@
 package com.looksee.audit.informationArchitecture.models;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import com.looksee.audit.informationArchitecture.models.enums.FormType;
-import com.looksee.audit.informationArchitecture.models.message.BugMessage;
 
 /**
  * Represents a form tag and the encompassed inputs in a web browser
@@ -21,9 +20,6 @@ public class Form extends LookseeObject{
 	private String name;
     
 	private String type;
-	
-	@Relationship(type = "HAS")
-	private List<BugMessage> bug_messages;
 	
 	@Relationship(type = "DEFINED_BY")
 	private ElementState form_tag;
@@ -55,7 +51,7 @@ public class Form extends LookseeObject{
 	 * @return
 	 */
 	@Override
-	public String generateKey() {		
+	public String generateKey() {
 		return "form"+getFormTag();
 	}
 
@@ -199,29 +195,5 @@ public class Form extends LookseeObject{
 	@Override
 	public Form clone(){
 		return new Form(form_tag, form_fields, submit_field, name);
-	}
-
-	public List<BugMessage> getBugMessages() {
-		return bug_messages;
-	}
-
-	public void setBugMessages(List<BugMessage> bug_messages) {
-		if(this.bug_messages == null) {
-			this.bug_messages = new ArrayList<>();
-		}
-		this.bug_messages = bug_messages;
-	}
-	
-	public void addBugMessage(BugMessage bug_message) {
-		if(this.bug_messages == null) {
-			this.bug_messages = new ArrayList<>();
-		}
-		log.warn("bug meesages  :: "+this.bug_messages);
-		this.bug_messages.add(bug_message);
-	}
-
-	public void removeBugMessage(BugMessage msg) {
-		int idx = bug_messages.indexOf(msg);
-		this.bug_messages.remove(idx);
 	}
 }

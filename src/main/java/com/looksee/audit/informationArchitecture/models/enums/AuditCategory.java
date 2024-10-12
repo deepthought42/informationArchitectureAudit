@@ -1,13 +1,14 @@
 package com.looksee.audit.informationArchitecture.models.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.looksee.audit.informationArchitecture.models.Audit;
 
 /**
  * Defines all types of {@link Audit audits} that exist in the system
  */
 public enum AuditCategory {
-	CONTENT("CONTENT"), 
-	INFORMATION_ARCHITECTURE("INFORMATION_ARCHITECTURE"), 
+	CONTENT("CONTENT"),
+	INFORMATION_ARCHITECTURE("INFORMATION_ARCHITECTURE"),
 	AESTHETICS("AESTHETICS"),
 	ACCESSIBILITY("ACCESSIBILITY");
 	

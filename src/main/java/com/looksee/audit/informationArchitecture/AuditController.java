@@ -19,14 +19,25 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.looksee.audit.informationArchitecture.gcp.PubSubAuditUpdatePublisherImpl;
 import com.looksee.audit.informationArchitecture.mapper.Body;
+import com.looksee.audit.informationArchitecture.models.AudioControlAudit;
 import com.looksee.audit.informationArchitecture.models.Audit;
 import com.looksee.audit.informationArchitecture.models.AuditRecord;
+import com.looksee.audit.informationArchitecture.models.FormStructureAudit;
 import com.looksee.audit.informationArchitecture.models.HeaderStructureAudit;
+import com.looksee.audit.informationArchitecture.models.IdentifyPurposeAudit;
+import com.looksee.audit.informationArchitecture.models.InputPurposeAudit;
 import com.looksee.audit.informationArchitecture.models.LinksAudit;
 import com.looksee.audit.informationArchitecture.models.MetadataAudit;
+import com.looksee.audit.informationArchitecture.models.OrientationAudit;
+import com.looksee.audit.informationArchitecture.models.PageLanguageAudit;
 import com.looksee.audit.informationArchitecture.models.PageState;
+import com.looksee.audit.informationArchitecture.models.ReflowAudit;
 import com.looksee.audit.informationArchitecture.models.SecurityAudit;
+import com.looksee.audit.informationArchitecture.models.TableStructureAudit;
+import com.looksee.audit.informationArchitecture.models.TextSpacingAudit;
 import com.looksee.audit.informationArchitecture.models.TitleAndHeaderAudit;
+import com.looksee.audit.informationArchitecture.models.UseOfColorAudit;
+import com.looksee.audit.informationArchitecture.models.VisualPresentationAudit;
 import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
 import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
 import com.looksee.audit.informationArchitecture.models.enums.AuditName;
@@ -46,13 +57,46 @@ public class AuditController {
 	private HeaderStructureAudit header_structure_auditor;
 
 	@Autowired
+	private TableStructureAudit table_structure_auditor;
+	
+	@Autowired
+	private FormStructureAudit form_structure_auditor;
+
+	@Autowired
+	private OrientationAudit orientationAudit;
+
+	@Autowired
+	private InputPurposeAudit inputPurposeAudit;
+
+	@Autowired
+	private IdentifyPurposeAudit identifyPurposeAudit;
+
+	@Autowired
+	private UseOfColorAudit useOfColorAudit;
+
+	@Autowired
+	private ReflowAudit reflowAudit;
+
+	@Autowired
 	private LinksAudit links_auditor;
 	
+	@Autowired
+	private AudioControlAudit audioControlAudit;
+
+	@Autowired
+	private VisualPresentationAudit visualPresentationAudit;
+
+	@Autowired
+	private PageLanguageAudit pageLanguageAudit;
+
 	@Autowired
 	private MetadataAudit metadata_auditor;
 
 	@Autowired
 	private TitleAndHeaderAudit title_and_header_auditor;
+
+	@Autowired
+	private TextSpacingAudit textSpacingAudit;
 
 	@Autowired
 	private SecurityAudit security_auditor;
@@ -64,7 +108,7 @@ public class AuditController {
 	private PubSubAuditUpdatePublisherImpl audit_update_topic;
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
-	public ResponseEntity<String> receiveMessage(@RequestBody Body body) 
+	public ResponseEntity<String> receiveMessage(@RequestBody Body body)
 			throws JsonMappingException, JsonProcessingException, ExecutionException, InterruptedException 
 	{
 		Body.Message message = body.getMessage();
@@ -85,6 +129,69 @@ public class AuditController {
 			Audit header_structure_audit = header_structure_auditor.execute(page, audit_record, null);
 			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), header_structure_audit.getId());
 		}
+
+		if(!auditAlreadyExists(audits, AuditName.TABLE_STRUCTURE)) {
+			Audit table_structure_audit = table_structure_auditor.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), table_structure_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.FORM_STRUCTURE)) {
+			Audit form_structure_audit = form_structure_auditor.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), form_structure_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.ORIENTATION)) {
+			Audit orientation_audit = orientationAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), orientation_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.INPUT_PURPOSE)) {
+			Audit input_purpose_audit = inputPurposeAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), input_purpose_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.IDENTIFY_PURPOSE)) {
+			Audit identify_purpose_audit = identifyPurposeAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), identify_purpose_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.USE_OF_COLOR)) {
+			Audit use_of_color_audit = useOfColorAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), use_of_color_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.AUDIO_CONTROL)) {
+			Audit audio_control_audit = audioControlAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), audio_control_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.VISUAL_PRESENTATION)) {
+			Audit visual_presentation_audit = visualPresentationAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), visual_presentation_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.REFLOW)) {
+			Audit reflow_audit = reflowAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), reflow_audit.getId());
+		}
+
+		if(!auditAlreadyExists(audits, AuditName.TEXT_SPACING)) {
+			Audit text_spacing_audit = textSpacingAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), text_spacing_audit.getId());
+		}
+
+		/*********************************
+			WCAG 2.1 SECTION 3
+		**********************************/
+		if(!auditAlreadyExists(audits, AuditName.PAGE_LANGUAGE)) {
+			Audit page_language_audit = pageLanguageAudit.execute(page, audit_record, null);
+			audit_record_service.addAudit(audit_record_msg.getPageAuditId(), page_language_audit.getId());
+		}
+
+
+		//************************************************
+		//Original UX audits section
+		//*************************************************
 
 		if(!auditAlreadyExists(audits, AuditName.LINKS)) {
 			Audit link_audit = links_auditor.execute(page, audit_record, null);

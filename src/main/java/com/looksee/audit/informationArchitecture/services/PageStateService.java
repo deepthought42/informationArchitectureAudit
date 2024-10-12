@@ -10,15 +10,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.ElementClassification;
-import com.looksee.audit.informationArchitecture.models.repository.ElementStateRepository;
-import com.looksee.audit.informationArchitecture.models.repository.PageStateRepository;
 import com.looksee.audit.informationArchitecture.models.Audit;
+import com.looksee.audit.informationArchitecture.models.AuditRecord;
 import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.PageAuditRecord;
 import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.Screenshot;
+import com.looksee.audit.informationArchitecture.models.enums.AuditName;
+import com.looksee.audit.informationArchitecture.models.enums.ElementClassification;
+import com.looksee.audit.informationArchitecture.models.repository.ElementStateRepository;
+import com.looksee.audit.informationArchitecture.models.repository.PageStateRepository;
 
 
 
@@ -68,15 +69,15 @@ public class PageStateService {
 	}
 	
 	public List<PageState> findByScreenshotChecksumAndPageUrl(String user_id, String url, String screenshot_checksum){
-		return page_state_repo.findByScreenshotChecksumAndPageUrl(url, screenshot_checksum);		
+		return page_state_repo.findByScreenshotChecksumAndPageUrl(url, screenshot_checksum);
 	}
 	
 	public List<PageState> findByFullPageScreenshotChecksum(String screenshot_checksum){
-		return page_state_repo.findByFullPageScreenshotChecksum(screenshot_checksum);		
+		return page_state_repo.findByFullPageScreenshotChecksum(screenshot_checksum);
 	}
 	
 	public PageState findByAnimationImageChecksum(String user_id, String screenshot_checksum){
-		return page_state_repo.findByAnimationImageChecksum(user_id, screenshot_checksum);		
+		return page_state_repo.findByAnimationImageChecksum(user_id, screenshot_checksum);
 	}
 	
 	public List<ElementState> getElementStates(String page_key){
@@ -142,7 +143,7 @@ public class PageStateService {
 		return page_state_repo.findByUrl(url);
 	}
 
-	public boolean addElement(long page_id, long element_id) {		
+	public boolean addElement(long page_id, long element_id) {
 		Optional<ElementState> element_state = getElementState(page_id, element_id);
 		
 		if(element_state.isPresent()) {

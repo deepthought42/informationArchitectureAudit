@@ -25,6 +25,7 @@ import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
 import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
 import com.looksee.audit.informationArchitecture.models.enums.Priority;
 import com.looksee.audit.informationArchitecture.services.AuditService;
+import com.looksee.audit.informationArchitecture.services.BrowserService;
 import com.looksee.audit.informationArchitecture.services.ElementStateService;
 import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
 
@@ -49,14 +50,6 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 	
 	public HeaderStructureAudit() {
 		//super(buildBestPractices(), getAdaDescription(), getAuditDescription(), AuditSubcategory.LINKS);
-		
-		bad_link_text_list = new ArrayList<>();
-		bad_link_text_list.add("click here");
-		bad_link_text_list.add("here");
-		bad_link_text_list.add("more");
-		bad_link_text_list.add("read more");
-		bad_link_text_list.add("learn more");
-		bad_link_text_list.add("info");
 	}
 
 	
@@ -85,7 +78,6 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 		labels.add("wcag");
 		
 		Document jsoup_doc = Jsoup.parse(page_state.getSrc());
-
         Boolean h1CheckPassed = checkH1Headers(jsoup_doc);
         
         if(h1CheckPassed == null){
@@ -148,11 +140,12 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 
         // Identify and print out-of-order headers
         Map<Element, List<Element>> outOfOrderHeaders = mapHeadersByAncestor(jsoup_doc);
-        System.out.println("Out-of-order headers:"+outOfOrderHeaders);
-        
 
         for (Element header : outOfOrderHeaders.keySet()) {
-            ElementState header_elem = elementStateService.findByPageAndCssSelector(page_state.getId(), header.cssSelector());
+            String header_xpath = BrowserService.getXPath(header);
+            String css_selector = BrowserService.generateCssSelectorFromXpath(header_xpath);
+            ElementState header_elem = elementStateService.findByPageAndCssSelector(page_state.getId(), css_selector);
+            log.warn("found header "+header_elem + ";   css selector = "+css_selector);
             String issue_description = "Having headers in hierarchical order is crucial for accessibility and WCAG 2.1 compliance because it provides a clear and logical structure to the content. This hierarchy helps users, especially those using assistive technologies like screen readers, to easily navigate the webpage and understand the relationship between different sections. Properly ordered headers guide users through the content, improving their experience and ensuring the website is accessible to all.\n";
             String recommendation = "Reconfigure document so that headers are in hierarchical order. When headers are not in hierarchical order, it makes content difficult to understand for people that require assistive technology";
             String title = "Headers are not in hierarchical order.";
@@ -254,7 +247,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 
         // Start the recursive process from the root of the document
         mapHeadersRecursive(doc.body(), ancestorHeaderMap);
-        System.out.println("Out-of-order headers:"+ancestorHeaderMap);
+        System.out.println("Out-of-order headers by ancestor:"+ancestorHeaderMap);
 
         return ancestorHeaderMap;
     }
