@@ -94,9 +94,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 			Document jsoup_doc = Jsoup.parseBodyFragment(link.getOuterHtml(), page_state.getUrl());
 			Element element = jsoup_doc.getElementsByTag("a").first();
 
-			log.warn("Evaluating link..."+link.getId());
 			if( element.hasAttr("href") ) {
-				log.warn("link has href value present ");
 				String recommendation = "Make sure links have a url set for the href value.";
 				String description = "Link has href attribute";
 				String title = "Link has href attribute";
@@ -115,7 +113,6 @@ public class LinksAudit implements IExecutablePageStateAudit {
 
 				
 				issue_message = (ElementStateIssueMessage) issue_message_service.save(issue_message);
-				log.warn("adding link = "+link.getId() + " to issue message = "+issue_message.getId());
 				issue_message_service.addElement(issue_message.getId(), link.getId());
 				issue_messages.add(issue_message);
 			}
@@ -143,7 +140,6 @@ public class LinksAudit implements IExecutablePageStateAudit {
 			}
 			
 			String href = element.attr("href");
-			log.warn("evaluating href value = "+href);
 
 			//if href is a mailto link then give score full remaining value and continue
 			if(href.startsWith("mailto:")) {

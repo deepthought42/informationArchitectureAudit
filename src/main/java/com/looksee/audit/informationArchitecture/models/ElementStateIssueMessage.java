@@ -14,10 +14,10 @@ import com.looksee.audit.informationArchitecture.models.enums.Priority;
 
 
 /**
- * A observation of potential error for a given {@link Element element} 
+ * A observation of potential error for a given {@link ElementState element}
  */
 @Node
-public class ElementStateIssueMessage extends UXIssueMessage {	
+public class ElementStateIssueMessage extends UXIssueMessage {
 	private static Logger log = LoggerFactory.getLogger(ElementStateIssueMessage.class);
 
 	@Relationship(type = "FOR")
@@ -28,17 +28,17 @@ public class ElementStateIssueMessage extends UXIssueMessage {
 	public ElementStateIssueMessage(
 			Priority priority,
 			String description,
-			String recommendation, 
-			ElementState element, 
-			AuditCategory category, 
-			Set<String> labels, 
+			String recommendation,
+			ElementState element,
+			AuditCategory category,
+			Set<String> labels,
 			String wcag_compliance,
-			String title, 
+			String title,
 			int points_awarded,
 			int max_points
 	) {
-		super(	priority, 
-				description, 
+		super(	priority,
+				description,
 				ObservationType.ELEMENT,
 				category,
 				wcag_compliance,
