@@ -120,16 +120,16 @@
 -->
 
 		<dependency>
-		  <groupId>com.pusher</groupId>
-		  <artifactId>pusher-http-java</artifactId>
-		  <version>1.0.0</version>
+			<groupId>com.pusher</groupId>
+			<artifactId>pusher-http-java</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 		
 	    <!-- [END pubsub_spring_integration] -->
 	    <!-- [START pubsub_spring_cloud_stream_binder] -->
 	    <dependency>
-	      	<groupId>com.google.cloud</groupId>
-	      	<artifactId>spring-cloud-gcp-pubsub-stream-binder</artifactId>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>spring-cloud-gcp-pubsub-stream-binder</artifactId>
 			<version>3.2.1</version>
 	    </dependency>
 	    
@@ -176,11 +176,11 @@
 		</dependency>
 		
 		<dependency>
-	     	<groupId>org.springframework.cloud</groupId>
-	      	<artifactId>spring-cloud-gcp-dependencies</artifactId>
-	      	<version>1.2.5.RELEASE</version>
-	     	<type>pom</type>
-	     	<scope>import</scope>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-gcp-dependencies</artifactId>
+			<version>1.2.5.RELEASE</version>
+			<type>pom</type>
+			<scope>import</scope>
 	    </dependency>
 	    
 	    <!-- https://mvnrepository.com/artifact/com.google.cloud/spring-cloud-gcp-starter-storage -->
@@ -245,7 +245,7 @@
 		    <version>2.7.0</version>
 		</dependency>
 
- 		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
 		<dependency>
 	    	<groupId>org.seleniumhq.selenium</groupId>
 	        <artifactId>selenium-java</artifactId>
@@ -281,7 +281,7 @@
 				    <groupId>org.seleniumhq.selenium</groupId>
 				    <artifactId>selenium-java</artifactId>
 				</exclusion>
-	     	</exclusions>
+		</exclusions>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/io.whelk.flesch.kincaid/whelk-flesch-kincaid -->
@@ -305,48 +305,48 @@
 			<version>4.2.2</version>
 		    <classifier>models</classifier>
 		</dependency>
-	  </dependencies>
+	</dependencies>
 
-	  <build>
+	<build>
 	    <plugins>
-	      <plugin>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-maven-plugin</artifactId>
-	      </plugin>
-	      <!-- [START cloudrun_pubsub_jib] -->
-	      <!-- [START run_pubsub_jib] -->
-	      <plugin>
-	        <groupId>com.google.cloud.tools</groupId>
-	        <artifactId>jib-maven-plugin</artifactId>
-	        <version>3.2.1</version>
-	        <configuration>
-	          <to>
-	            <image>gcr.io/PROJECT_ID/pubsub</image>
-	          </to>
-	        </configuration>
-	      </plugin>
-	      <plugin>
-		      <groupId>org.springframework.boot</groupId>
-	          <artifactId>spring-boot-maven-plugin</artifactId>
-	          <version>${springboot.version}</version>
-	          <configuration>
-	             <fork>true</fork>
-	             <mainClass>com.looksee.audit.informationArchitecture.Application</mainClass>
-	          </configuration>
-	          <executions>
-	            <execution>
-	              <goals>
-	                <goal>repackage</goal>
-                  </goals>
-	            </execution>
-	          </executions>
-		    </plugin>
-	      <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-    	  </plugin>
-	      <!-- [END run_pubsub_jib] -->
-	      <!-- [END cloudrun_pubsub_jib] -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- [START cloudrun_pubsub_jib] -->
+			<!-- [START run_pubsub_jib] -->
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.2.1</version>
+				<configuration>
+				<to>
+					<image>gcr.io/PROJECT_ID/pubsub</image>
+				</to>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${springboot.version}</version>
+				<configuration>
+					<fork>true</fork>
+					<mainClass>com.looksee.audit.informationArchitecture.Application</mainClass>
+				</configuration>
+				<executions>
+					<execution>
+					<goals>
+						<goal>repackage</goal>
+					</goals>
+					</execution>
+				</executions>
+				</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<!-- [END run_pubsub_jib] -->
+			<!-- [END cloudrun_pubsub_jib] -->
 	    </plugins>
   	</build>
     
