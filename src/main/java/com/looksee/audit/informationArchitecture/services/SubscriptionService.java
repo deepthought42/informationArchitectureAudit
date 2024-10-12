@@ -40,9 +40,8 @@ public class SubscriptionService {
 	 * 
 	 * @return true if user has exceeded limits for their {@link SubscriptionPlan}, otherwise false
 	 * 
-	 * @throws StripeException
 	 */
-	public boolean hasExceededSinglePageAuditLimit(SubscriptionPlan plan, int page_audit_cnt) {    	
+	public boolean hasExceededSinglePageAuditLimit(SubscriptionPlan plan, int page_audit_cnt) {
     	if(plan.equals(SubscriptionPlan.FREE) && page_audit_cnt >= 100){
     		return true;
     	}
@@ -73,10 +72,8 @@ public class SubscriptionService {
 	 * @return true if user has exceeded limits for their {@link SubscriptionPlan}, otherwise false
 	 * 
 	 * @pre plan != null
-	 * 
-	 * @throws StripeException
 	 */
-	public boolean hasExceededDomainPageAuditLimit(SubscriptionPlan plan, int page_audit_count) {				    	
+	public boolean hasExceededDomainPageAuditLimit(SubscriptionPlan plan, int page_audit_count) {
     	if(plan.equals(SubscriptionPlan.FREE) && page_audit_count >= 20){
     		return true;
     	}
