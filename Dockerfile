@@ -27,4 +27,4 @@ COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 443
 EXPOSE 80
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-Xms512M", "-ea","-jar", "look-see.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-Xms512M", "-ea","-jar", "app.jar"]
