@@ -26,20 +26,6 @@ This file contains general application settings. To configure:
    - `spring.datasource.*`: Database connection settings
    - `logging.level.*`: Logging configuration for different packages
 
-Example:
-
-### auth0.properties
-
-This file contains Auth0 authentication settings. To configure:
-
-1. Locate the `auth0.properties` file in the `src/main/resources` directory
-2. Set the following properties with your Auth0 account details:
-   - `auth0.domain`: Your Auth0 domain
-   - `auth0.clientId`: Your Auth0 client ID
-   - `auth0.clientSecret`: Your Auth0 client secret
-
-Example:
-
 ## Deployment to GCP
 
 To deploy this project's Docker container to Google Cloud Platform (GCP), follow these steps:
@@ -69,7 +55,7 @@ To deploy this project's Docker container to Google Cloud Platform (GCP), follow
 
 5. Once deployed, Google Cloud Run will provide a URL for accessing your application.
 
-Remember to set up any necessary environment variables or secrets in the Google Cloud Run configuration to match your `application.properties` and `auth0.properties` settings.
+Remember to set up any necessary environment variables or secrets in the Google Cloud Run configuration to match your `application.properties` settings.
 
 ## Getting Started
 
