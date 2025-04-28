@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/deepthought42/informationArchitectureAudit/compare/v1.0.1...v1.0.2) (2025-03-27)
+
+
+### Bug Fixes
+
+* renamed jar executed in Dockerfile ([6854ebd](https://github.com/deepthought42/informationArchitectureAudit/commit/6854ebdce68141888c8522b39ef14247db5f04c7))
+
 ## [1.0.1](https://github.com/deepthought42/informationArchitectureAudit/compare/v1.0.0...v1.0.1) (2025-03-27)
 
 
