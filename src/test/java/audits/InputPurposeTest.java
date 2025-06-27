@@ -8,8 +8,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
-import com.looksee.audit.informationArchitecture.models.GenericIssue;
 import com.looksee.audit.informationArchitecture.models.InputPurposeAudit;
+import com.looksee.models.GenericIssue;
 
 public class InputPurposeTest {
     

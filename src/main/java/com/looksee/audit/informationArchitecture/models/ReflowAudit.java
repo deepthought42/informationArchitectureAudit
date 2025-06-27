@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.xml.serialize.ElementState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.looksee.models.Audit;
 import com.looksee.models.AuditRecord;
 import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
 import com.looksee.models.IExecutablePageStateAudit;
 import com.looksee.models.PageState;
 import com.looksee.models.UXIssueMessage;
@@ -89,16 +89,16 @@ public class ReflowAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
-								 points_earned,
-								 issue_messages,
-								 AuditLevel.PAGE,
-								 max_points,
-								 page_state.getUrl(),
-								 why_it_matters,
-								 description,
-								 true);
+                                AuditSubcategory.NAVIGATION,
+                                AuditName.LINKS,
+                                points_earned,
+                                issue_messages,
+                                AuditLevel.PAGE,
+                                max_points,
+                                page_state.getUrl(),
+                                why_it_matters,
+                                description,
+                                true);
 		
 		return auditService.save(audit);
 	}

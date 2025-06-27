@@ -83,15 +83,15 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
         for(GenericIssue issue: issues){
             ElementState element_state = elementStateService.findByPageAndCssSelector(page_state.getId(), issue.getCssSelector());
             UXIssueMessage issue_msg = new ElementStateIssueMessage(Priority.HIGH,
-                                                                issue.getDescription(),
-                                                                issue.getRecommendation(),
-                                                                element_state,
-                                                                AuditCategory.ACCESSIBILITY,
-                                                                labels,
-                                                                ada_compliance,
-                                                                issue.getTitle(),
-                                                                0,
-                                                                1);
+                                                                    issue.getDescription(),
+                                                                    issue.getRecommendation(),
+                                                                    element_state,
+                                                                    AuditCategory.ACCESSIBILITY,
+                                                                    labels,
+                                                                    ada_compliance,
+                                                                    issue.getTitle(),
+                                                                    0,
+                                                                    1);
             issue_messages.add(issue_msg);
         }
 
