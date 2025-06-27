@@ -3,7 +3,6 @@ package com.looksee.audit.informationArchitecture.models;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,15 +19,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.gcp.CloudVisionUtils;
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.services.AuditService;
-import com.looksee.audit.informationArchitecture.services.PageStateService;
-import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
+import com.looksee.gcp.CloudVisionUtils;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
+import com.looksee.models.ElementStateIssueMessage;
+import com.looksee.models.IExecutablePageStateAudit;
+import com.looksee.models.PageState;
+import com.looksee.models.UXIssueMessage;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.Priority;
+import com.looksee.services.AuditService;
+import com.looksee.services.PageStateService;
+import com.looksee.services.UXIssueMessageService;
 import com.looksee.utils.BrowserUtils;
 
 /**
@@ -65,12 +72,10 @@ public class LinksAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * Scores links on a page based on if the link has an href value present,
+	 * the url format is valid and the url goes to a location that doesn't
+	 *  produce a 4xx error
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
@@ -306,7 +311,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 			}
 
 			//Does link have a valid URL? yes(1) / No(0)
-			try {				
+			try {
 				if(BrowserUtils.isJavascript(href)) {
 					String recommendation = "Links should have a valid URL in them. We suggest avoiding the use of the javascript protocol, expecially if you are going to use it to crete a non working link";
 					String description = "This link has the href value set to 'javascript:void(0)', which causes the link to appear to users as if it doesn't work.";
@@ -472,7 +477,7 @@ public class LinksAudit implements IExecutablePageStateAudit {
 				// and in these scenarios recommend making the parent tag a link instead of including multiple link tags
 				// NOTE 2: This is an issue for blind people and others that rely on screen readers
 				// NOTE 3: Links with image tags within then should have the alt-text extracted and reviewed.
-				 
+
 				boolean element_includes_text = false;
 	
 				//send img src to google for text extraction

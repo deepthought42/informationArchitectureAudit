@@ -16,13 +16,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.services.AuditService;
-import com.looksee.audit.informationArchitecture.services.ElementStateService;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
+import com.looksee.models.ElementStateIssueMessage;
+import com.looksee.models.IExecutablePageStateAudit;
+import com.looksee.models.PageState;
+import com.looksee.models.UXIssueMessage;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.Priority;
+import com.looksee.services.AuditService;
+import com.looksee.services.ElementStateService;
 
 /**
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
@@ -112,16 +120,16 @@ public class ListStructureAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
-								 points_earned,
-								 issue_messages,
-								 AuditLevel.PAGE,
-								 max_points,
-								 page_state.getUrl(),
-								 why_it_matters,
-								 description,
-								 true);
+                                AuditSubcategory.NAVIGATION,
+                                AuditName.LINKS,
+                                points_earned,
+                                issue_messages,
+                                AuditLevel.PAGE,
+                                max_points,
+                                page_state.getUrl(),
+                                why_it_matters,
+                                description,
+                                true);
 		
 		return auditService.save(audit);
 	}
@@ -173,8 +181,7 @@ public class ListStructureAudit implements IExecutablePageStateAudit {
      */
     public static boolean areChildrenListItems(Element listElement) {
         assert listElement != null : "Precondition failed: The list element must not be null.";
-        assert listElement.tagName().equals("ul") || listElement.tagName().equals("ol") 
-               : "Precondition failed: The element must be a <ul> or <ol>.";
+        assert listElement.tagName().equals("ul") || listElement.tagName().equals("ol") : "Precondition failed: The element must be a <ul> or <ol>.";
 
         // Get the direct children of the list element
         Elements children = listElement.children();

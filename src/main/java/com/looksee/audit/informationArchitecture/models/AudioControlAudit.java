@@ -19,7 +19,9 @@ import org.springframework.stereotype.Component;
 import com.looksee.models.Audit;
 import com.looksee.models.AuditRecord;
 import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
 import com.looksee.models.ElementStateIssueMessage;
+import com.looksee.models.GenericIssue;
 import com.looksee.models.IExecutablePageStateAudit;
 import com.looksee.models.PageState;
 import com.looksee.models.UXIssueMessage;
@@ -27,6 +29,7 @@ import com.looksee.models.enums.AuditCategory;
 import com.looksee.models.enums.AuditLevel;
 import com.looksee.models.enums.AuditName;
 import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.Priority;
 import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 

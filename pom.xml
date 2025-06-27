@@ -301,14 +301,14 @@
 		<dependency>
             <groupId>com.looksee</groupId>
             <artifactId>core</artifactId>
-            <version>0.1.9</version>
+            <version>0.1.11</version>
             <scope>system</scope>
-            <systemPath>${pom.basedir}/libs/core-0.1.9.jar</systemPath>
+            <systemPath>${pom.basedir}/libs/core-0.1.11.jar</systemPath>
         </dependency>
 	</dependencies>
 
 	<build>
-	    <plugins>
+		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -357,7 +357,7 @@
 				</executions>
 			</plugin>
 	    </plugins>
-  	</build>
+	</build>
     
     <repositories>
         <repository>
@@ -374,8 +374,8 @@
             <layout>default</layout>
         </repository>
         <repository>
-		    <id>atlassian-public</id>
-		    <url>https://packages.atlassian.com/maven/repository/public</url>
+			<id>atlassian-public</id>
+			<url>https://packages.atlassian.com/maven/repository/public</url>
 		</repository>
     </repositories>
 </project>	
