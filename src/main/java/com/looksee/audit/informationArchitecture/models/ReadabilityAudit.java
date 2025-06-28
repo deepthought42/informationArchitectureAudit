@@ -12,16 +12,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.services.AuditService;
-import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
+import com.looksee.models.IExecutablePageStateAudit;
+import com.looksee.models.PageState;
+import com.looksee.models.ReadingComplexityIssueMessage;
+import com.looksee.models.Score;
+import com.looksee.models.UXIssueMessage;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.Priority;
+import com.looksee.services.AuditService;
+import com.looksee.services.UXIssueMessageService;
 import com.looksee.utils.ContentUtils;
 
 import io.whelk.flesch.kincaid.ReadabilityCalculator;
+import lombok.NoArgsConstructor;
 
 /**
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
@@ -29,6 +39,7 @@ import io.whelk.flesch.kincaid.ReadabilityCalculator;
  * WCAG Level - AAA
  * WCAG Success Criterion - https://www.w3.org/TR/UNDERSTANDING-WCAG20/meaning-supplements.html
  */
+@NoArgsConstructor
 @Component
 public class ReadabilityAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
@@ -39,9 +50,6 @@ public class ReadabilityAudit implements IExecutablePageStateAudit {
 	
 	@Autowired
 	private UXIssueMessageService issue_message_service;
-	
-	public ReadabilityAudit() {} 
-
 	
 	/**
 	 * {@inheritDoc}
@@ -127,17 +135,17 @@ public class ReadabilityAudit implements IExecutablePageStateAudit {
 					String description = generateIssueDescription(element, difficulty_string, ease_of_reading_score, audit_record.getTargetUserEducation());
 					String recommendation = "Reduce the length of your sentences by breaking longer sentences into 2 or more shorter sentences. You can also use simpler words. Words that contain many syllables can also be difficult to understand.";
 					
-					ReadingComplexityIssueMessage issue_message = new ReadingComplexityIssueMessage(Priority.LOW, 
-																								  description,
-																								  recommendation,
-																								  null,
-																								  AuditCategory.CONTENT,
-																								  labels,
-																								  ada_compliance,
-																								  title,
-																								  element_points,
-																								  4,
-																								  ease_of_reading_score);
+					ReadingComplexityIssueMessage issue_message = new ReadingComplexityIssueMessage(Priority.LOW,
+																								description,
+																								recommendation,
+																								null,
+																								AuditCategory.CONTENT,
+																								labels,
+																								ada_compliance,
+																								title,
+																								element_points,
+																								4,
+																								ease_of_reading_score);
 					
 					issue_message = (ReadingComplexityIssueMessage) issue_message_service.save(issue_message);
 					issue_message_service.addElement(issue_message.getId(), element.getId());

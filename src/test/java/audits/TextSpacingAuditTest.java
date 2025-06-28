@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.TextSpacingAudit;
-import com.looksee.audit.informationArchitecture.models.UXIssueMessage;
+import com.looksee.models.ElementState;
+import com.looksee.models.UXIssueMessage;
 
 public class TextSpacingAuditTest {
     @Test

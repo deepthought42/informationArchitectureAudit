@@ -1,7 +1,5 @@
 package com.looksee.audit.informationArchitecture.models;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,16 +16,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
-import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.services.AuditService;
-import com.looksee.audit.informationArchitecture.services.BrowserService;
-import com.looksee.audit.informationArchitecture.services.ElementStateService;
-import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
+import com.looksee.models.ElementStateIssueMessage;
+import com.looksee.models.IExecutablePageStateAudit;
+import com.looksee.models.PageState;
+import com.looksee.models.UXIssueMessage;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.ObservationType;
+import com.looksee.models.enums.Priority;
+import com.looksee.services.AuditService;
+import com.looksee.services.BrowserService;
+import com.looksee.services.ElementStateService;
+import com.looksee.services.UXIssueMessageService;
 
 /**
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
@@ -57,10 +63,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 	 * {@inheritDoc}
 	 * 
 	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *   url goes to a location that doesn't produce a 4xx error
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
@@ -85,7 +88,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
             String title = "H1 level header not found";
             String recommendation = "To fix the issue of no <h1> header on a webpage, identify the main topic, add an <h1> at the beginning, ensure proper heading hierarchy, and use accessibility tools to test for compliance with WCAG 2.1.";
             UXIssueMessage favicon_issue = new UXIssueMessage(Priority.NONE,
-															description, 
+															description,
 															ObservationType.PAGE_STATE,
 															AuditCategory.INFORMATION_ARCHITECTURE,
 															ada_compliance,
@@ -150,16 +153,16 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
             String recommendation = "Reconfigure document so that headers are in hierarchical order. When headers are not in hierarchical order, it makes content difficult to understand for people that require assistive technology";
             String title = "Headers are not in hierarchical order.";
             issue_messages.add(new ElementStateIssueMessage(
-                Priority.MEDIUM,
-                issue_description,
-                recommendation,
-                header_elem,
-                AuditCategory.ACCESSIBILITY,
-                labels,
-                ada_compliance,
-                title,
-                0,
-                1));
+                                        Priority.MEDIUM,
+                                        issue_description,
+                                        recommendation,
+                                        header_elem,
+                                        AuditCategory.ACCESSIBILITY,
+                                        labels,
+                                        ada_compliance,
+                                        title,
+                                        0,
+                                        1));
         }
 
 		String why_it_matters = "A well-structured header hierarchy is like a road map for your content—it helps screen readers and assistive technologies navigate the page, making it easier for everyone to understand the content flow. When headers are in the correct order, users can skim and comprehend information more efficiently, which is key to meeting WCAG 2.1 Section 1.3.1 requirements.";

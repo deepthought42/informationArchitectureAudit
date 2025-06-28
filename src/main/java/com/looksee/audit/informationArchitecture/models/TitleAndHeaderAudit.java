@@ -1,7 +1,5 @@
 package com.looksee.audit.informationArchitecture.models;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,14 +13,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.ObservationType;
-import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.services.AuditService;
-import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.DesignSystem;
+import com.looksee.models.IExecutablePageStateAudit;
+import com.looksee.models.PageState;
+import com.looksee.models.Score;
+import com.looksee.models.UXIssueMessage;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.ObservationType;
+import com.looksee.models.enums.Priority;
+import com.looksee.services.AuditService;
+import com.looksee.services.UXIssueMessageService;
 import com.looksee.utils.BrowserUtils;
 import com.looksee.utils.ElementStateUtils;
 
@@ -43,15 +48,12 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Identifies colors used on page, the color scheme type used, and the ultimately the score for how the colors used conform to scheme
-	 *  
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
 	 */
 	@Override
-	public Audit execute(PageState page_state, 
-						 AuditRecord audit_record, 
+	public Audit execute(PageState page_state,
+						 AuditRecord audit_record,
 						 DesignSystem design_system
 	 ) {
 		assert page_state != null;
@@ -257,7 +259,7 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 			String recommendation = "";
 			
 			UXIssueMessage favicon_issue = new UXIssueMessage(Priority.NONE,
-															description, 
+															description,
 															ObservationType.PAGE_STATE,
 															AuditCategory.INFORMATION_ARCHITECTURE,
 															ada_compliance,

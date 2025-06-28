@@ -1,7 +1,5 @@
 package com.looksee.audit.informationArchitecture.models;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,15 +10,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.cloud.language.v1.Sentence;
-import com.looksee.audit.informationArchitecture.gcp.CloudNLPUtils;
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.services.AuditService;
-import com.looksee.audit.informationArchitecture.services.PageStateService;
-import com.looksee.audit.informationArchitecture.services.UXIssueMessageService;
+import com.looksee.gcp.CloudNLPUtils;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
+import com.looksee.models.IExecutablePageStateAudit;
+import com.looksee.models.PageState;
+import com.looksee.models.Score;
+import com.looksee.models.SentenceIssueMessage;
+import com.looksee.models.UXIssueMessage;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.Priority;
+import com.looksee.services.AuditService;
+import com.looksee.services.PageStateService;
+import com.looksee.services.UXIssueMessageService;
 import com.looksee.utils.BrowserUtils;
 
 /**
@@ -48,11 +55,8 @@ public class ParagraphingAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 * Scores links on a page based on if the link has an href value present, the url format is valid and the
+	 *   url goes to a location that doesn't produce a 4xx error
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
@@ -81,7 +85,7 @@ public class ParagraphingAudit implements IExecutablePageStateAudit {
 					List<Sentence> sentences = CloudNLPUtils.extractSentences(paragraph);
 					Score score = calculateSentenceScore(sentences, element);
 
-					issue_messages.addAll(score.getIssueMessages());	
+					issue_messages.addAll(score.getIssueMessages());
 				} catch (Exception e) {
 					log.warn("error getting sentences from text :: "+paragraph);
 					//e.printStackTrace();
@@ -91,9 +95,9 @@ public class ParagraphingAudit implements IExecutablePageStateAudit {
 			// validate that spacing between paragraphs is at least 2x the font size within the paragraphs
 		}
 		
-		String why_it_matters = "The way users experience content has changed in the mobile phone era." + 
-				" Attention spans are shorter, and users skim through most information." + 
-				" Presenting information in small, easy to digest chunks makes their" + 
+		String why_it_matters = "The way users experience content has changed in the mobile phone era." +
+				" Attention spans are shorter, and users skim through most information." +
+				" Presenting information in small, easy to digest chunks makes their" +
 				" experience easy and convenient. ";
 
 
@@ -102,36 +106,22 @@ public class ParagraphingAudit implements IExecutablePageStateAudit {
 		for(UXIssueMessage issue_msg : issue_messages) {
 			points_earned += issue_msg.getPoints();
 			max_points += issue_msg.getMaxPoints();
-			/*
-			if(issue_msg.getScore() < 90 && issue_msg instanceof ElementStateIssueMessage) {
-				ElementStateIssueMessage element_issue_msg = (ElementStateIssueMessage)issue_msg;
-				List<ElementState> good_examples = audit_service.findGoodExample(AuditName.ALT_TEXT, 100);
-				if(good_examples.isEmpty()) {
-					log.warn("Could not find element for good example...");
-					continue;
-				}
-				Random random = new Random();
-				ElementState good_example = good_examples.get(random.nextInt(good_examples.size()-1));
-				element_issue_msg.setGoodExample(good_example);
-				issue_message_service.save(element_issue_msg);
-			}
-			*/
 		}
 		
 		String description = "";
 
 		Audit audit = new Audit(AuditCategory.CONTENT,
-						 AuditSubcategory.WRITTEN_CONTENT, 
-						 AuditName.PARAGRAPHING, 
-						 points_earned, 
-						 new HashSet<>(), 
-						 AuditLevel.PAGE, 
-						 max_points, 
-						 page_state.getUrl(),
-						 why_it_matters, 
-						 description,
-						 false); 
-						 
+								AuditSubcategory.WRITTEN_CONTENT,
+								AuditName.PARAGRAPHING,
+								points_earned,
+								new HashSet<>(),
+								AuditLevel.PAGE,
+								max_points,
+								page_state.getUrl(),
+								why_it_matters,
+								description,
+								false);
+
 		audit_service.save(audit);
 		audit_service.addAllIssues(audit.getId(), issue_messages);
 		return audit;

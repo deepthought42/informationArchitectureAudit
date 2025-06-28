@@ -11,8 +11,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.jupiter.api.Test;
 
-import com.looksee.audit.informationArchitecture.models.GenericIssue;
 import com.looksee.audit.informationArchitecture.models.TableStructureAudit;
+import com.looksee.models.GenericIssue;
 
 public class TableValidationTest {
 

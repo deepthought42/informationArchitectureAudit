@@ -8,9 +8,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
-import com.looksee.audit.informationArchitecture.models.ElementState;
 import com.looksee.audit.informationArchitecture.models.KeyboardAccessibleAudit;
-import com.looksee.audit.informationArchitecture.models.PageState;
+import com.looksee.models.ElementState;
+import com.looksee.models.PageState;
 
 public class KeyboardAccessibleTest {
     private List<ElementState> elements;

@@ -17,11 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.looksee.audit.informationArchitecture.gcp.PubSubAuditUpdatePublisherImpl;
-import com.looksee.audit.informationArchitecture.mapper.Body;
 import com.looksee.audit.informationArchitecture.models.AudioControlAudit;
-import com.looksee.audit.informationArchitecture.models.Audit;
-import com.looksee.audit.informationArchitecture.models.AuditRecord;
 import com.looksee.audit.informationArchitecture.models.FormStructureAudit;
 import com.looksee.audit.informationArchitecture.models.HeaderStructureAudit;
 import com.looksee.audit.informationArchitecture.models.IdentifyPurposeAudit;
@@ -30,7 +26,6 @@ import com.looksee.audit.informationArchitecture.models.LinksAudit;
 import com.looksee.audit.informationArchitecture.models.MetadataAudit;
 import com.looksee.audit.informationArchitecture.models.OrientationAudit;
 import com.looksee.audit.informationArchitecture.models.PageLanguageAudit;
-import com.looksee.audit.informationArchitecture.models.PageState;
 import com.looksee.audit.informationArchitecture.models.ReflowAudit;
 import com.looksee.audit.informationArchitecture.models.SecurityAudit;
 import com.looksee.audit.informationArchitecture.models.TableStructureAudit;
@@ -38,13 +33,18 @@ import com.looksee.audit.informationArchitecture.models.TextSpacingAudit;
 import com.looksee.audit.informationArchitecture.models.TitleAndHeaderAudit;
 import com.looksee.audit.informationArchitecture.models.UseOfColorAudit;
 import com.looksee.audit.informationArchitecture.models.VisualPresentationAudit;
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.message.AuditProgressUpdate;
-import com.looksee.audit.informationArchitecture.models.message.PageAuditMessage;
-import com.looksee.audit.informationArchitecture.services.AuditRecordService;
-import com.looksee.audit.informationArchitecture.services.PageStateService;
+import com.looksee.gcp.PubSubAuditUpdatePublisherImpl;
+import com.looksee.mapper.Body;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.PageState;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.message.AuditProgressUpdate;
+import com.looksee.models.message.PageAuditMessage;
+import com.looksee.services.AuditRecordService;
+import com.looksee.services.PageStateService;
 
 @RestController
 public class AuditController {
@@ -216,9 +216,9 @@ public class AuditController {
 		AuditProgressUpdate audit_update = new AuditProgressUpdate(audit_record_msg.getAccountId(),
 															1.0,
 															"Completed information architecture audit",
-																	AuditCategory.INFORMATION_ARCHITECTURE, 
-																	AuditLevel.PAGE,
-																	audit_record_msg.getPageAuditId());
+															AuditCategory.INFORMATION_ARCHITECTURE,
+															AuditLevel.PAGE,
+															audit_record_msg.getPageAuditId());
 
 		String audit_record_json = mapper.writeValueAsString(audit_update);
 		audit_update_topic.publish(audit_record_json);
@@ -227,7 +227,7 @@ public class AuditController {
 	}
 
 	/**
-	 * Checks if the any of the provided {@link Audit audits} have a name that matches 
+	 * Checks if the any of the provided {@link Audit audits} have a name that matches
 	 * 		the provided {@linkplain AuditName}
 	 * 
 	 * @param audits
@@ -249,5 +249,4 @@ public class AuditController {
 		}
 		return false;
 	}
-  
 }

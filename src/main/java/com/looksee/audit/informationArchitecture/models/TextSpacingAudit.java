@@ -14,13 +14,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.services.AuditService;
-import com.looksee.audit.informationArchitecture.services.PageStateService;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
+import com.looksee.models.ElementStateIssueMessage;
+import com.looksee.models.IExecutablePageStateAudit;
+import com.looksee.models.PageState;
+import com.looksee.models.UXIssueMessage;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.Priority;
+import com.looksee.services.AuditService;
+import com.looksee.services.PageStateService;
 
 /**
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
@@ -121,15 +129,15 @@ public class TextSpacingAudit implements IExecutablePageStateAudit {
                 String title = "Insufficient line height";
                 String recommendation = "Increase line height to at least 1.5 times the font size.";
                 issues.add(new ElementStateIssueMessage(Priority.HIGH,
-                    description,
-                    recommendation,
-                    element,
-                    AuditCategory.ACCESSIBILITY,
-                    new HashSet<>(),
-                    ada_compliance,
-                    title,
-                    0,
-                    1));
+                                                        description,
+                                                        recommendation,
+                                                        element,
+                                                        AuditCategory.ACCESSIBILITY,
+                                                        new HashSet<>(),
+                                                        ada_compliance,
+                                                        title,
+                                                        0,
+                                                        1));
             }
 
             // Check letter spacing (should be at least 0.12 times the font size)

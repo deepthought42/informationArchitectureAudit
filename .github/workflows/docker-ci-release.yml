@@ -1,16 +1,19 @@
-name: Build, Push, Release
+name: Build and Release
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
+    types: [closed]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    # This job runs only when a PR is merged to master
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
 
     steps:
       - name: Checkout code
@@ -20,14 +23,19 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: '17'
+          java-version: '21'
+
+      - name: Download core JAR
+        run: bash scripts/download-core.sh
 
       - name: Test with Maven
         run: mvn test
 
   bump-version:
-    runs-on: ubuntu-latest
     needs: test
+    # Run only when PR is merged to master
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
     outputs:
       VERSION: ${{ steps.get_version.outputs.VERSION }}
 
@@ -54,6 +62,8 @@ jobs:
           
   build-and-release:
     needs: bump-version
+    # Run only when PR is merged to master
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ needs.bump-version.outputs.VERSION }}
@@ -80,6 +90,8 @@ jobs:
       
   github-release:
     needs: bump-version
+    # Run only when PR is merged to master
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ needs.bump-version.outputs.VERSION }}
@@ -92,8 +104,11 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: '17'
+          java-version: '21'
       
+      - name: Download core JAR
+        run: bash scripts/download-core.sh
+        
       - name: Test with Maven
         run: mvn install -DskipTests
 

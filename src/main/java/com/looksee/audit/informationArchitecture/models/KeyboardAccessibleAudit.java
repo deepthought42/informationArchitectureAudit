@@ -1,7 +1,5 @@
 package com.looksee.audit.informationArchitecture.models;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -12,13 +10,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.models.enums.AuditCategory;
-import com.looksee.audit.informationArchitecture.models.enums.AuditLevel;
-import com.looksee.audit.informationArchitecture.models.enums.AuditName;
-import com.looksee.audit.informationArchitecture.models.enums.AuditSubcategory;
-import com.looksee.audit.informationArchitecture.models.enums.Priority;
-import com.looksee.audit.informationArchitecture.services.AuditService;
-import com.looksee.audit.informationArchitecture.services.PageStateService;
+import com.looksee.models.Audit;
+import com.looksee.models.AuditRecord;
+import com.looksee.models.DesignSystem;
+import com.looksee.models.ElementState;
+import com.looksee.models.ElementStateIssueMessage;
+import com.looksee.models.IExecutablePageStateAudit;
+import com.looksee.models.PageState;
+import com.looksee.models.UXIssueMessage;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.Priority;
+import com.looksee.services.AuditService;
+import com.looksee.services.PageStateService;
 
 /**
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
@@ -42,12 +48,9 @@ public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * Scores links on a page based on if the link has an href value present, the url format is valid and the
+	 *   url goes to a location that doesn't produce a 4xx error
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
@@ -99,25 +102,25 @@ public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
-								 points_earned,
-								 issue_messages,
-								 AuditLevel.PAGE,
-								 max_points,
-								 page_state.getUrl(),
-								 why_it_matters,
-								 description,
-								 true);
+								AuditSubcategory.NAVIGATION,
+								AuditName.LINKS,
+								points_earned,
+								issue_messages,
+								AuditLevel.PAGE,
+								max_points,
+								page_state.getUrl(),
+								why_it_matters,
+								description,
+								true);
 		
 		return auditService.save(audit);
 	}
 
     
-      /**
+	/**
      * Checks the entire HTML page for keyboard accessibility compliance with WCAG 2.1 Section 2.1.1.
      * The method will return a list of elements that might not be operable through a keyboard interface.
-     * 
+     *
      * Precondition: The WebDriver must be initialized and the page must be fully loaded.
      * Postcondition: The returned list will contain WebElements that are not keyboard accessible or will be empty if all elements are accessible.
      *
@@ -131,7 +134,14 @@ public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
 
         // Loop through all elements and check if they can be focused
         for (ElementState element : elements) {
-            if (!element.isFocusable()) {
+            String tabindex = element.getAttribute("tabindex");
+            String role = element.getAttribute("role");
+            
+            // Check if element is keyboard accessible
+            boolean isAccessible = (tabindex != null && !tabindex.isEmpty()) ||
+								(role != null && !role.isEmpty());
+            
+            if (!isAccessible) {
                 nonAccessibleElements.add(element);
             }
         }

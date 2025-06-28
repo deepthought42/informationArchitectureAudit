@@ -8,8 +8,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 
-import com.looksee.audit.informationArchitecture.models.GenericIssue;
 import com.looksee.audit.informationArchitecture.models.UseOfColorAudit;
+import com.looksee.models.GenericIssue;
 
 public class UseOfColorAuditTest {
     
