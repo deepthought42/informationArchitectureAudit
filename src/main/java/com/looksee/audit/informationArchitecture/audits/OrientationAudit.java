@@ -1,24 +1,35 @@
-package com.looksee.audit.informationArchitecture.models;
+package com.looksee.audit.informationArchitecture.audits;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.looksee.models.ElementState;
 import com.looksee.models.PageState;
 import com.looksee.models.audit.Audit;
 import com.looksee.models.audit.AuditRecord;
+import com.looksee.models.audit.ElementStateIssueMessage;
+import com.looksee.models.audit.GenericIssue;
 import com.looksee.models.audit.IExecutablePageStateAudit;
 import com.looksee.models.audit.UXIssueMessage;
 import com.looksee.models.designsystem.DesignSystem;
+import com.looksee.models.enums.AuditCategory;
+import com.looksee.models.enums.AuditLevel;
+import com.looksee.models.enums.AuditName;
+import com.looksee.models.enums.AuditSubcategory;
+import com.looksee.models.enums.Priority;
 import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
@@ -26,7 +37,7 @@ import com.looksee.services.ElementStateService;
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
  */
 @Component
-public class SeleniumDrivenAudit implements IExecutablePageStateAudit {
+public class OrientationAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
 
@@ -38,7 +49,7 @@ public class SeleniumDrivenAudit implements IExecutablePageStateAudit {
 
 	List<String> bad_link_text_list;
 	
-	public SeleniumDrivenAudit() {
+	public OrientationAudit() {
 		//super(buildBestPractices(), getAdaDescription(), getAuditDescription(), AuditSubcategory.LINKS);
 	}
 
@@ -47,25 +58,28 @@ public class SeleniumDrivenAudit implements IExecutablePageStateAudit {
 	 * {@inheritDoc}
 	 * 
 	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error
+	 *   url goes to a location that doesn't produce a 4xx error 
+	 *   
+	 * @throws MalformedURLException 
+	 * @throws URISyntaxException 
 	 */
-    @Override
+	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-        assert audit_record != null;
-        assert page_state != null;
-        
+		assert page_state != null;
+		assert audit_record != null;
+
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
-        /**
 		String ada_compliance = "WCAG 2.1 Section 1.3.1 - Tables";
-        
+
 		Set<String> labels = new HashSet<>();
 		labels.add("information architecture");
 		labels.add("accessibility");
+		labels.add("tables");
 		labels.add("wcag");
 		
 		Document jsoup_doc = Jsoup.parse(page_state.getSrc());
-        List<GenericIssue> issues = checkCompliance(jsoup_doc);
+        List<GenericIssue> issues = checkOrientationRestrictions(jsoup_doc);
         
         for(GenericIssue issue: issues){
             ElementState element_state = elementStateService.findByPageAndCssSelector(page_state.getId(), issue.getCssSelector());
@@ -109,65 +123,43 @@ public class SeleniumDrivenAudit implements IExecutablePageStateAudit {
 								 true);
 		
 		return auditService.save(audit);
-	*/
-        return null;
+	}
 
-    }
+    /**
+     * This method checks if the HTML document restricts content to a specific orientation,
+     * which would violate WCAG 2.1 Section 1.3.4 unless justified.
+     */
+    public static List<GenericIssue> checkOrientationRestrictions(Document doc) {
+        List<GenericIssue> issues = new ArrayList<>();
 
-    public static void checkVisualPresentationCompliance(WebDriver driver) {
-        // Get all text elements
-        List<WebElement> textElements = driver.findElements(By.xpath("//*[not(self::script) and not(self::style)]/text()"));
+        // Check for any media queries that restrict orientation
+        Elements styleTags = doc.select("style");
+        boolean orientationRestrictionFound = false;
 
-        // Evaluate each text element
-        for (WebElement element : textElements) {
-            // Check text resizing by setting font size to 200%
-            String script = "arguments[0].style.fontSize = '200%'; return arguments[0].offsetHeight;";
-            int originalHeight = (int) ((JavascriptExecutor) driver).executeScript(script, element);
-            int resizedHeight = (int) ((JavascriptExecutor) driver).executeScript(script, element);
+        for (Element styleTag : styleTags) {
+            String styleContent = styleTag.html();
 
-            if (resizedHeight != originalHeight) {
-                System.out.println("Text resizing failed for element: " + element.getText());
-            }
-
-            // Check line height (leading)
-            String lineHeight = element.getCssValue("line-height");
-            String fontSize = element.getCssValue("font-size");
-
-            if (parsePxValue(lineHeight) < 1.5 * parsePxValue(fontSize)) {
-                System.out.println("Insufficient line height for element: " + element.getText());
-            }
-
-            // Check paragraph spacing
-            String marginBottom = element.getCssValue("margin-bottom");
-
-            if (parsePxValue(marginBottom) < 2 * parsePxValue(fontSize)) {
-                System.out.println("Insufficient paragraph spacing for element: " + element.getText());
-            }
-
-            // Check text justification
-            String textAlign = element.getCssValue("text-align");
-
-            if ("justify".equalsIgnoreCase(textAlign)) {
-                System.out.println("Text is justified, which is not compliant: " + element.getText());
-            }
-
-            // Check color contrast (foreground and background colors)
-            String color = element.getCssValue("color");
-            String backgroundColor = element.getCssValue("background-color");
-
-            if (!isColorContrastSufficient(color, backgroundColor)) {
-                System.out.println("Insufficient color contrast for element: " + element.getText());
+            // Check for orientation media queries
+            if (styleContent.contains("(orientation: portrait)") || styleContent.contains("(orientation: landscape)")) {
+                System.out.println("Warning: Content may restrict its display orientation: " + styleTag);
+                orientationRestrictionFound = true;
             }
         }
-    }
 
-    private static double parsePxValue(String value) {
-        return Double.parseDouble(value.replace("px", ""));
-    }
+        // Additionally, check for any meta viewport tags that might suggest an orientation lock
+        Elements metaTags = doc.select("meta[name=viewport]");
+        for (Element metaTag : metaTags) {
+            String content = metaTag.attr("content");
+            if (content.contains("orientation")) {
+                System.out.println("Warning: Viewport meta tag suggests possible orientation restriction: " + metaTag);
+                orientationRestrictionFound = true;
+            }
+        }
 
-    private static boolean isColorContrastSufficient(String color, String backgroundColor) {
-        // You can add color contrast logic here. For simplicity, let's just return true.
-        // Ideally, you would use a library or implement a method to calculate contrast ratio.
-        return true;
+        if (!orientationRestrictionFound) {
+            System.out.println("No orientation restrictions detected.");
+        }
+
+        return issues;
     }
 }

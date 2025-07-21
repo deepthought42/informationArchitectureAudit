@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.looksee.audit.informationArchitecture.audits.LinksAudit;
 import com.looksee.models.ElementState;
 import com.looksee.models.PageState;
 import com.looksee.models.audit.Audit;
@@ -33,7 +34,7 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Responsible for executing an audit on the hyperlinks and special text on a page
  */
 @Component
 public class WcagEmphasisComplianceAudit implements IExecutablePageStateAudit {

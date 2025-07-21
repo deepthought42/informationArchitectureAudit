@@ -1,13 +1,11 @@
-package com.looksee.audit.informationArchitecture.models;
+package com.looksee.audit.informationArchitecture.audits;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,7 +37,7 @@ import com.looksee.services.ElementStateService;
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
  */
 @Component
-public class UseOfColorAudit implements IExecutablePageStateAudit {
+public class AudioControlAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
 
@@ -51,28 +49,10 @@ public class UseOfColorAudit implements IExecutablePageStateAudit {
 
 	List<String> bad_link_text_list;
 	
-    // List of autocomplete values that help identify input purposes according to WCAG 2.1 section 1.3.5
-    private static final List<String> AUTOCOMPLETE_VALUES = Arrays.asList(
-        "name", "honorific-prefix", "given-name", "additional-name", "family-name", "honorific-suffix",
-        "nickname", "email", "username", "new-password", "current-password", "organization-title",
-        "organization", "street-address", "address-line1", "address-line2", "address-line3", 
-        "address-level1", "address-level2", "address-level3", "address-level4", "country", 
-        "country-name", "postal-code", "cc-name", "cc-given-name", "cc-additional-name", 
-        "cc-family-name", "cc-number", "cc-exp", "cc-exp-month", "cc-exp-year", "cc-csc", 
-        "cc-type", "transaction-currency", "transaction-amount", "language", "bday", 
-        "bday-day", "bday-month", "bday-year", "sex", "tel", "tel-country-code", "tel-national", 
-        "tel-area-code", "tel-local", "tel-local-prefix", "tel-local-suffix", "tel-extension", 
-        "impp", "url", "photo"
-    );
-
-     // Pattern for basic fuzzy matching of input names
-     private static final Pattern NAME_PATTERN = Pattern.compile(".*(name|email|address|phone|credit|dob|gender|username|city).*", Pattern.CASE_INSENSITIVE);
-
-	public UseOfColorAudit() {
+	public AudioControlAudit() {
 		//super(buildBestPractices(), getAdaDescription(), getAuditDescription(), AuditSubcategory.LINKS);
 	}
 
-	
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -144,68 +124,51 @@ public class UseOfColorAudit implements IExecutablePageStateAudit {
 		return auditService.save(audit);
 	}
 
-    // Method to check compliance with WCAG 2.1 Section 1.4.1
-    public static List<GenericIssue> checkCompliance(Document doc) {
+    /**
+     * Evaluates an HTML document for compliance with WCAG 2.1 Section 1.4.2 - Audio Control.
+     * This section requires that if any audio on a web page plays automatically for more than 3 seconds,
+     * the user should be able to pause, stop, or control the volume of the audio independently from the system volume.
+     *
+     * @param html The HTML document as a string.
+     * @return A list of GenericIssue objects representing any issues found.
+     */
+    public static List<GenericIssue> checkCompliance(Document document) {
         List<GenericIssue> issues = new ArrayList<>();
 
-        // Check for elements that use inline styles or attributes to convey information by color
-        Elements elements = doc.select("*[style], *[bgcolor]");
+        // Select all audio and video elements
+        Elements audioElements = document.select("audio[autoplay], video[autoplay]");
 
-        for (Element element : elements) {
-            String style = element.attr("style");
+        for (Element element : audioElements) {
+            boolean hasControls = element.hasAttr("controls");
+            boolean hasNoAudio = element.hasAttr("muted");
 
-            // Check for use of color in the inline style or the bgcolor attribute
-            if (style.contains("color") || style.contains("background-color") || element.hasAttr("bgcolor")) {
-                // Check if there's any accompanying text or visual indicator
-                if (!hasTextualIndicator(element)) {
+            if (!hasControls && !hasNoAudio) {
+                issues.add(new GenericIssue(
+                        "Autoplaying audio or video found without user controls or mute options.",
+                        "Audio Control Violation",
+                        element.cssSelector(),
+                        "Ensure that audio or video elements with autoplay have user controls or are muted."
+                ));
+            }
+        }
+
+        // Check for embedded content (iframes) that might include autoplaying audio
+        Elements iframes = document.select("iframe");
+
+        for (Element iframe : iframes) {
+            if (iframe.hasAttr("src")) {
+                String src = iframe.attr("src");
+                if (src.contains("autoplay=1")) {
                     issues.add(new GenericIssue(
-                            "Element relies on color alone to convey information.",
-                            "Use of Color Violation",
-                            element.cssSelector(),
-                            "Add textual indicators or non-color visual indicators to ensure the information is accessible."
+                            "Embedded content with autoplaying audio or video found.",
+                            "Audio Control Violation",
+                            iframe.cssSelector(),
+                            "Ensure embedded content with autoplay has user controls or the autoplay feature is disabled."
                     ));
                 }
             }
         }
 
         return issues;
-    }
-
-    // Method to check if the element or its children contain textual indicators
-    private static boolean hasTextualIndicator(Element element) {
-        // Check if the element or any of its children contain text
-        if (!element.ownText().trim().isEmpty()) {
-            return true;
-        }
-
-        // Check if there are any children with text content
-        for (Element child : element.children()) {
-            if (!child.ownText().trim().isEmpty()) {
-                return true;
-            }
-        }
-
-        // Check if there's an aria-label or other accessibility attribute that conveys meaning
-        if (element.hasAttr("aria-label") || element.hasAttr("aria-labelledby") || element.hasAttr("alt")) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static void main(String[] args) {
-        String html = "<html><body>"
-                + "<div style='color: red;'>Required</div>"
-                + "<div style='background-color: #00FF00;'>Success</div>"
-                + "<span bgcolor='#FF0000'>Alert</span>"
-                + "<button style='color: green;'>Submit</button>"
-                + "</body></html>";
-
-        Document doc = Jsoup.parse(html);
-        List<GenericIssue> issues = checkCompliance(doc);
-
-        for (GenericIssue issue : issues) {
-            System.out.println(issue);
-        }
     }
 }

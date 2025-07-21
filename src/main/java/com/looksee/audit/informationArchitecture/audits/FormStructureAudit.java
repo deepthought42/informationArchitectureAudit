@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitecture.models;
+package com.looksee.audit.informationArchitecture.audits;
 
 import java.util.ArrayList;
 import java.util.HashSet;

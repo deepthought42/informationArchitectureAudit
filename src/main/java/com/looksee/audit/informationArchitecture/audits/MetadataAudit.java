@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitecture.models;
+package com.looksee.audit.informationArchitecture.audits;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;

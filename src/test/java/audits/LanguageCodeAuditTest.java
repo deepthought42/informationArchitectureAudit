@@ -9,7 +9,7 @@ import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.looksee.audit.informationArchitecture.models.PageLanguageAudit;
+import com.looksee.audit.informationArchitecture.audits.PageLanguageAudit;
 import com.looksee.models.audit.UXIssueMessage;
 
 public class LanguageCodeAuditTest {

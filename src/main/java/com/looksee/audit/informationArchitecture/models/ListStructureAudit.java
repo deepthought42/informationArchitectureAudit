@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.looksee.audit.informationArchitecture.audits.LinksAudit;
 import com.looksee.models.ElementState;
 import com.looksee.models.PageState;
 import com.looksee.models.audit.Audit;
@@ -33,7 +34,7 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Responsible for executing an audit on the list structure on a page for the information architecture audit category
  */
 @Component
 public class ListStructureAudit implements IExecutablePageStateAudit {
@@ -64,8 +65,8 @@ public class ListStructureAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
+	 * Scores list structure on a page based on if the list is structured correctly
+     * 	based on the WCAG 2.1 Section 1.3.1 requirements
 	 *   
 	 * @throws MalformedURLException 
 	 * @throws URISyntaxException 
