@@ -60,21 +60,7 @@
 			<version>4.13.2</version>
 			<scope>test</scope>
 	    </dependency>
-		
-		<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
-		<dependency>
-		    <groupId>commons-codec</groupId>
-		    <artifactId>commons-codec</artifactId>
-		    <version>1.15</version>
-		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/us.codecraft/xsoup -->
-		<dependency>
-		    <groupId>us.codecraft</groupId>
-		    <artifactId>xsoup</artifactId>
-		    <version>0.3.1</version>
-		</dependency>
-		
 		<dependency>
 		    <groupId>xml-apis</groupId>
 		    <artifactId>xml-apis</artifactId>

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.looksee.audit.informationArchitecture.models.VisualPresentationAudit;
-import com.looksee.models.GenericIssue;
+import com.looksee.models.audit.GenericIssue;
 
 public class VisualPresentationAuditTest {
 

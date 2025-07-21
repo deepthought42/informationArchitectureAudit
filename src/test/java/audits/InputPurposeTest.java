@@ -9,7 +9,7 @@ import org.jsoup.nodes.Document;
 import org.junit.Test;
 
 import com.looksee.audit.informationArchitecture.models.InputPurposeAudit;
-import com.looksee.models.GenericIssue;
+import com.looksee.models.audit.GenericIssue;
 
 public class InputPurposeTest {
     

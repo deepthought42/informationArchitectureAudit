@@ -10,7 +10,7 @@ import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.looksee.models.GenericIssue;
+import com.looksee.models.audit.GenericIssue;
 import com.looksee.utils.FormValidator;
 
 public class FormValidatorTest {

@@ -9,7 +9,7 @@ import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 
 import com.looksee.audit.informationArchitecture.models.AudioControlAudit;
-import com.looksee.models.GenericIssue;
+import com.looksee.models.audit.GenericIssue;
 
 public class AudioControlAuditTest {
 
