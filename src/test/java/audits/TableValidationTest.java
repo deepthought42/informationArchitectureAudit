@@ -12,7 +12,7 @@ import org.jsoup.nodes.Element;
 import org.junit.jupiter.api.Test;
 
 import com.looksee.audit.informationArchitecture.models.TableStructureAudit;
-import com.looksee.models.GenericIssue;
+import com.looksee.models.audit.GenericIssue;
 
 public class TableValidationTest {
 
