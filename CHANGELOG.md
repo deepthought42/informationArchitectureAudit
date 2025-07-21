@@ -1,3 +1,11 @@
+## [1.0.4](https://github.com/deepthought42/informationArchitectureAudit/compare/v1.0.3...v1.0.4) (2025-07-21)
+
+
+### Bug Fixes
+
+* move audits that are being used to audits folder. Keep unused audits in models until fully integrated ([57dffa3](https://github.com/deepthought42/informationArchitectureAudit/commit/57dffa326bad1c69964e419a89f75c5fc4a8187b))
+* update for latest core version 0.3.19 ([8611208](https://github.com/deepthought42/informationArchitectureAudit/commit/86112083c15bd6666cfb5e5b61ee1491776c95ee))
+
 ## [1.0.3](https://github.com/deepthought42/informationArchitectureAudit/compare/v1.0.2...v1.0.3) (2025-07-21)
 
 
