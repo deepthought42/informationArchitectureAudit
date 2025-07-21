@@ -1,7 +1,5 @@
-package com.looksee.audit.informationArchitecture.models;
+package com.looksee.audit.informationArchitecture.audits;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,10 +18,10 @@ import com.looksee.models.ElementState;
 import com.looksee.models.PageState;
 import com.looksee.models.audit.Audit;
 import com.looksee.models.audit.AuditRecord;
-import com.looksee.models.audit.ElementStateIssueMessage;
 import com.looksee.models.audit.GenericIssue;
-import com.looksee.models.audit.IExecutablePageStateAudit;
-import com.looksee.models.audit.UXIssueMessage;
+import com.looksee.models.audit.interfaces.IExecutablePageStateAudit;
+import com.looksee.models.audit.messages.ElementStateIssueMessage;
+import com.looksee.models.audit.messages.UXIssueMessage;
 import com.looksee.models.designsystem.DesignSystem;
 import com.looksee.models.enums.AuditCategory;
 import com.looksee.models.enums.AuditLevel;
@@ -37,7 +35,7 @@ import com.looksee.services.ElementStateService;
  * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
  */
 @Component
-public class OrientationAudit implements IExecutablePageStateAudit {
+public class IdentifyPurposeAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
 
@@ -48,20 +46,16 @@ public class OrientationAudit implements IExecutablePageStateAudit {
     private ElementStateService elementStateService;
 
 	List<String> bad_link_text_list;
-	
-	public OrientationAudit() {
+
+	public IdentifyPurposeAudit() {
 		//super(buildBestPractices(), getAdaDescription(), getAuditDescription(), AuditSubcategory.LINKS);
 	}
 
-	
 	/**
 	 * {@inheritDoc}
 	 * 
 	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *   url goes to a location that doesn't produce a 4xx error
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
@@ -79,8 +73,8 @@ public class OrientationAudit implements IExecutablePageStateAudit {
 		labels.add("wcag");
 		
 		Document jsoup_doc = Jsoup.parse(page_state.getSrc());
-        List<GenericIssue> issues = checkOrientationRestrictions(jsoup_doc);
-        
+        List<GenericIssue> issues = checkCompliance(jsoup_doc);
+
         for(GenericIssue issue: issues){
             ElementState element_state = elementStateService.findByPageAndCssSelector(page_state.getId(), issue.getCssSelector());
             UXIssueMessage issue_msg = new ElementStateIssueMessage(Priority.HIGH,
@@ -91,7 +85,7 @@ public class OrientationAudit implements IExecutablePageStateAudit {
                                                                 labels,
                                                                 ada_compliance,
                                                                 issue.getTitle(),
-                                                                0,
+                                                                issues.isEmpty() ? 1 : 0,
                                                                 1);
             issue_messages.add(issue_msg);
         }
@@ -111,53 +105,69 @@ public class OrientationAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
-								 points_earned,
-								 issue_messages,
-								 AuditLevel.PAGE,
-								 max_points,
-								 page_state.getUrl(),
-								 why_it_matters,
-								 description,
-								 true);
+                                AuditSubcategory.NAVIGATION,
+                                AuditName.LINKS,
+                                points_earned,
+                                issue_messages,
+                                AuditLevel.PAGE,
+                                max_points,
+                                page_state.getUrl(),
+                                why_it_matters,
+                                description,
+                                true);
 		
 		return auditService.save(audit);
 	}
 
     /**
-     * This method checks if the HTML document restricts content to a specific orientation,
-     * which would violate WCAG 2.1 Section 1.3.4 unless justified.
+     * This method checks for WCAG 2.1 Section 1.3.6 compliance in an HTML document.
+     * Specifically, it ensures that the purpose of user interface components, icons, and regions can be programmatically determined.
+     * It checks for the presence of relevant attributes like aria-label, aria-labelledby, role, and alt.
+     *
+     * @param doc The Jsoup Document object representing the HTML to check.
+     * @return A list of GenericIssue objects describing any compliance issues found.
+     * @throws IllegalArgumentException if the provided document is null.
      */
-    public static List<GenericIssue> checkOrientationRestrictions(Document doc) {
+    public static List<GenericIssue> checkCompliance(Document doc) {
+        if (doc == null) {
+            throw new IllegalArgumentException("Document cannot be null");
+        }
+
         List<GenericIssue> issues = new ArrayList<>();
-
-        // Check for any media queries that restrict orientation
-        Elements styleTags = doc.select("style");
-        boolean orientationRestrictionFound = false;
-
-        for (Element styleTag : styleTags) {
-            String styleContent = styleTag.html();
-
-            // Check for orientation media queries
-            if (styleContent.contains("(orientation: portrait)") || styleContent.contains("(orientation: landscape)")) {
-                System.out.println("Warning: Content may restrict its display orientation: " + styleTag);
-                orientationRestrictionFound = true;
-            }
+        
+        // Check for images with missing or empty alt attributes
+        Elements images = doc.select("img:not([alt]), img[alt='']");
+        for (Element img : images) {
+            issues.add(new GenericIssue(
+                    "Image element is missing a valid alt attribute",
+                    "Missing alt attribute",
+                    img.cssSelector(),
+                    "Add a meaningful alt attribute to the image element to describe its purpose."
+            ));
         }
 
-        // Additionally, check for any meta viewport tags that might suggest an orientation lock
-        Elements metaTags = doc.select("meta[name=viewport]");
-        for (Element metaTag : metaTags) {
-            String content = metaTag.attr("content");
-            if (content.contains("orientation")) {
-                System.out.println("Warning: Viewport meta tag suggests possible orientation restriction: " + metaTag);
-                orientationRestrictionFound = true;
-            }
+        // Check for buttons or input[type="button"] without aria-label or aria-labelledby
+        Elements buttons = doc.select("button:not([aria-label]):not([aria-labelledby]), input[type='button']:not([aria-label]):not([aria-labelledby])");
+        for (Element button : buttons) {
+            issues.add(new GenericIssue(
+                    "Button is missing a valid aria-label or aria-labelledby attribute",
+                    "Missing aria-label/aria-labelledby",
+                    button.cssSelector(),
+                    "Add an aria-label or aria-labelledby attribute to describe the button's purpose."
+            ));
         }
 
-        if (!orientationRestrictionFound) {
-            System.out.println("No orientation restrictions detected.");
+        // Check for regions (like divs or sections) without role, aria-label, or aria-labelledby
+        Elements regions = doc.select("div[role], section[role], nav[role], header[role], footer[role]");
+        for (Element region : regions) {
+            if (!region.hasAttr("aria-label") && !region.hasAttr("aria-labelledby")) {
+                issues.add(new GenericIssue(
+                        "Region element with role attribute is missing aria-label or aria-labelledby",
+                        "Missing aria-label/aria-labelledby for region",
+                        region.cssSelector(),
+                        "Add an aria-label or aria-labelledby attribute to the region to describe its purpose."
+                ));
+            }
         }
 
         return issues;

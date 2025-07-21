@@ -16,13 +16,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.looksee.audit.informationArchitecture.audits.LinksAudit;
 import com.looksee.models.ElementState;
 import com.looksee.models.PageState;
 import com.looksee.models.audit.Audit;
 import com.looksee.models.audit.AuditRecord;
-import com.looksee.models.audit.ElementStateIssueMessage;
-import com.looksee.models.audit.IExecutablePageStateAudit;
-import com.looksee.models.audit.UXIssueMessage;
+import com.looksee.models.audit.interfaces.IExecutablePageStateAudit;
+import com.looksee.models.audit.messages.ElementStateIssueMessage;
+import com.looksee.models.audit.messages.UXIssueMessage;
 import com.looksee.models.designsystem.DesignSystem;
 import com.looksee.models.enums.AuditCategory;
 import com.looksee.models.enums.AuditLevel;
@@ -34,7 +35,7 @@ import com.looksee.services.BrowserService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Responsible for executing an audit on the input labels on a page for the information architecture audit category
  */
 @Component
 public class InputLabelAudit implements IExecutablePageStateAudit {
@@ -55,8 +56,7 @@ public class InputLabelAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
+	 * Scores input labels on a page based on if the input has a label associated with it
 	 *   
 	 * @throws MalformedURLException 
 	 * @throws URISyntaxException 

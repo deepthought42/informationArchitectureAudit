@@ -8,7 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
-import com.looksee.audit.informationArchitecture.models.IdentifyPurposeAudit;
+import com.looksee.audit.informationArchitecture.audits.IdentifyPurposeAudit;
 import com.looksee.models.audit.GenericIssue;
 
 public class IdentifyPurposeTest {

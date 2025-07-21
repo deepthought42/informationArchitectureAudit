@@ -1,4 +1,4 @@
-package com.looksee.audit.informationArchitecture.models;
+package com.looksee.audit.informationArchitecture.audits;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 import com.looksee.models.PageState;
 import com.looksee.models.audit.Audit;
 import com.looksee.models.audit.AuditRecord;
-import com.looksee.models.audit.IExecutablePageStateAudit;
 import com.looksee.models.audit.Score;
-import com.looksee.models.audit.UXIssueMessage;
+import com.looksee.models.audit.interfaces.IExecutablePageStateAudit;
+import com.looksee.models.audit.messages.UXIssueMessage;
 import com.looksee.models.designsystem.DesignSystem;
 import com.looksee.models.enums.AuditCategory;
 import com.looksee.models.enums.AuditLevel;

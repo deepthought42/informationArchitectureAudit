@@ -8,7 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
-import com.looksee.audit.informationArchitecture.models.OrientationAudit;
+import com.looksee.audit.informationArchitecture.audits.OrientationAudit;
 
 public class OrientationTest {
     
