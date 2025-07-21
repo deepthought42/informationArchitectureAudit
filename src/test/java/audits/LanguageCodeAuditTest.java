@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.looksee.audit.informationArchitecture.audits.PageLanguageAudit;
-import com.looksee.models.audit.UXIssueMessage;
+import com.looksee.models.audit.messages.UXIssueMessage;
 
 public class LanguageCodeAuditTest {
     @Test

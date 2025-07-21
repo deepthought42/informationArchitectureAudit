@@ -12,7 +12,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
 	    <springboot.version>2.6.13</springboot.version>
-        <core.version>0.3.18</core.version>
+        <core.version>0.3.19</core.version>
     </properties>
 
     <dependencyManagement>
@@ -60,6 +60,26 @@
 			<version>4.13.2</version>
 			<scope>test</scope>
 	    </dependency>
+
+		<!-- https://mvnrepository.com/artifact/us.codecraft/xsoup -->
+		<dependency>
+		    <groupId>us.codecraft</groupId>
+		    <artifactId>xsoup</artifactId>
+		    <version>0.3.1</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>xml-apis</groupId>
+		    <artifactId>xml-apis</artifactId>
+		    <version>1.4.01</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/net.sf.jtidy/jtidy -->
+		<dependency>
+		    <groupId>net.sf.jtidy</groupId>
+		    <artifactId>jtidy</artifactId>
+		    <version>r938</version>
+		</dependency>
 		
 		<dependency>
             <groupId>org.projectlombok</groupId>
