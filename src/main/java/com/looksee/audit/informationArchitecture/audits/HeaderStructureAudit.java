@@ -36,12 +36,12 @@ import com.looksee.services.ElementStateService;
 import com.looksee.services.UXIssueMessageService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Responsible for executing a structural heading audit for information architecture accessibility.
  */
 @Component
 public class HeaderStructureAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(HeaderStructureAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -62,8 +62,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error
+	 * Scores heading structure on a page based on H1 usage and heading hierarchy consistency.
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
@@ -102,7 +101,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 			favicon_issue = issueMessageService.save(favicon_issue);
 			issue_messages.add(favicon_issue);
         }
-        else if(h1CheckPassed = Boolean.FALSE){
+        else if(Boolean.FALSE.equals(h1CheckPassed)){
             String description = "Using only one <h1> header per webpage is crucial for accessibility and WCAG 2.1 compliance, ensuring clear content structure and preventing confusion for users, especially those using assistive technologies.\n";
             String title = "Too many H1 level headers";
             String recommendation = "To fix the issue of multiple <h1> headers on a webpage, define the primary topic, assign a single <h1> tag, and reorganize additional headings to maintain a clear content hierarchy. Test with accessibility tools to ensure WCAG 2.1 compliance.\n";
@@ -121,7 +120,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
             favicon_issue = issueMessageService.save(favicon_issue);
             issue_messages.add(favicon_issue);
         }
-        else if(h1CheckPassed = Boolean.TRUE){
+        else if(Boolean.TRUE.equals(h1CheckPassed)){
             String description = "";
             String title = "This page has exactly 1 H1 header!";
             String recommendation = "";
@@ -141,14 +140,14 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
             issue_messages.add(favicon_issue);
         }
 
-        // Identify and print out-of-order headers
-        Map<Element, List<Element>> outOfOrderHeaders = mapHeadersByAncestor(jsoup_doc);
+        // Identify headers that skip levels (for example, h2 -> h4)
+        List<Element> outOfOrderHeaders = findOutOfOrderHeaders(jsoup_doc);
 
-        for (Element header : outOfOrderHeaders.keySet()) {
+        for (Element header : outOfOrderHeaders) {
             String header_xpath = BrowserService.getXPath(header);
             String css_selector = BrowserService.generateCssSelectorFromXpath(header_xpath);
             ElementState header_elem = elementStateService.findByPageAndCssSelector(page_state.getId(), css_selector);
-            log.warn("found header "+header_elem + ";   css selector = "+css_selector);
+            log.warn("found out-of-order header {} ; css selector = {}", header_elem, css_selector);
             String issue_description = "Having headers in hierarchical order is crucial for accessibility and WCAG 2.1 compliance because it provides a clear and logical structure to the content. This hierarchy helps users, especially those using assistive technologies like screen readers, to easily navigate the webpage and understand the relationship between different sections. Properly ordered headers guide users through the content, improving their experience and ensuring the website is accessible to all.\n";
             String recommendation = "Reconfigure document so that headers are in hierarchical order. When headers are not in hierarchical order, it makes content difficult to understand for people that require assistive technology";
             String title = "Headers are not in hierarchical order.";
@@ -170,7 +169,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 		Set<String> categories = new HashSet<>();
 		categories.add(AuditCategory.INFORMATION_ARCHITECTURE.getShortName());
 		
-		String description = "Making sure your links are setup correctly is incredibly important";
+		String description = "Headings should form a clear, semantic hierarchy for both users and assistive technologies.";
 		
 		int points_earned = 0;
 		int max_points = 0;
@@ -181,7 +180,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
+								 AuditName.HEADER_STRUCTURE,
 								 points_earned,
 								 issue_messages,
 								 AuditLevel.PAGE,
@@ -238,6 +237,34 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
         }
     }
 
+
+    /**
+     * Finds headers that skip hierarchical levels in document order.
+     * Example: h2 directly followed by h4 is treated as out-of-order.
+     *
+     * @param doc parsed HTML document
+     * @return list of header elements that break hierarchy
+     */
+    public static List<Element> findOutOfOrderHeaders(Document doc) {
+        if (doc == null) {
+            throw new IllegalArgumentException("Document must not be null");
+        }
+
+        Elements headers = doc.select("h1, h2, h3, h4, h5, h6");
+        List<Element> outOfOrder = new ArrayList<>();
+        int previousLevel = 0;
+
+        for (Element header : headers) {
+            int currentLevel = Integer.parseInt(header.tagName().substring(1));
+            if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+                outOfOrder.add(header);
+            }
+            previousLevel = currentLevel;
+        }
+
+        return outOfOrder;
+    }
+
     /**
      * Recursively maps headers in an HTML document, grouping them by their common ancestor elements.
      *
@@ -250,7 +277,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 
         // Start the recursive process from the root of the document
         mapHeadersRecursive(doc.body(), ancestorHeaderMap);
-        System.out.println("Out-of-order headers by ancestor:"+ancestorHeaderMap);
+        log.debug("Out-of-order headers by ancestor: {}", ancestorHeaderMap);
 
         return ancestorHeaderMap;
     }

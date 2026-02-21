@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.looksee.audit.informationArchitecture.audits.AudioControlAudit;
 import com.looksee.audit.informationArchitecture.audits.FormStructureAudit;
@@ -109,17 +108,46 @@ public class AuditController {
 	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public ResponseEntity<String> receiveMessage(@RequestBody Body body)
-			throws JsonMappingException, JsonProcessingException, ExecutionException, InterruptedException 
+			throws ExecutionException, InterruptedException 
 	{
+		if(body == null || body.getMessage() == null) {
+			return new ResponseEntity<String>("Invalid Pub/Sub message: body.message is required", HttpStatus.BAD_REQUEST);
+		}
+
 		Body.Message message = body.getMessage();
 		String data = message.getData();
-	    String target = !data.isEmpty() ? new String(Base64.getDecoder().decode(data)) : "";
-        log.warn("page audit msg received = "+target);
+		if(data == null || data.isEmpty()) {
+			return new ResponseEntity<String>("Invalid Pub/Sub message: message.data is required", HttpStatus.BAD_REQUEST);
+		}
 
-	    ObjectMapper mapper = new ObjectMapper();
-	    PageAuditMessage audit_record_msg = mapper.readValue(target, PageAuditMessage.class);
-	    
-    	AuditRecord audit_record = audit_record_service.findById(audit_record_msg.getPageAuditId()).get();
+		String target;
+		try {
+			target = new String(Base64.getDecoder().decode(data));
+		}
+		catch(IllegalArgumentException e) {
+			log.warn("Invalid Pub/Sub message data encoding", e);
+			return new ResponseEntity<String>("Invalid Pub/Sub message: message.data must be base64 encoded", HttpStatus.BAD_REQUEST);
+		}
+
+		if(target.isEmpty()) {
+			return new ResponseEntity<String>("Invalid Pub/Sub message: decoded message.data is empty", HttpStatus.BAD_REQUEST);
+		}
+		log.warn("page audit msg received = "+target);
+
+		ObjectMapper mapper = new ObjectMapper();
+		PageAuditMessage audit_record_msg;
+		try {
+			audit_record_msg = mapper.readValue(target, PageAuditMessage.class);
+		}
+		catch(JsonProcessingException e) {
+			log.warn("Invalid Pub/Sub message payload", e);
+			return new ResponseEntity<String>("Invalid Pub/Sub message: payload must be valid PageAuditMessage JSON", HttpStatus.BAD_REQUEST);
+		}
+
+		AuditRecord audit_record = audit_record_service.findById(audit_record_msg.getPageAuditId()).orElse(null);
+		if(audit_record == null) {
+			return new ResponseEntity<String>("Audit record not found for id: " + audit_record_msg.getPageAuditId(), HttpStatus.NOT_FOUND);
+		}
     	PageState page = page_state_service.getPageStateForAuditRecord(audit_record.getId());
     	
     	Set<Audit> audits = audit_record_service.getAllAudits(audit_record.getId());
@@ -220,7 +248,15 @@ public class AuditController {
 															AuditLevel.PAGE,
 															audit_record_msg.getPageAuditId());
 
-		String audit_record_json = mapper.writeValueAsString(audit_update);
+		String audit_record_json;
+		try {
+			audit_record_json = mapper.writeValueAsString(audit_update);
+		}
+		catch(JsonProcessingException e) {
+			log.error("Failed to serialize audit progress update", e);
+			return new ResponseEntity<String>("Failed to serialize audit progress update", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
 		audit_update_topic.publish(audit_record_json);
 		
 		return new ResponseEntity<String>("Successfully audited information architecture", HttpStatus.OK);

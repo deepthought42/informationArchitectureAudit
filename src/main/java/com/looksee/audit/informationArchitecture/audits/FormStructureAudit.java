@@ -32,12 +32,12 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Responsible for executing a form-structure accessibility audit for information architecture.
  */
 @Component
 public class FormStructureAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(FormStructureAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -55,8 +55,7 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error
+	 * Scores form controls on a page based on labeling and semantic structure requirements.
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
@@ -65,19 +64,19 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
-		String ada_compliance = "WCAG 2.1 Section 1.3.1 - Tables";
+		String ada_compliance = "WCAG 2.1 Section 1.3.1 - Forms";
 
 		Set<String> labels = new HashSet<>();
 		labels.add("information architecture");
 		labels.add("accessibility");
-		labels.add("tables");
+		labels.add("forms");
 		labels.add("wcag");
 		
 		Document jsoup_doc = Jsoup.parse(page_state.getSrc());
-        List<Element> tables = jsoup_doc.getElementsByTag("table");
+        List<Element> forms = jsoup_doc.getElementsByTag("form");
         List<GenericIssue> issues = new ArrayList<>();
-        for(Element table: tables){
-            issues.addAll(validateForm(table));
+        for(Element form: forms){
+            issues.addAll(validateForm(form));
         }
         
         for(GenericIssue issue: issues){
@@ -100,7 +99,7 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
 		Set<String> categories = new HashSet<>();
 		categories.add(AuditCategory.INFORMATION_ARCHITECTURE.getShortName());
 		
-		String description = "Making sure your links are setup correctly is incredibly important";
+		String description = "Form structure and labeling provide the semantic context assistive technologies need.";
 		
 		int points_earned = 0;
 		int max_points = 0;
@@ -111,7 +110,7 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
                                 AuditSubcategory.NAVIGATION,
-                                AuditName.LINKS,
+                                AuditName.FORM_STRUCTURE,
                                 points_earned,
                                 issue_messages,
                                 AuditLevel.PAGE,

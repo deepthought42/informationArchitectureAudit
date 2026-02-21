@@ -41,7 +41,7 @@ import com.looksee.services.ElementStateService;
 @Component
 public class UseOfColorAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(UseOfColorAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -131,7 +131,7 @@ public class UseOfColorAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
+								 AuditName.USE_OF_COLOR,
 								 points_earned,
 								 issue_messages,
 								 AuditLevel.PAGE,

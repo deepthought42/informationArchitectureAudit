@@ -92,4 +92,26 @@ public class HeaderExtractorTest {
 
         assertTrue(result.isEmpty(), "Expected no groups of headers.");
     }
+
+    @Test
+    public void testFindOutOfOrderHeaders_detectsSkippedLevels() {
+        String html = "<html><body><h1>Title</h1><h2>Section</h2><h4>Skipped</h4></body></html>";
+        Document doc = Jsoup.parse(html);
+
+        List<Element> result = HeaderStructureAudit.findOutOfOrderHeaders(doc);
+
+        assertEquals(1, result.size(), "Expected one out-of-order header when levels are skipped.");
+        assertEquals("Skipped", result.get(0).text(), "Expected the skipped-level heading to be reported.");
+    }
+
+    @Test
+    public void testFindOutOfOrderHeaders_allowsSequentialOrDescendingLevels() {
+        String html = "<html><body><h1>Title</h1><h2>Section</h2><h3>Sub</h3><h2>Next Section</h2></body></html>";
+        Document doc = Jsoup.parse(html);
+
+        List<Element> result = HeaderStructureAudit.findOutOfOrderHeaders(doc);
+
+        assertTrue(result.isEmpty(), "Expected no out-of-order headers for sequential/descending levels.");
+    }
+
 }

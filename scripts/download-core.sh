@@ -16,7 +16,7 @@ echo "Downloading ${JAR_NAME} from GitHub release..."
 echo "URL: ${DOWNLOAD_URL}"
 
 # Download the JAR file
-curl -L -o "${LIBS_DIR}/${JAR_NAME}" "${DOWNLOAD_URL}"
+curl --fail --location --retry 3 --retry-all-errors --connect-timeout 15 --max-time 300 -o "${LIBS_DIR}/${JAR_NAME}" "${DOWNLOAD_URL}"
 
 if [ $? -eq 0 ]; then
     echo "Successfully downloaded ${JAR_NAME} to ${LIBS_DIR}/"
