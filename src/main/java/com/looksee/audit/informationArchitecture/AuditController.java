@@ -248,7 +248,15 @@ public class AuditController {
 															AuditLevel.PAGE,
 															audit_record_msg.getPageAuditId());
 
-		String audit_record_json = mapper.writeValueAsString(audit_update);
+		String audit_record_json;
+		try {
+			audit_record_json = mapper.writeValueAsString(audit_update);
+		}
+		catch(JsonProcessingException e) {
+			log.error("Failed to serialize audit progress update", e);
+			return new ResponseEntity<String>("Failed to serialize audit progress update", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
 		audit_update_topic.publish(audit_record_json);
 		
 		return new ResponseEntity<String>("Successfully audited information architecture", HttpStatus.OK);
