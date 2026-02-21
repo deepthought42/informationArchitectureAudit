@@ -36,7 +36,7 @@ import com.looksee.services.PageStateService;
 @Component
 public class TextSpacingAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(TextSpacingAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -92,7 +92,7 @@ public class TextSpacingAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
+								 AuditName.TEXT_SPACING,
 								 points_earned,
 								 issue_messages,
 								 AuditLevel.PAGE,

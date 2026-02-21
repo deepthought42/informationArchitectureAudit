@@ -33,7 +33,7 @@ import com.looksee.services.PageStateService;
 @Component
 public class ReflowAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(ReflowAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -90,7 +90,7 @@ public class ReflowAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
                                 AuditSubcategory.NAVIGATION,
-                                AuditName.LINKS,
+                                AuditName.REFLOW,
                                 points_earned,
                                 issue_messages,
                                 AuditLevel.PAGE,

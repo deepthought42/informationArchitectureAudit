@@ -39,7 +39,7 @@ import com.looksee.services.ElementStateService;
 @Component
 public class VisualPresentationAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(VisualPresentationAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -110,7 +110,7 @@ public class VisualPresentationAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
                                 AuditSubcategory.NAVIGATION,
-                                AuditName.LINKS,
+                                AuditName.VISUAL_PRESENTATION,
                                 points_earned,
                                 issue_messages,
                                 AuditLevel.PAGE,

@@ -39,7 +39,7 @@ import com.looksee.services.ElementStateService;
 @Component
 public class OrientationAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(OrientationAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -112,7 +112,7 @@ public class OrientationAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
+								 AuditName.ORIENTATION,
 								 points_earned,
 								 issue_messages,
 								 AuditLevel.PAGE,

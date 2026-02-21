@@ -39,7 +39,7 @@ import com.looksee.services.ElementStateService;
 @Component
 public class AudioControlAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(AudioControlAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -111,7 +111,7 @@ public class AudioControlAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
+								 AuditName.AUDIO_CONTROL,
 								 points_earned,
 								 issue_messages,
 								 AuditLevel.PAGE,

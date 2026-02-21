@@ -37,7 +37,7 @@ import com.looksee.services.ElementStateService;
 @Component
 public class IdentifyPurposeAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(IdentifyPurposeAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -106,7 +106,7 @@ public class IdentifyPurposeAudit implements IExecutablePageStateAudit {
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
                                 AuditSubcategory.NAVIGATION,
-                                AuditName.LINKS,
+                                AuditName.IDENTIFY_PURPOSE,
                                 points_earned,
                                 issue_messages,
                                 AuditLevel.PAGE,
