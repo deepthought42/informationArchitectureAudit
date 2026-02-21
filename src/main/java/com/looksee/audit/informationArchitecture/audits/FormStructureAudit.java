@@ -109,7 +109,7 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-                                AuditSubcategory.STRUCTURE,
+                                AuditSubcategory.NAVIGATION,
                                 AuditName.FORM_STRUCTURE,
                                 points_earned,
                                 issue_messages,

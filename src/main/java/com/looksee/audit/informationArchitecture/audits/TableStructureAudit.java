@@ -118,7 +118,7 @@ public class TableStructureAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-								 AuditSubcategory.STRUCTURE,
+								 AuditSubcategory.NAVIGATION,
 								 AuditName.TABLE_STRUCTURE,
 								 points_earned,
 								 issue_messages,

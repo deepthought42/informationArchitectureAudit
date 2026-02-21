@@ -179,7 +179,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-								 AuditSubcategory.STRUCTURE,
+								 AuditSubcategory.NAVIGATION,
 								 AuditName.HEADER_STRUCTURE,
 								 points_earned,
 								 issue_messages,
