@@ -140,14 +140,14 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
             issue_messages.add(favicon_issue);
         }
 
-        // Identify and print out-of-order headers
-        Map<Element, List<Element>> outOfOrderHeaders = mapHeadersByAncestor(jsoup_doc);
+        // Identify headers that skip levels (for example, h2 -> h4)
+        List<Element> outOfOrderHeaders = findOutOfOrderHeaders(jsoup_doc);
 
-        for (Element header : outOfOrderHeaders.keySet()) {
+        for (Element header : outOfOrderHeaders) {
             String header_xpath = BrowserService.getXPath(header);
             String css_selector = BrowserService.generateCssSelectorFromXpath(header_xpath);
             ElementState header_elem = elementStateService.findByPageAndCssSelector(page_state.getId(), css_selector);
-            log.warn("found header "+header_elem + ";   css selector = "+css_selector);
+            log.warn("found out-of-order header {} ; css selector = {}", header_elem, css_selector);
             String issue_description = "Having headers in hierarchical order is crucial for accessibility and WCAG 2.1 compliance because it provides a clear and logical structure to the content. This hierarchy helps users, especially those using assistive technologies like screen readers, to easily navigate the webpage and understand the relationship between different sections. Properly ordered headers guide users through the content, improving their experience and ensuring the website is accessible to all.\n";
             String recommendation = "Reconfigure document so that headers are in hierarchical order. When headers are not in hierarchical order, it makes content difficult to understand for people that require assistive technology";
             String title = "Headers are not in hierarchical order.";
@@ -235,6 +235,34 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
             assert (headerCount > 1) : "Expected more than one <h1> header, returning false.";
             return false;  // More than one <h1> header found
         }
+    }
+
+
+    /**
+     * Finds headers that skip hierarchical levels in document order.
+     * Example: h2 directly followed by h4 is treated as out-of-order.
+     *
+     * @param doc parsed HTML document
+     * @return list of header elements that break hierarchy
+     */
+    public static List<Element> findOutOfOrderHeaders(Document doc) {
+        if (doc == null) {
+            throw new IllegalArgumentException("Document must not be null");
+        }
+
+        Elements headers = doc.select("h1, h2, h3, h4, h5, h6");
+        List<Element> outOfOrder = new ArrayList<>();
+        int previousLevel = 0;
+
+        for (Element header : headers) {
+            int currentLevel = Integer.parseInt(header.tagName().substring(1));
+            if (previousLevel > 0 && currentLevel - previousLevel > 1) {
+                outOfOrder.add(header);
+            }
+            previousLevel = currentLevel;
+        }
+
+        return outOfOrder;
     }
 
     /**
