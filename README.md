@@ -1,70 +1,130 @@
 # Information Architecture Accessibility Audit
 
-This project is designed to perform an accessibility audit on the information architecture of web applications. It helps identify and analyze potential accessibility issues within the structure and organization of information, ensuring that the content is easily navigable and understandable for all users, including those with disabilities.
+A Spring Boot service that runs page-level information architecture and accessibility audits (WCAG-oriented checks) against stored `PageState` data and emits completion updates.
 
-## Purpose
+## What this service does
 
-The Information Architecture Accessibility Audit tool aims to:
+When a Pub/Sub message is received, the service:
 
-1. Evaluate the overall structure and organization of web content
-2. Assess the navigability and findability of information
-3. Analyze the labeling and naming conventions used throughout the site
-4. Identify potential barriers in the information flow for users with disabilities
-5. Provide recommendations for improving the accessibility of the information architecture
+1. Decodes a `PageAuditMessage` payload.
+2. Loads the corresponding `AuditRecord` and `PageState`.
+3. Executes a set of IA/accessibility audits (headers, tables, forms, language, links, metadata, etc.).
+4. Persists generated `Audit` records.
+5. Publishes an `AuditProgressUpdate` marking completion.
+
+Primary entrypoint: `AuditController` (`POST /`).
+
+## Local development
+
+### Prerequisites
+
+- Java 17+
+- Maven 3.9+
+- Access to Maven Central (or an internal mirror/proxy)
+
+### Run tests
+
+```bash
+mvn test
+```
+
+> Note: In restricted environments, dependency resolution can fail (e.g., HTTP 403 from Maven Central).
+
+### Run the app
+
+```bash
+mvn spring-boot:run
+```
 
 ## Configuration
 
-The project can be configured using two main property files:
+Main configuration files:
 
-### application.properties
+- `src/main/resources/application.properties`
+- `src/main/resources/application.yml`
 
-This file contains general application settings. To configure:
+Typical values to configure:
 
-1. Locate the `application.properties` file in the `src/main/resources` directory
-2. Adjust the following properties as needed:
-   - `server.port`: The port on which the application will run
-   - `spring.datasource.*`: Database connection settings
-   - `logging.level.*`: Logging configuration for different packages
+- `server.port`
+- datasource settings (`spring.datasource.*`)
+- logging levels (`logging.level.*`)
 
-## Deployment to GCP
+## Code review summary (this pass)
 
-To deploy this project's Docker container to Google Cloud Platform (GCP), follow these steps:
+This repository review focused on correctness, resilience, and audit metadata accuracy.
 
-1. Ensure you have the Google Cloud SDK installed and configured on your local machine.
+### Fixed in this update
 
-2. Build the Docker image:
-   ```
-   docker build -t gcr.io/[PROJECT-ID]/ia-accessibility-audit:v1 .
-   ```
+1. **Message parsing hardening in controller**
+   - Added request validation for missing `body.message` and missing/empty `message.data`.
+   - Replaced unsafe `.get()` on optional audit record lookup with explicit `orElseThrow(...)`.
 
-3. Push the Docker image to Google Container Registry:
-   ```
-   docker push gcr.io/[PROJECT-ID]/ia-accessibility-audit:v1
-   ```
+2. **Header audit logic bug**
+   - Fixed boolean branch logic that used assignment (`=`) instead of comparison, which could force incorrect branches.
 
-4. Deploy the container to Google Cloud Run:
-   ```
-   gcloud run deploy ia-accessibility-audit \
-     --image gcr.io/[PROJECT-ID]/ia-accessibility-audit:v1 \
-     --platform managed \
-     --region [REGION] \
-     --allow-unauthenticated
-   ```
+3. **Incorrect audit identity metadata**
+   - `HeaderStructureAudit`, `TableStructureAudit`, and `FormStructureAudit` were persisting as `AuditName.LINKS` under navigation.
+   - Updated to use structure-appropriate `AuditSubcategory` and `AuditName` values.
 
-   Replace `[PROJECT-ID]` with your GCP project ID and `[REGION]` with your desired region.
+4. **Form audit target element bug**
+   - `FormStructureAudit` was parsing `<table>` elements instead of `<form>` elements.
+   - Updated to audit actual form elements.
 
-5. Once deployed, Google Cloud Run will provide a URL for accessing your application.
+5. **Logger category cleanup**
+   - Fixed logger declarations in structure audits to use their own class instead of `LinksAudit.class`.
 
-Remember to set up any necessary environment variables or secrets in the Google Cloud Run configuration to match your `application.properties` settings.
+### Remaining high-value issues to address (proposed fixes)
 
-## Getting Started
+1. **Overly broad / misleading class comments and descriptions**
+   - Several audit classes still contain “links” copy in JavaDocs and descriptions.
+   - **Proposed fix:** normalize class-level docs and user-facing descriptions to match each audit’s purpose.
 
-[Add instructions for running the project locally, performing an audit, and interpreting results]
+2. **Potential null handling for element lookup**
+   - `elementStateService.findByPageAndCssSelector(...)` may return `null`; issue message creation may then fail depending on downstream contracts.
+   - **Proposed fix:** null-check and fall back to page-level `UXIssueMessage` when element resolution fails.
+
+3. **Header order analysis quality**
+   - `mapHeadersByAncestor` currently groups headers by ancestor but does not explicitly validate heading level transitions (`h1 -> h2`, etc.) in a deterministic scoring model.
+   - **Proposed fix:** add explicit sequence validation and severity weighting for skipped levels.
+
+4. **Test coverage gaps for fixed behavior**
+   - Existing tests validate header mapping utility logic but not controller message validation paths.
+   - **Proposed fix:** add controller slice tests (`@WebMvcTest`) for invalid message payloads and missing audit records.
+
+## Deployment to GCP (Cloud Run)
+
+1. Build container:
+
+```bash
+docker build -t gcr.io/[PROJECT-ID]/ia-accessibility-audit:v1 .
+```
+
+2. Push image:
+
+```bash
+docker push gcr.io/[PROJECT-ID]/ia-accessibility-audit:v1
+```
+
+3. Deploy:
+
+```bash
+gcloud run deploy ia-accessibility-audit \
+  --image gcr.io/[PROJECT-ID]/ia-accessibility-audit:v1 \
+  --platform managed \
+  --region [REGION] \
+  --allow-unauthenticated
+```
+
+Replace `[PROJECT-ID]` and `[REGION]` with your values.
 
 ## Contributing
 
-[Add guidelines for contributing to the project]
+Please follow `CONTRIBUTING.md` and include:
+
+- tests for behavior changes
+- clear commit messages
+- updated documentation when audit behavior changes
 
 ## License
 
-[Specify the license under which this project is released]
+See `LICENSE`.

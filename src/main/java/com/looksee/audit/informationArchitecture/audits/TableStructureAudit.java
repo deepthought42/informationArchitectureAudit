@@ -35,12 +35,12 @@ import com.looksee.services.BrowserService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Responsible for executing a table-structure accessibility audit for information architecture.
  */
 @Component
 public class TableStructureAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(TableStructureAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -58,8 +58,7 @@ public class TableStructureAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
+	 * Scores table semantics on a page to assess WCAG table structure conformance.
 	 *   
 	 * @throws MalformedURLException 
 	 * @throws URISyntaxException 
@@ -104,12 +103,12 @@ public class TableStructureAudit implements IExecutablePageStateAudit {
             issue_messages.add(issue_msg);
         }
 
-		String why_it_matters = "A well-structured header hierarchy is like a road map for your content—it helps screen readers and assistive technologies navigate the page, making it easier for everyone to understand the content flow. When headers are in the correct order, users can skim and comprehend information more efficiently, which is key to meeting WCAG 2.1 Section 1.3.1 requirements.";
+		String why_it_matters = "Structured table semantics are essential for users of assistive technologies. Proper use of table headers and associations enables screen readers to communicate relationships between cells and meaningfully navigate tabular data.";
 		
 		Set<String> categories = new HashSet<>();
 		categories.add(AuditCategory.INFORMATION_ARCHITECTURE.getShortName());
 		
-		String description = "Making sure your links are setup correctly is incredibly important";
+		String description = "Data tables should expose clear header relationships and semantic structure.";
 		
 		int points_earned = 0;
 		int max_points = 0;
@@ -119,8 +118,8 @@ public class TableStructureAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
+								 AuditSubcategory.STRUCTURE,
+								 AuditName.TABLE_STRUCTURE,
 								 points_earned,
 								 issue_messages,
 								 AuditLevel.PAGE,

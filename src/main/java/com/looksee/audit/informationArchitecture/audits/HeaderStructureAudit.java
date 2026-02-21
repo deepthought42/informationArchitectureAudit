@@ -36,12 +36,12 @@ import com.looksee.services.ElementStateService;
 import com.looksee.services.UXIssueMessageService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Responsible for executing a structural heading audit for information architecture accessibility.
  */
 @Component
 public class HeaderStructureAudit implements IExecutablePageStateAudit {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
+	private static Logger log = LoggerFactory.getLogger(HeaderStructureAudit.class);
 
 	@Autowired
 	private AuditService auditService;
@@ -62,8 +62,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error
+	 * Scores heading structure on a page based on H1 usage and heading hierarchy consistency.
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
@@ -102,7 +101,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 			favicon_issue = issueMessageService.save(favicon_issue);
 			issue_messages.add(favicon_issue);
         }
-        else if(h1CheckPassed = Boolean.FALSE){
+        else if(Boolean.FALSE.equals(h1CheckPassed)){
             String description = "Using only one <h1> header per webpage is crucial for accessibility and WCAG 2.1 compliance, ensuring clear content structure and preventing confusion for users, especially those using assistive technologies.\n";
             String title = "Too many H1 level headers";
             String recommendation = "To fix the issue of multiple <h1> headers on a webpage, define the primary topic, assign a single <h1> tag, and reorganize additional headings to maintain a clear content hierarchy. Test with accessibility tools to ensure WCAG 2.1 compliance.\n";
@@ -121,7 +120,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
             favicon_issue = issueMessageService.save(favicon_issue);
             issue_messages.add(favicon_issue);
         }
-        else if(h1CheckPassed = Boolean.TRUE){
+        else if(Boolean.TRUE.equals(h1CheckPassed)){
             String description = "";
             String title = "This page has exactly 1 H1 header!";
             String recommendation = "";
@@ -170,7 +169,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 		Set<String> categories = new HashSet<>();
 		categories.add(AuditCategory.INFORMATION_ARCHITECTURE.getShortName());
 		
-		String description = "Making sure your links are setup correctly is incredibly important";
+		String description = "Headings should form a clear, semantic hierarchy for both users and assistive technologies.";
 		
 		int points_earned = 0;
 		int max_points = 0;
@@ -180,8 +179,8 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
-								 AuditSubcategory.NAVIGATION,
-								 AuditName.LINKS,
+								 AuditSubcategory.STRUCTURE,
+								 AuditName.HEADER_STRUCTURE,
 								 points_earned,
 								 issue_messages,
 								 AuditLevel.PAGE,
@@ -250,7 +249,7 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 
         // Start the recursive process from the root of the document
         mapHeadersRecursive(doc.body(), ancestorHeaderMap);
-        System.out.println("Out-of-order headers by ancestor:"+ancestorHeaderMap);
+        log.debug("Out-of-order headers by ancestor: {}", ancestorHeaderMap);
 
         return ancestorHeaderMap;
     }
