@@ -1,60 +1,64 @@
 package audits;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.looksee.audit.informationArchitecture.models.KeyboardAccessibleAudit;
 import com.looksee.models.ElementState;
-import com.looksee.models.PageState;
 
 public class KeyboardAccessibleTest {
-    private List<ElementState> elements;
-    private ElementState mockElement;
-    private PageState mockPage;
 
-    @BeforeEach
-    void setUp() {
-        mockElement = Mockito.mock(ElementState.class);
-        elements = new ArrayList<>();
-        elements.add(mockElement);
-        elements.add(Mockito.mock(ElementState.class));
-        mockPage = Mockito.mock(PageState.class);
-    }
-
-    //@Test
+    @Test
     void testElementWithTabindexIsAccessible() {
-        Mockito.when(mockElement.getAttribute("tabindex")).thenReturn("0");
-        Mockito.when(mockElement.getAttribute("role")).thenReturn(null);
-        
-        assertTrue(KeyboardAccessibleAudit.checkKeyboardAccessibility(elements).isEmpty(), "Element with tabindex='0' should be accessible");
+        ElementState element = Mockito.mock(ElementState.class);
+        Mockito.when(element.getAttribute("tabindex")).thenReturn("0");
+        Mockito.when(element.getAttribute("role")).thenReturn(null);
+
+        List<ElementState> result = KeyboardAccessibleAudit.checkKeyboardAccessibility(List.of(element));
+
+        assertTrue(result.isEmpty(), "Element with tabindex should be keyboard accessible");
     }
 
-    //@Test
+    @Test
     void testElementWithButtonRoleIsAccessible() {
-        Mockito.when(mockElement.getAttribute("tabindex")).thenReturn(null);
-        Mockito.when(mockElement.getAttribute("role")).thenReturn("button");
+        ElementState element = Mockito.mock(ElementState.class);
+        Mockito.when(element.getAttribute("tabindex")).thenReturn(null);
+        Mockito.when(element.getAttribute("role")).thenReturn("button");
 
-        assertTrue(KeyboardAccessibleAudit.checkKeyboardAccessibility(elements).isEmpty(), "Element with role='button' should be accessible");
+        List<ElementState> result = KeyboardAccessibleAudit.checkKeyboardAccessibility(List.of(element));
+
+        assertTrue(result.isEmpty(), "Element with role should be keyboard accessible");
     }
 
-    //@Test
+    @Test
     void testElementWithNoAttributesIsNotAccessible() {
-        Mockito.when(mockElement.getAttribute("tabindex")).thenReturn(null);
-        Mockito.when(mockElement.getAttribute("role")).thenReturn(null);
+        ElementState element = Mockito.mock(ElementState.class);
+        Mockito.when(element.getAttribute("tabindex")).thenReturn(null);
+        Mockito.when(element.getAttribute("role")).thenReturn(null);
 
-        assertFalse(KeyboardAccessibleAudit.checkKeyboardAccessibility(elements).isEmpty(), "Element with no attributes should not be accessible");
+        List<ElementState> result = KeyboardAccessibleAudit.checkKeyboardAccessibility(List.of(element));
+
+        assertEquals(1, result.size(), "Element with no keyboard semantics should be reported");
     }
 
-    //@Test
-    void testElementWithNonZeroTabindexIsNotAccessible() {
-        Mockito.when(mockElement.getAttribute("tabindex")).thenReturn("1");
-        Mockito.when(mockElement.getAttribute("role")).thenReturn(null);
+    @Test
+    void testElementWithMixedAccessOnlyFlagsInaccessibleElements() {
+        ElementState accessible = Mockito.mock(ElementState.class);
+        Mockito.when(accessible.getAttribute("tabindex")).thenReturn("0");
+        Mockito.when(accessible.getAttribute("role")).thenReturn(null);
 
-        assertFalse(!KeyboardAccessibleAudit.checkKeyboardAccessibility(elements).isEmpty(), "Element with tabindex not equal to 0 should not be accessible");
+        ElementState inaccessible = Mockito.mock(ElementState.class);
+        Mockito.when(inaccessible.getAttribute("tabindex")).thenReturn("");
+        Mockito.when(inaccessible.getAttribute("role")).thenReturn("");
+
+        List<ElementState> result = KeyboardAccessibleAudit.checkKeyboardAccessibility(List.of(accessible, inaccessible));
+
+        assertEquals(1, result.size(), "Only inaccessible elements should be returned");
+        assertEquals(inaccessible, result.get(0));
     }
 }
