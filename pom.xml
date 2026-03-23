@@ -87,6 +87,13 @@
             <version>1.18.30</version>
         </dependency>
 		
+		<!-- https://mvnrepository.com/artifact/io.whelk.flesch.kincaid/whelk-flesch-kincaid -->
+		<dependency>
+		    <groupId>io.whelk.flesch.kincaid</groupId>
+		    <artifactId>whelk-flesch-kincaid</artifactId>
+		    <version>0.1.6</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp -->
 		<dependency>
 		    <groupId>edu.stanford.nlp</groupId>
@@ -127,6 +134,66 @@
             <artifactId>core</artifactId>
             <version>${core.version}</version>
         </dependency>
+
+		<!-- Transitive deps from core needed at test time (system scope to avoid dep resolution) -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-api</artifactId>
+			<version>4.8.1</version>
+			<scope>system</scope>
+			<systemPath>${user.home}/.m2/repository/org/seleniumhq/selenium/selenium-api/4.8.1/selenium-api-4.8.1.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>spring-cloud-gcp-pubsub</artifactId>
+			<version>3.0.0</version>
+			<scope>system</scope>
+			<systemPath>${user.home}/.m2/repository/com/google/cloud/spring-cloud-gcp-pubsub/3.0.0/spring-cloud-gcp-pubsub-3.0.0.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>spring-cloud-gcp-core</artifactId>
+			<version>3.0.0</version>
+			<scope>system</scope>
+			<systemPath>${user.home}/.m2/repository/com/google/cloud/spring-cloud-gcp-core/3.0.0/spring-cloud-gcp-core-3.0.0.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-neo4j</artifactId>
+			<version>6.2.3</version>
+			<scope>system</scope>
+			<systemPath>${user.home}/.m2/repository/spring-data-neo4j-6.2.3.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
+			<version>2.6.3</version>
+			<scope>system</scope>
+			<systemPath>${user.home}/.m2/repository/spring-data-commons-2.6.3.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy</artifactId>
+			<version>1.14.11</version>
+			<scope>system</scope>
+			<systemPath>${user.home}/.m2/repository/net/bytebuddy/byte-buddy/1.14.11/byte-buddy-1.14.11.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy-agent</artifactId>
+			<version>1.14.11</version>
+			<scope>system</scope>
+			<systemPath>${user.home}/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.11/byte-buddy-agent-1.14.11.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-server</artifactId>
+			<version>3.141.59</version>
+			<scope>system</scope>
+			<systemPath>/tmp/selenium-server-3.141.59.jar</systemPath>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -169,6 +236,25 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.11</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
 				<version>3.2.1</version>
@@ -193,6 +279,18 @@
 					</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>
+						@{argLine}
+						--add-opens java.base/java.lang=ALL-UNNAMED
+						--add-opens java.base/java.lang.reflect=ALL-UNNAMED
+						--add-opens java.base/java.util=ALL-UNNAMED
+					</argLine>
+				</configuration>
 			</plugin>
 	    </plugins>
 	</build>
