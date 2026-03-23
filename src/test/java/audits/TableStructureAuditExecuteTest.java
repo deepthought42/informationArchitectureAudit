@@ -192,4 +192,41 @@ public class TableStructureAuditExecuteTest {
         assertTrue(issues.stream().anyMatch(i -> i.getTitle().contains("Table data cell is associated with a valid header")),
                 "Should have passing observation for valid td headers");
     }
+
+    // ---- execute() integration tests ----
+
+    @Test
+    void testExecute_noTables() {
+        PageState ps = mock(PageState.class);
+        when(ps.getId()).thenReturn(100L);
+        when(ps.getUrl()).thenReturn("https://example.com");
+        when(ps.getSrc()).thenReturn("<html><body><p>No tables here</p></body></html>");
+        AuditRecord ar = mock(AuditRecord.class);
+
+        Audit result = tableStructureAudit.execute(ps, ar, null);
+
+        assertNotNull(result);
+        assertTrue(result.getMessages().isEmpty());
+        assertEquals(0, result.getPoints());
+    }
+
+    @Test
+    void testExecute_emptyBody() {
+        PageState ps = mock(PageState.class);
+        when(ps.getId()).thenReturn(100L);
+        when(ps.getUrl()).thenReturn("https://example.com");
+        when(ps.getSrc()).thenReturn("<html><body></body></html>");
+        AuditRecord ar = mock(AuditRecord.class);
+
+        Audit result = tableStructureAudit.execute(ps, ar, null);
+
+        assertNotNull(result);
+        assertTrue(result.getMessages().isEmpty());
+    }
+
+    @Test
+    void testConstructor() {
+        TableStructureAudit a = new TableStructureAudit();
+        assertNotNull(a);
+    }
 }

@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,7 +17,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.looksee.audit.informationArchitecture.audits.HeaderStructureAudit;
+import com.looksee.models.PageState;
 import com.looksee.models.audit.Audit;
+import com.looksee.models.audit.AuditRecord;
 import com.looksee.models.audit.messages.UXIssueMessage;
 import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
@@ -28,6 +31,7 @@ public class HeaderStructureAuditExecuteTest {
     private AuditService mockAuditService;
     private UXIssueMessageService mockIssueMessageService;
     private ElementStateService mockElementStateService;
+    private AtomicLong idCounter;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -35,6 +39,7 @@ public class HeaderStructureAuditExecuteTest {
         mockAuditService = mock(AuditService.class);
         mockIssueMessageService = mock(UXIssueMessageService.class);
         mockElementStateService = mock(ElementStateService.class);
+        idCounter = new AtomicLong(1000L);
 
         Field f1 = HeaderStructureAudit.class.getDeclaredField("auditService");
         f1.setAccessible(true);
@@ -48,8 +53,20 @@ public class HeaderStructureAuditExecuteTest {
         f3.setAccessible(true);
         f3.set(headerStructureAudit, mockElementStateService);
 
-        when(mockIssueMessageService.save(any(UXIssueMessage.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(mockIssueMessageService.save(any(UXIssueMessage.class))).thenAnswer(inv -> {
+            UXIssueMessage msg = inv.getArgument(0);
+            msg.setId(idCounter.getAndIncrement());
+            return msg;
+        });
         when(mockAuditService.save(any(Audit.class))).thenAnswer(inv -> inv.getArgument(0));
+    }
+
+    private PageState createPageState(String html) {
+        PageState ps = mock(PageState.class);
+        when(ps.getId()).thenReturn(100L);
+        when(ps.getUrl()).thenReturn("https://example.com");
+        when(ps.getSrc()).thenReturn(html);
+        return ps;
     }
 
     // ---- checkH1Headers tests ----
@@ -180,5 +197,84 @@ public class HeaderStructureAuditExecuteTest {
         assertNotNull(ancestor, "Should find a nearest ancestor");
         assertEquals("div", ancestor.tagName(), "Nearest non-header ancestor of h2 should be the parent div");
         assertEquals("parent", ancestor.id(), "Should be the div with id 'parent'");
+    }
+
+    // ---- execute() integration tests ----
+
+    @Test
+    void testExecute_noHeaders() {
+        PageState ps = createPageState("<html><body><p>No headers here</p></body></html>");
+        AuditRecord ar = mock(AuditRecord.class);
+
+        Audit result = headerStructureAudit.execute(ps, ar, null);
+
+        assertNotNull(result);
+        assertTrue(result.getMessages().stream()
+                .anyMatch(msg -> msg.getTitle().contains("H1 level header not found")));
+        assertEquals(0, result.getPoints());
+    }
+
+    @Test
+    void testExecute_exactlyOneH1() {
+        PageState ps = createPageState("<html><body><h1>Main Title</h1><p>Content</p></body></html>");
+        AuditRecord ar = mock(AuditRecord.class);
+
+        Audit result = headerStructureAudit.execute(ps, ar, null);
+
+        assertNotNull(result);
+        assertTrue(result.getMessages().stream()
+                .anyMatch(msg -> msg.getTitle().contains("exactly 1 H1 header")));
+    }
+
+    @Test
+    void testExecute_multipleH1s() {
+        PageState ps = createPageState("<html><body><h1>Title 1</h1><h1>Title 2</h1></body></html>");
+        AuditRecord ar = mock(AuditRecord.class);
+
+        Audit result = headerStructureAudit.execute(ps, ar, null);
+
+        assertNotNull(result);
+        assertTrue(result.getMessages().stream()
+                .anyMatch(msg -> msg.getTitle().contains("Too many H1 level headers")));
+    }
+
+    @Test
+    void testExecute_properHierarchyNoOutOfOrder() {
+        PageState ps = createPageState(
+                "<html><body><h1>Title</h1><h2>Section</h2><h3>Subsection</h3></body></html>");
+        AuditRecord ar = mock(AuditRecord.class);
+
+        Audit result = headerStructureAudit.execute(ps, ar, null);
+
+        assertNotNull(result);
+        assertTrue(result.getMessages().stream()
+                .anyMatch(msg -> msg.getTitle().contains("exactly 1 H1 header")));
+        assertFalse(result.getMessages().stream()
+                .anyMatch(msg -> msg.getTitle().contains("not in hierarchical order")));
+    }
+
+    @Test
+    void testExecute_emptyBody() {
+        PageState ps = createPageState("<html><body></body></html>");
+        AuditRecord ar = mock(AuditRecord.class);
+
+        Audit result = headerStructureAudit.execute(ps, ar, null);
+
+        assertNotNull(result);
+        assertTrue(result.getMessages().stream()
+                .anyMatch(msg -> msg.getTitle().contains("H1 level header not found")));
+    }
+
+    @Test
+    void testExecute_h1AndH2Only() {
+        PageState ps = createPageState(
+                "<html><body><h1>Title</h1><h2>Section 1</h2><h2>Section 2</h2></body></html>");
+        AuditRecord ar = mock(AuditRecord.class);
+
+        Audit result = headerStructureAudit.execute(ps, ar, null);
+
+        assertNotNull(result);
+        assertEquals(2, result.getPoints());
+        assertEquals(2, result.getTotalPossiblePoints());
     }
 }
