@@ -2,6 +2,7 @@ package com.looksee.audit.informationArchitecture.audits;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -32,7 +33,11 @@ import com.looksee.utils.BrowserUtils;
 import com.looksee.utils.ElementStateUtils;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits page titles, favicons, and heading structure for SEO and information
+ * architecture quality.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code audit_service},
+ * {@code issue_message_service}) are non-null after Spring construction.</p>
  */
 @Component
 public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
@@ -49,14 +54,17 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Identifies colors used on page, the color scheme type used, and the ultimately the score for how the colors used conform to scheme
+	 * Evaluates page titles, favicons, and heading structure for quality.
+	 *
+	 * @pre {@code page_state != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state,
 						 AuditRecord audit_record,
 						 DesignSystem design_system
 	 ) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
 
@@ -88,10 +96,11 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 								 AuditLevel.PAGE,
 								 max_points,
 								 page_state.getUrl(),
-								 why_it_matters, 
-								 description, 
+								 why_it_matters,
+								 description,
 								 true);
 
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return audit_service.save(audit);
 	}
 
@@ -102,7 +111,7 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	 * @return
 	 */
 	private Score scoreHeadings(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 
 		int points_achieved = 0;
 		int max_points = 0;
@@ -132,7 +141,7 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	 * @return
 	 */
 	private Score scoreOrderedListHeaders(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 		int score = 0;
 		int max_points = 0;
 		
@@ -164,7 +173,7 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	 * @return
 	 */
 	private Score scoreTextElementHeaders(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 		
 		int score = 0;
 		int max_points = 0;
@@ -220,7 +229,7 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	 * @pre page_state != null
 	 */
 	private Score scoreFavicon(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 		String ada_compliance = "There are no accessibility guidelines for favicon, but favicon plays a significant role in helping users identify the tab that your website was loaded into.";
 
 		int points = 0;
@@ -284,12 +293,15 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	}
 
 	/**
-	 * Checks if a {@link PageState} has a favicon defined
-	 * @param page
-	 * @return
+	 * Checks if a {@link PageState} has a favicon defined.
+	 *
+	 * @pre {@code page_src != null}
+	 * @post returns {@code true} if a link element with rel containing "icon" is found
+	 * @param page_src the page HTML source
+	 * @return true if a favicon link is present
 	 */
 	public static boolean hasFavicon(String page_src) {
-		assert page_src != null;
+		Objects.requireNonNull(page_src, "page_src must not be null");
 		
 		Document doc = Jsoup.parse(page_src);
 		Elements link_elements = doc.getElementsByTag("link");
@@ -307,7 +319,7 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 	 * @return
 	 */
 	private Score scorePageTitles(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 		
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
 		int points = 0;

@@ -3,6 +3,7 @@ package com.looksee.audit.informationArchitecture.audits;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -30,7 +31,11 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing a form-structure accessibility audit for information architecture.
+ * Audits HTML form elements for WCAG 2.1 Section 3.3.2 compliance, checking label
+ * association, fieldset grouping, and semantic structure.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class FormStructureAudit implements IExecutablePageStateAudit {
@@ -50,13 +55,17 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores form controls on a page based on labeling and semantic structure requirements.
+	 *
+	 * Audits form controls on a page for labeling and semantic structure compliance.
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -115,17 +124,21 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
                                 why_it_matters,
                                 description,
                                 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
     /**
      * Validates a single HTML form element for WCAG 2.1 Section 1.3.1 compliance.
-     * 
+     *
+     * @pre {@code form != null}
+     * @post returned list is non-null
      * @param form The form element to validate.
      * @return A list of validation messages.
      */
     public static List<GenericIssue> validateForm(Element form) {
+        Objects.requireNonNull(form, "form must not be null");
         List<GenericIssue> validationMessages = new ArrayList<>();
 
         // Select all input, select, and textarea elements within the form
@@ -170,11 +183,14 @@ public class FormStructureAudit implements IExecutablePageStateAudit {
 
     /**
      * Validates that form elements are grouped correctly using fieldset and legend elements.
-     * 
+     *
+     * @pre {@code form != null}
+     * @post returned list is non-null
      * @param form The form element to validate.
      * @return A list of validation messages.
      */
     public static List<String> validateFieldsetGrouping(Element form) {
+        Objects.requireNonNull(form, "form must not be null");
         List<String> validationMessages = new ArrayList<>();
 
         // Select all fieldset elements within the form

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -33,7 +34,11 @@ import com.looksee.services.BrowserService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing a table-structure accessibility audit for information architecture.
+ * Audits HTML table elements for WCAG 2.1 Section 1.3.1 compliance, checking header
+ * presence, scope attributes, and header-data cell associations.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class TableStructureAudit implements IExecutablePageStateAudit {
@@ -53,16 +58,17 @@ public class TableStructureAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Scores table semantics on a page to assess WCAG table structure conformance.
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -124,16 +130,25 @@ public class TableStructureAudit implements IExecutablePageStateAudit {
 								 why_it_matters,
 								 description,
 								 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
     /**
      * Validates a single HTML table element for WCAG 2.1 Section 1.3.1 compliance.
-     * 
+     *
+     * @pre {@code table != null}
+     * @pre {@code labels != null}
+     * @post returned list is non-null
+     * @param page_id the page identifier
      * @param table The table element to validate.
+     * @param labels the label set for categorization
+     * @return list of issues found
      */
     public static List<GenericIssue> validateTable(long page_id, Element table, Set<String> labels) {
+        Objects.requireNonNull(table, "table must not be null");
+        Objects.requireNonNull(labels, "labels must not be null");
 
         List<GenericIssue> issues = new ArrayList<>();
         // Select all <th> elements (table headers) in the table

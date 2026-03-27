@@ -1,6 +1,7 @@
 package com.looksee.audit.informationArchitecture;
 
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -45,6 +46,17 @@ import com.looksee.models.message.PageAuditMessage;
 import com.looksee.services.AuditRecordService;
 import com.looksee.services.PageStateService;
 
+/**
+ * REST controller that receives Pub/Sub audit messages, orchestrates page-level
+ * information architecture and accessibility audits, and publishes completion updates.
+ *
+ * <h3>Class Invariant</h3>
+ * <ul>
+ *   <li>All {@code @Autowired} audit and service dependencies are non-null after construction.</li>
+ *   <li>Each audit execution produces a persisted {@link Audit} with a valid id before the
+ *       controller registers it against the {@link AuditRecord}.</li>
+ * </ul>
+ */
 @RestController
 public class AuditController {
 	private static Logger log = LoggerFactory.getLogger(AuditController.class);
@@ -106,9 +118,27 @@ public class AuditController {
 	@Autowired
 	private PubSubAuditUpdatePublisherImpl audit_update_topic;
 	
+	/**
+	 * Receives a Pub/Sub message containing a {@link PageAuditMessage}, executes all
+	 * registered information architecture audits against the referenced page, and
+	 * publishes a completion update.
+	 *
+	 * @param body the Pub/Sub push message wrapper; must not be {@code null}
+	 * @return {@code 200 OK} on success, {@code 400 BAD_REQUEST} for invalid input,
+	 *         {@code 404 NOT_FOUND} if the audit record does not exist,
+	 *         {@code 500 INTERNAL_SERVER_ERROR} on serialisation failures
+	 *
+	 * @pre {@code body != null && body.getMessage() != null}
+	 * @pre {@code body.getMessage().getData()} is a valid Base64-encoded JSON string
+	 *      representing a {@link PageAuditMessage}
+	 * @post an {@link AuditProgressUpdate} with progress {@code 1.0} is published to the
+	 *       audit update topic
+	 * @post every audit that did not already exist for the record has been persisted and
+	 *       associated with the {@link AuditRecord}
+	 */
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public ResponseEntity<String> receiveMessage(@RequestBody Body body)
-			throws ExecutionException, InterruptedException 
+			throws ExecutionException, InterruptedException
 	{
 		if(body == null || body.getMessage() == null) {
 			return new ResponseEntity<String>("Invalid Pub/Sub message: body.message is required", HttpStatus.BAD_REQUEST);
@@ -263,21 +293,22 @@ public class AuditController {
 	}
 
 	/**
-	 * Checks if the any of the provided {@link Audit audits} have a name that matches
-	 * 		the provided {@linkplain AuditName}
-	 * 
-	 * @param audits
-	 * @param audit_name
-	 * 
-	 * @return
-	 * 
-	 * @pre audits != null
-	 * @pre audit_name != null
+	 * Checks whether any of the provided {@link Audit audits} already have the given
+	 * {@link AuditName}.
+	 *
+	 * @param audits     the set of existing audits to search; must not be {@code null}
+	 * @param audit_name the audit name to look for; must not be {@code null}
+	 * @return {@code true} if a matching audit exists, {@code false} otherwise
+	 *
+	 * @pre {@code audits != null}
+	 * @pre {@code audit_name != null}
+	 * @post result is {@code true} if and only if at least one element in {@code audits}
+	 *       has a name equal to {@code audit_name}
 	 */
 	private boolean auditAlreadyExists(Set<Audit> audits, AuditName audit_name) {
-		assert audits != null;
-		assert audit_name != null;
-		
+		Objects.requireNonNull(audits, "audits must not be null");
+		Objects.requireNonNull(audit_name, "audit_name must not be null");
+
 		for(Audit audit : audits) {
 			if(audit_name.equals(audit.getName())) {
 				return true;

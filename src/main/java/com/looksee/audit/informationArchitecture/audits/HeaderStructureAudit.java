@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -36,7 +37,11 @@ import com.looksee.services.ElementStateService;
 import com.looksee.services.UXIssueMessageService;
 
 /**
- * Responsible for executing a structural heading audit for information architecture accessibility.
+ * Audits heading structure for WCAG 2.1 Section 1.3.1 compliance, validating H1 usage,
+ * heading hierarchy consistency, and proper nesting.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code issueMessageService}, {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class HeaderStructureAudit implements IExecutablePageStateAudit {
@@ -60,13 +65,17 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Scores heading structure on a page based on H1 usage and heading hierarchy consistency.
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -188,7 +197,8 @@ public class HeaderStructureAudit implements IExecutablePageStateAudit {
 								 why_it_matters,
 								 description,
 								 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 

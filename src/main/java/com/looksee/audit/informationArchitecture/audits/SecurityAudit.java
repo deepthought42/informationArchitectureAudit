@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,10 @@ import com.looksee.services.AuditService;
 import com.looksee.services.UXIssueMessageService;
 
 /**
- * Responsible for executing an audit on the security on a page for the information architecture audit category
+ * Audits page security for HTTPS/SSL compliance, checking whether the page connection is encrypted.
+ *
+ * <p><b>Class invariant:</b> {@code audit_service} and {@code issue_message_service} are non-null
+ * after Spring dependency injection is complete.</p>
  */
 @Component
 public class SecurityAudit implements IExecutablePageStateAudit {
@@ -43,15 +47,15 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Checks if 
-	 *  
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * Checks whether the page uses HTTPS encryption.
+	 *
+	 * @pre {@code page_state != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
 
 		String why_it_matters = "Sites that don't use HTTPS are highly insecure and are more likley to leak personal identifiable information(PII). Modern users are keenly aware of this fact and are less likely to trust sites that aren't secured.";
@@ -125,12 +129,22 @@ public class SecurityAudit implements IExecutablePageStateAudit {
 								why_it_matters,
 								description,
 								false);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return audit_service.save(audit);
 	}
 	
 
+	/**
+	 * Returns a sorted list of distinct strings from the input.
+	 *
+	 * @pre {@code from != null}
+	 * @post returned list contains only distinct, sorted elements
+	 * @param from the source list
+	 * @return a new sorted list of distinct strings
+	 */
 	public static List<String> makeDistinct(List<String> from){
+		Objects.requireNonNull(from, "from must not be null");
 		return from.stream().distinct().sorted().collect(Collectors.toList());
 	}
 }

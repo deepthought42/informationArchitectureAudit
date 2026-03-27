@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -32,7 +33,11 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits input fields for WCAG 2.1 Section 1.3.5 compliance, verifying that autocomplete
+ * attributes and ARIA labels correctly identify the purpose of each input.
+ *
+ * <p><strong>Class invariant:</strong> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class InputPurposeAudit implements IExecutablePageStateAudit {
@@ -69,14 +74,18 @@ public class InputPurposeAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
+	 *
+	 * Evaluates input elements on the page for WCAG 2.1 Section 1.3.5 compliance by checking
+	 * autocomplete attributes and ARIA labels.
+	 *
+	 * @pre {@code page_state != null} -- the page state to audit must be provided
+	 * @pre {@code audit_record != null} -- the audit record context must be provided
+	 * @post the returned {@code Audit} is non-null and has been persisted via {@code auditService}
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "Precondition failed: page_state must not be null");
+		Objects.requireNonNull(audit_record, "Precondition failed: audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -132,6 +141,7 @@ public class InputPurposeAudit implements IExecutablePageStateAudit {
                                 description,
                                 true);
 		
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
@@ -160,8 +170,10 @@ public class InputPurposeAudit implements IExecutablePageStateAudit {
      * **Postconditions:**
      * - The returned list of issues should not be null and should contain issues found during the compliance check.
      * 
-     * @param doc The HTML document to be checked. Must be a valid non-null `Document` object.
-     * @return A list of `GenericIssue` objects representing any non-compliance issues found. The list is never null.
+     * @pre {@code doc != null} -- the HTML document must not be null
+     * @post the returned list is never null
+     * @param doc The HTML document to be checked. Must be a valid non-null {@code Document} object.
+     * @return A list of {@code GenericIssue} objects representing any non-compliance issues found. The list is never null.
      */
     public static List<GenericIssue> checkCompliance(Document doc) {
         List<GenericIssue> issues = new ArrayList<>();
@@ -227,6 +239,10 @@ public class InputPurposeAudit implements IExecutablePageStateAudit {
 
     /**
      * Checks if the ARIA label is meaningful by comparing it to common input names.
+     *
+     * @pre {@code ariaLabel != null} -- the ARIA label must not be null
+     * @pre {@code name != null} -- the name attribute must not be null
+     * @post returns {@code true} if the ARIA label or name matches common patterns; {@code false} otherwise
      * @param ariaLabel The ARIA label of the input element.
      * @param name The name attribute of the input element.
      * @return True if the ARIA label or name matches common patterns; false otherwise.

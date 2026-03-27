@@ -3,6 +3,7 @@ package com.looksee.audit.informationArchitecture.models;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,11 @@ import com.looksee.services.AuditService;
 import com.looksee.services.PageStateService;
 
 /**
- * Responsible for executing an audit on the keyboard accessibility of a page 
- * for the information architecture audit category
+ * Audits keyboard accessibility for WCAG 2.1 Section 2.1.1 compliance, checking that
+ * interactive elements are focusable and operable via keyboard.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code pageStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
@@ -51,8 +55,8 @@ public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -109,7 +113,8 @@ public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
 								why_it_matters,
 								description,
 								true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
@@ -124,8 +129,7 @@ public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
      * @return List of non-keyboard accessible elements as WebElements.
      */
     public static List<ElementState> checkKeyboardAccessibility(List<ElementState> elements) {
-        // Precondition: Ensure the driver is still active and pointing to a valid page
-        assert elements != null : "PageState must not be null";
+        Objects.requireNonNull(elements, "elements must not be null");
         
         List<ElementState> nonAccessibleElements = new ArrayList<>();
 
@@ -143,9 +147,7 @@ public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
             }
         }
 
-        // Postcondition: Ensure that the returned list is not null
-        assert nonAccessibleElements != null : "Returned list must not be null";
-
+        Objects.requireNonNull(nonAccessibleElements, "Postcondition failed: returned list must not be null");
         return nonAccessibleElements;
     }
 }

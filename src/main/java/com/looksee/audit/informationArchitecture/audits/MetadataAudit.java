@@ -3,6 +3,7 @@ package com.looksee.audit.informationArchitecture.audits;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -33,7 +34,11 @@ import io.whelk.flesch.kincaid.ReadabilityCalculator;
 
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits page metadata for SEO quality, checking title length, meta description presence
+ * and readability, and meta refresh tag usage.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code audit_service},
+ * {@code issue_message_service}) are non-null after Spring construction.</p>
  */
 @Component
 public class MetadataAudit implements IExecutablePageStateAudit {
@@ -46,18 +51,18 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Identifies colors used on page, the color scheme type used, and the ultimately the score for how the colors used conform to scheme
-	 *  
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * Evaluates page metadata including title, description, and refresh tags.
+	 *
+	 * @pre {@code page_state != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
-	public Audit execute(PageState page_state, 
-						 AuditRecord audit_record, 
-						 DesignSystem design_system) 
+	public Audit execute(PageState page_state,
+						 AuditRecord audit_record,
+						 DesignSystem design_system)
 	{
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
 		//List<PageVersion> pages = domain_service.getPages(domain.getHost());
 
@@ -88,11 +93,12 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 								 issue_messages,
 								 AuditLevel.PAGE,
 								 max_points,
-								 page_state.getUrl(), 
-								 why_it_matters, 
-								 description, 
+								 page_state.getUrl(),
+								 why_it_matters,
+								 description,
 								 false);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return audit_service.save(audit);
 	}
 
@@ -115,7 +121,7 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 	 * @return
 	 */
 	private Score scoreTitle(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 
 		int points_achieved = 0;
 		int max_points = 1;
@@ -215,10 +221,10 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 	 * @return true if title desribes content of page
 	 */
 	private boolean describesContentOfPage(String page_title, String page_content) {
-		assert page_title != null;
-		assert !page_title.isEmpty();
-		assert page_content != null;
-		assert !page_content.isEmpty();
+		Objects.requireNonNull(page_title, "page_title must not be null");
+		if (page_title.isEmpty()) { throw new IllegalArgumentException("page_title must not be empty"); }
+		Objects.requireNonNull(page_content, "page_content must not be null");
+		if (page_content.isEmpty()) { throw new IllegalArgumentException("page_content must not be empty"); }
 		
 		// TODO Auto-generated method stub
 		return false;
@@ -231,7 +237,7 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 	 * @return
 	 */
 	private Score scoreKeywords(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 
 		int points_achieved = 0;
 		int max_points = 0;
@@ -253,7 +259,7 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 	 * @return
 	 */
 	private Score scoreDescription(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 		int score = 0;
 		int max_points = 0;
 		
@@ -498,7 +504,7 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 	}
 	
 	private Score scoreRefreshes(PageState page_state) {
-		assert page_state != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
 		
 		int score = 0;
 		int max_points = 1;
