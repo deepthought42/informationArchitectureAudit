@@ -75,26 +75,10 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 		for(UXIssueMessage issue_msg : issue_messages) {
 			points_earned += issue_msg.getPoints();
 			max_points += issue_msg.getMaxPoints();
-		/*	
-			if(issue_msg.getScore() < 90 && issue_msg instanceof ElementStateIssueMessage) {
-				ElementStateIssueMessage element_issue_msg = (ElementStateIssueMessage)issue_msg;
-				List<ElementState> good_examples = audit_service.findGoodExample(AuditName.LINKS, 100);
-				if(good_examples.isEmpty()) {
-					log.warn("Could not find element for good example...");
-					continue;
-				}
-				Random random = new Random();
-				ElementState good_example = good_examples.get(random.nextInt(good_examples.size()-1));
-				element_issue_msg.setGoodExample(good_example);
-				issue_message_service.save(element_issue_msg);
-			}
-			*/
 		}
 		
-		//log.warn("TITLE FONT AUDIT SCORE   ::   "+points_earned +" / " +max_points);
 		String why_it_matters = "The favicon is a small detail with a big impact on engagement. When users leave your site to look at another tab that they have open, the favicon allos them to easily identify the tab that belongs to your service.";
 		String description = "";
-
 		//page_state = page_state_service.findById(page_state.getId()).get();
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.SEO,
@@ -107,10 +91,8 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 								 why_it_matters, 
 								 description, 
 								 true);
-		
+
 		return audit_service.save(audit);
-		//audit_service.addAllIssues(audit.getId(), issue_messages);
-		//return audit;
 	}
 
 	/**
@@ -226,8 +208,6 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 		}
 		
 		
-		//log.warn("Headings score ::    "+score);
-		//log.warn("Headings max score :::  "+max_points);
 		return new Score(score, max_points, new HashSet<>());
 	}
 

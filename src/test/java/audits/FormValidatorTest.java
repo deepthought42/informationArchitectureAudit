@@ -1,14 +1,14 @@
 package audits;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.looksee.models.audit.GenericIssue;
 import com.looksee.utils.FormValidator;
@@ -17,7 +17,7 @@ public class FormValidatorTest {
 
     private FormValidator validator;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         validator = new FormValidator();
     }

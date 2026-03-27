@@ -25,20 +25,6 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>2021.0.0</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.google.cloud</groupId>
-				<artifactId>spring-cloud-gcp-dependencies</artifactId>
-				<version>3.0.0</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
 	    </dependencies>
 	</dependencyManagement>
 
@@ -54,39 +40,12 @@
 			<scope>test</scope>
 	    </dependency>
 	    
-	    <dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.2</version>
-			<scope>test</scope>
-	    </dependency>
-
-		<!-- https://mvnrepository.com/artifact/us.codecraft/xsoup -->
-		<dependency>
-		    <groupId>us.codecraft</groupId>
-		    <artifactId>xsoup</artifactId>
-		    <version>0.3.1</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>xml-apis</groupId>
-		    <artifactId>xml-apis</artifactId>
-		    <version>1.4.01</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/net.sf.jtidy/jtidy -->
-		<dependency>
-		    <groupId>net.sf.jtidy</groupId>
-		    <artifactId>jtidy</artifactId>
-		    <version>r938</version>
-		</dependency>
-		
 		<dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
         </dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/io.whelk.flesch.kincaid/whelk-flesch-kincaid -->
 		<dependency>
 		    <groupId>io.whelk.flesch.kincaid</groupId>
@@ -94,122 +53,11 @@
 		    <version>0.1.6</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp -->
-		<dependency>
-		    <groupId>edu.stanford.nlp</groupId>
-		    <artifactId>stanford-corenlp</artifactId>
-		    <version>4.2.2</version>
-		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-pos-tagger -->
-		<dependency>
-		    <groupId>edu.stanford.nlp</groupId>
-		    <artifactId>stanford-corenlp</artifactId>
-			<version>4.2.2</version>
-		    <classifier>models</classifier>
-		</dependency>
-
-		<!-- Spring Retry -->
-		<dependency>
-			<groupId>org.springframework.retry</groupId>
-			<artifactId>spring-retry</artifactId>
-		</dependency>
-		
-		<!-- Google Cloud Language API -->
-		<dependency>
-			<groupId>com.google.cloud</groupId>
-			<artifactId>google-cloud-language</artifactId>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
-		<dependency>
-			<groupId>io.swagger.core.v3</groupId>
-			<artifactId>swagger-annotations</artifactId>
-			<version>2.2.31</version>
-		</dependency>
-
-		<!-- Alternative: Direct JAR from GitHub release (uncomment if Maven repo doesn't work) -->
 		<dependency>
             <groupId>com.looksee</groupId>
             <artifactId>core</artifactId>
             <version>${core.version}</version>
         </dependency>
-
-		<!-- Transitive deps from core needed at test compile time -->
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-api</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.cloud</groupId>
-			<artifactId>spring-cloud-gcp-pubsub</artifactId>
-			<version>3.0.0</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.cloud</groupId>
-			<artifactId>spring-cloud-gcp-core</artifactId>
-			<version>3.0.0</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-neo4j</artifactId>
-			<version>6.2.3</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-commons</artifactId>
-			<version>2.6.3</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>net.bytebuddy</groupId>
-			<artifactId>byte-buddy</artifactId>
-			<version>1.14.11</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>net.bytebuddy</groupId>
-			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.14.11</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-server</artifactId>
-			<version>3.141.59</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
-			</exclusions>
-		</dependency>
 	</dependencies>
 
 	<build>

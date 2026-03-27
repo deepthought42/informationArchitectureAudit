@@ -9,8 +9,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,8 +34,6 @@ import com.looksee.services.ElementStateService;
  */
 @Component
 public class FormStructureAudit implements IExecutablePageStateAudit {
-	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(FormStructureAudit.class);
 
 	@Autowired
 	private AuditService auditService;

@@ -1,8 +1,6 @@
 package audits;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +8,7 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.looksee.audit.informationArchitecture.models.ListStructureAudit;
 import com.looksee.audit.informationArchitecture.models.WcagEmphasisComplianceAudit;
@@ -80,20 +78,20 @@ public class WCAGListComplianceCheckerTest {
         assertFalse(result);
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAreChildrenListItems_NullElement() {
         // Test case: Passing a null element, which should trigger an assertion error
-        ListStructureAudit.areChildrenListItems(null);
+        assertThrows(AssertionError.class, () -> ListStructureAudit.areChildrenListItems(null));
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAreChildrenListItems_NonListElement() {
         // Test case: Passing an element that is not a <ul> or <ol>, which should trigger an assertion error
         String htmlContent = "<p>This is not a list</p>";
         Document doc = Jsoup.parse(htmlContent);
         Element pElement = doc.select("p").first();
 
-        ListStructureAudit.areChildrenListItems(pElement);
+        assertThrows(AssertionError.class, () -> ListStructureAudit.areChildrenListItems(pElement));
     }
 
     @Test
