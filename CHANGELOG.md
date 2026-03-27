@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/deepthought42/informationArchitectureAudit/compare/v1.0.4...v1.0.5) (2026-03-27)
+
+
+### Bug Fixes
+
+* update test expectations to match DbC exception types ([b379aa2](https://github.com/deepthought42/informationArchitectureAudit/commit/b379aa2f0fe6f4cdaad5db8bc04c7229b2a4e9fc))
+
 ## [1.0.4](https://github.com/deepthought42/informationArchitectureAudit/compare/v1.0.3...v1.0.4) (2025-07-21)
 
 
