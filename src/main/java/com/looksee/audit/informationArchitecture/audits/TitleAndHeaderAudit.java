@@ -91,6 +91,8 @@ public class TitleAndHeaderAudit implements IExecutablePageStateAudit {
 								 why_it_matters, 
 								 description, 
 								 true);
+
+		return audit_service.save(audit);
 	}
 
 	/**

@@ -81,6 +81,7 @@ public class MetadataAudit implements IExecutablePageStateAudit {
 		String why_it_matters = "Metadata tells search engines what your web page has to offer. By using metadata correctly, you can boost your relevancy in search results. Metadata provides search engines with the most important information about your web pages, including titles and descriptions.";
 		String description = "";
 
+		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,
 								 AuditSubcategory.SEO,
 								 AuditName.METADATA,
 								 points_earned,
