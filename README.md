@@ -14,6 +14,83 @@ When a Pub/Sub message is received, the service:
 
 Primary entrypoint: `AuditController` (`POST /`).
 
+## Design by Contract
+
+This codebase follows **Design by Contract (DbC)** principles throughout all audit implementations. Every public and internal method documents and enforces its contract:
+
+### Preconditions
+
+Preconditions are enforced at runtime using `Objects.requireNonNull()` (for null checks) and `IllegalArgumentException` (for value constraints). This ensures that invalid inputs are caught immediately with clear error messages, regardless of JVM assertion settings.
+
+```java
+Objects.requireNonNull(page_state, “page_state must not be null”);
+Objects.requireNonNull(audit_record, “audit_record must not be null”);
+```
+
+### Postconditions
+
+Each `execute()` method validates that the constructed `Audit` object is non-null before persisting:
+
+```java
+Objects.requireNonNull(audit, “Postcondition failed: audit must not be null”);
+return auditService.save(audit);
+```
+
+### Class Invariants
+
+Every audit class documents its invariant in the class-level Javadoc, specifying which `@Autowired` dependencies must be non-null after Spring construction:
+
+```java
+/**
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
+ */
+```
+
+### Javadoc Contract Tags
+
+All methods use `@pre` and `@post` tags to formally document their contracts:
+
+```java
+/**
+ * @pre {@code page_state != null}
+ * @pre {@code audit_record != null}
+ * @post returned {@code Audit} is non-null and persisted
+ */
+```
+
+## Audit classes
+
+### Active audits (in `audits/`)
+
+| Class | WCAG Section | Purpose |
+|-------|-------------|---------|
+| `HeaderStructureAudit` | 1.3.1 | H1 validation and heading hierarchy |
+| `TableStructureAudit` | 1.3.1 | Table header and scope attribute checks |
+| `FormStructureAudit` | 3.3.2 | Form labeling and fieldset structure |
+| `OrientationAudit` | 1.3.4 | Orientation restriction detection |
+| `InputPurposeAudit` | 1.3.5 | Autocomplete and ARIA label compliance |
+| `IdentifyPurposeAudit` | 1.3.6 | Programmatic purpose identification |
+| `UseOfColorAudit` | 1.4.1 | Color-only information conveyance |
+| `AudioControlAudit` | 1.4.2 | Autoplay audio/video controls |
+| `VisualPresentationAudit` | 1.4.8 | Color, font, justification, spacing |
+| `ReflowAudit` | 1.4.10 | Responsive layout and reflow |
+| `TextSpacingAudit` | 1.4.12 | Line height, letter/word/paragraph spacing |
+| `PageLanguageAudit` | 3.1.1 | HTML lang attribute validation |
+| `LinksAudit` | Navigation | Link href, URL validity, text quality |
+| `TitleAndHeaderAudit` | SEO | Page titles, favicons, heading structure |
+| `SecurityAudit` | Security | HTTPS/SSL validation |
+| `MetadataAudit` | SEO | Title, meta description, refresh tags |
+
+### In-development audits (in `models/`)
+
+| Class | WCAG Section | Purpose |
+|-------|-------------|---------|
+| `InputLabelAudit` | 3.3.2 | Input label association |
+| `KeyboardAccessibleAudit` | 2.1.1 | Keyboard navigation and focus |
+| `ListStructureAudit` | 1.3.1 | List structure (ul/ol with li children) |
+| `WcagEmphasisComplianceAudit` | 1.3.1 | Semantic emphasis tags |
+
 ## Local development
 
 ### Prerequisites
@@ -48,48 +125,6 @@ Typical values to configure:
 - `server.port`
 - datasource settings (`spring.datasource.*`)
 - logging levels (`logging.level.*`)
-
-## Code review summary (this pass)
-
-This repository review focused on correctness, resilience, and audit metadata accuracy.
-
-### Fixed in this update
-
-1. **Message parsing hardening in controller**
-   - Added request validation for missing `body.message` and missing/empty `message.data`.
-   - Replaced unsafe `.get()` on optional audit record lookup with explicit `orElseThrow(...)`.
-
-2. **Header audit logic bug**
-   - Fixed boolean branch logic that used assignment (`=`) instead of comparison, which could force incorrect branches.
-
-3. **Incorrect audit identity metadata**
-   - `HeaderStructureAudit`, `TableStructureAudit`, and `FormStructureAudit` were persisting as `AuditName.LINKS` under navigation.
-   - Updated to use structure-appropriate `AuditSubcategory` and `AuditName` values.
-
-4. **Form audit target element bug**
-   - `FormStructureAudit` was parsing `<table>` elements instead of `<form>` elements.
-   - Updated to audit actual form elements.
-
-5. **Logger category cleanup**
-   - Fixed logger declarations in structure audits to use their own class instead of `LinksAudit.class`.
-
-### Remaining high-value issues to address (proposed fixes)
-
-1. **Overly broad / misleading class comments and descriptions**
-   - Several audit classes still contain “links” copy in JavaDocs and descriptions.
-   - **Proposed fix:** normalize class-level docs and user-facing descriptions to match each audit’s purpose.
-
-2. **Potential null handling for element lookup**
-   - `elementStateService.findByPageAndCssSelector(...)` may return `null`; issue message creation may then fail depending on downstream contracts.
-   - **Proposed fix:** null-check and fall back to page-level `UXIssueMessage` when element resolution fails.
-
-3. **Header order analysis quality**
-   - `mapHeadersByAncestor` currently groups headers by ancestor but does not explicitly validate heading level transitions (`h1 -> h2`, etc.) in a deterministic scoring model.
-   - **Proposed fix:** add explicit sequence validation and severity weighting for skipped levels.
-
-4. **Test coverage gaps for fixed behavior**
-   - Existing tests validate header mapping utility logic but not controller message validation paths.
-   - **Proposed fix:** add controller slice tests (`@WebMvcTest`) for invalid message payloads and missing audit records.
 
 ## Deployment to GCP (Cloud Run)
 

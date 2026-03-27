@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -32,7 +33,11 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits audio and video elements for WCAG 2.1 Section 1.4.2 compliance, checking
+ * that autoplaying media has user controls.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class AudioControlAudit implements IExecutablePageStateAudit {
@@ -51,17 +56,22 @@ public class AudioControlAudit implements IExecutablePageStateAudit {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * Audits audio and video elements on the page for autoplay control compliance
+	 * per WCAG 2.1 Section 1.4.2. Identifies autoplaying media that lacks user
+	 * controls or mute options.
+	 *
+	 * @pre {@code page_state != null} - the page state to audit must be provided
+	 * @pre {@code audit_record != null} - the parent audit record must be provided
+	 * @post returned {@code Audit} is non-null and has been persisted
+	 *
+	 * @throws MalformedURLException
+	 * @throws URISyntaxException
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -117,6 +127,7 @@ public class AudioControlAudit implements IExecutablePageStateAudit {
 								 description,
 								 true);
 		
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
@@ -125,10 +136,17 @@ public class AudioControlAudit implements IExecutablePageStateAudit {
      * This section requires that if any audio on a web page plays automatically for more than 3 seconds,
      * the user should be able to pause, stop, or control the volume of the audio independently from the system volume.
      *
-     * @param html The HTML document as a string.
+     * @pre {@code document != null} - the HTML document to evaluate must be provided
+     * @post returned list is non-null (may be empty if no issues are found)
+     *
+     * @param document The parsed Jsoup Document to check.
      * @return A list of GenericIssue objects representing any issues found.
+     * @throws IllegalArgumentException if the provided document is null.
      */
     public static List<GenericIssue> checkCompliance(Document document) {
+        if (document == null) {
+            throw new IllegalArgumentException("Document must not be null");
+        }
         List<GenericIssue> issues = new ArrayList<>();
 
         // Select all audio and video elements

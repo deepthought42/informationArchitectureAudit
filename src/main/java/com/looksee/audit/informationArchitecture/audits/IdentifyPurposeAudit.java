@@ -3,6 +3,7 @@ package com.looksee.audit.informationArchitecture.audits;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -30,7 +31,11 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits UI components for WCAG 2.1 Section 1.3.6 compliance, ensuring that the purpose
+ * of icons, regions, and controls can be programmatically determined.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class IdentifyPurposeAudit implements IExecutablePageStateAudit {
@@ -49,14 +54,17 @@ public class IdentifyPurposeAudit implements IExecutablePageStateAudit {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error
+	 *
+	 * Audits UI components for programmatic purpose identification per WCAG 2.1 Section 1.3.6.
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -111,7 +119,8 @@ public class IdentifyPurposeAudit implements IExecutablePageStateAudit {
                                 why_it_matters,
                                 description,
                                 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,11 @@ import com.looksee.services.AuditService;
 import com.looksee.services.PageStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits text spacing properties for WCAG 2.1 Section 1.4.12 compliance, checking
+ * line height, letter spacing, word spacing, and paragraph spacing.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code pageStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class TextSpacingAudit implements IExecutablePageStateAudit {
@@ -49,17 +54,17 @@ public class TextSpacingAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * Evaluates text spacing properties of page elements against WCAG thresholds.
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -97,18 +102,22 @@ public class TextSpacingAudit implements IExecutablePageStateAudit {
 								 why_it_matters,
 								 description,
 								 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
     
     /**
      * Evaluates a list of ElementState objects for compliance with WCAG 2.1 Section 1.4.12 (Text Spacing).
-     * 
+     *
+     * @pre {@code elements != null}
+     * @post returned list is non-null
      * @param elements The list of ElementState objects to evaluate.
-     * @return A list of TextSpacingIssue objects representing any compliance issues found.
+     * @return A list of UXIssueMessage objects representing any compliance issues found.
      */
     public static List<UXIssueMessage> evaluateTextSpacing(List<ElementState> elements) {
+        Objects.requireNonNull(elements, "elements must not be null");
         List<UXIssueMessage> issues = new ArrayList<>();
         String ada_compliance = "WCAG 2.1 Section 1.4.12 - Text Spacing";
         for (ElementState element : elements) {
@@ -195,10 +204,12 @@ public class TextSpacingAudit implements IExecutablePageStateAudit {
     }
 
     /**
-     * Helper method to parse CSS values into double values, supporting various units.
-     * 
+     * Parses CSS values into pixel-equivalent double values, supporting various units.
+     *
+     * @pre none (null and empty values are handled gracefully, returning 0.0)
+     * @post returned value is >= 0.0
      * @param cssValue The CSS value as a string (e.g., '16px', '1.2em').
-     * @return The numeric value as a double in pixels.
+     * @return The numeric value as a double in pixels, or 0.0 for null/empty/invalid input.
      */
     public static double parseCssValue(String cssValue) {
         if (cssValue == null || cssValue.isEmpty()) {

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -32,7 +33,11 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits page content for WCAG 2.1 Section 1.3.4 compliance, detecting orientation
+ * restrictions that may prevent users from viewing content in their preferred orientation.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class OrientationAudit implements IExecutablePageStateAudit {
@@ -52,17 +57,17 @@ public class OrientationAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * Checks for CSS or viewport-based orientation restrictions on the page.
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -117,15 +122,22 @@ public class OrientationAudit implements IExecutablePageStateAudit {
 								 why_it_matters,
 								 description,
 								 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
     /**
-     * This method checks if the HTML document restricts content to a specific orientation,
+     * Checks if the HTML document restricts content to a specific orientation,
      * which would violate WCAG 2.1 Section 1.3.4 unless justified.
+     *
+     * @pre {@code doc != null}
+     * @post returned list is non-null
+     * @param doc the parsed HTML document
+     * @return a list of orientation restriction issues found
      */
     public static List<GenericIssue> checkOrientationRestrictions(Document doc) {
+        Objects.requireNonNull(doc, "Document must not be null");
         List<GenericIssue> issues = new ArrayList<>();
 
         // Check for any media queries that restrict orientation

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -32,7 +33,11 @@ import com.looksee.services.BrowserService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the input labels on a page for the information architecture audit category
+ * Audits input label associations for WCAG 2.1 Section 3.3.2 compliance, checking that
+ * each form input has a properly associated label element.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class InputLabelAudit implements IExecutablePageStateAudit {
@@ -58,8 +63,8 @@ public class InputLabelAudit implements IExecutablePageStateAudit {
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -97,7 +102,8 @@ public class InputLabelAudit implements IExecutablePageStateAudit {
 								 why_it_matters,
 								 description,
 								 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 

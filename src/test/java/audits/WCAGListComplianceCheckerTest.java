@@ -81,7 +81,7 @@ public class WCAGListComplianceCheckerTest {
     @Test
     public void testAreChildrenListItems_NullElement() {
         // Test case: Passing a null element, which should trigger an assertion error
-        assertThrows(AssertionError.class, () -> ListStructureAudit.areChildrenListItems(null));
+        assertThrows(NullPointerException.class, () -> ListStructureAudit.areChildrenListItems(null));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class WCAGListComplianceCheckerTest {
         Document doc = Jsoup.parse(htmlContent);
         Element pElement = doc.select("p").first();
 
-        assertThrows(AssertionError.class, () -> ListStructureAudit.areChildrenListItems(pElement));
+        assertThrows(IllegalArgumentException.class, () -> ListStructureAudit.areChildrenListItems(pElement));
     }
 
     @Test

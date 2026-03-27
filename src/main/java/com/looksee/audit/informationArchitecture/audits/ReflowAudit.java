@@ -3,6 +3,7 @@ package com.looksee.audit.informationArchitecture.audits;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,11 @@ import com.looksee.services.ElementStateService;
 import com.looksee.services.PageStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits page elements for WCAG 2.1 Section 1.4.10 compliance, checking that content
+ * reflows properly without requiring horizontal scrolling.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}, {@code pageStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class ReflowAudit implements IExecutablePageStateAudit {
@@ -49,13 +54,17 @@ public class ReflowAudit implements IExecutablePageStateAudit {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
+	 * Evaluates page elements for reflow compliance, identifying fixed-width elements
+	 * that may cause horizontal scrolling.
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -95,7 +104,8 @@ public class ReflowAudit implements IExecutablePageStateAudit {
                                 why_it_matters,
                                 description,
                                 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
@@ -109,10 +119,14 @@ public class ReflowAudit implements IExecutablePageStateAudit {
         return issues;
     }
 
-    // Helper method to check individual elements
+    /**
+     * Checks an individual element for reflow compliance.
+     *
+     * @pre {@code element != null}
+     * @post returned {@code UXIssueMessage} is non-null
+     */
     private UXIssueMessage checkElementForReflowCompliance(ElementState element) {
-        // Precondition: Element must be valid and displayed
-        assert element != null : "Precondition failed: Element must not be null";
+        Objects.requireNonNull(element, "Precondition failed: element must not be null");
 
         // Check for fixed-width elements that could cause reflow issues
         String width = element.getRenderedCssValues().get("width");
@@ -141,8 +155,7 @@ public class ReflowAudit implements IExecutablePageStateAudit {
     
         }
 
-        // Postcondition: Ensures that checks are performed on the element
-        assert element.getName() != null : "Postcondition failed: Element tag name should not be null";
+        Objects.requireNonNull(element.getName(), "Postcondition failed: element tag name should not be null");
 
         String description = "Web content adjusts to fit the viewport";
         String wcag_compliance = "WCAG 2.1 Section 1.4.10 - Reflow";
@@ -163,10 +176,17 @@ public class ReflowAudit implements IExecutablePageStateAudit {
                                 recommendation);
     }
 
-    // Helper method to determine if the width is fixed
+    /**
+     * Determines if the CSS width value represents a fixed width.
+     *
+     * @pre {@code width != null && !width.isEmpty()}
+     * @post returns {@code true} if width ends with "px" or "%"
+     */
     private boolean isFixedWidth(String width) {
-        // Invariant: Width should be in pixels or percentage
-        assert width != null && !width.isEmpty() : "Invariant failed: Width value must not be null or empty";
+        Objects.requireNonNull(width, "width must not be null");
+        if (width.isEmpty()) {
+            throw new IllegalArgumentException("width must not be empty");
+        }
         return width.endsWith("px") || width.endsWith("%");
     }
 }

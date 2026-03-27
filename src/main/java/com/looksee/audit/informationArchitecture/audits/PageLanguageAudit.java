@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jsoup.Jsoup;
@@ -29,7 +30,11 @@ import com.looksee.services.ElementStateService;
 import com.looksee.services.PageStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits the page language declaration for WCAG 2.1 Section 3.1.1 compliance,
+ * verifying the html element has a valid ISO 639-1 lang attribute.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}, {@code pageStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class PageLanguageAudit implements IExecutablePageStateAudit {
@@ -51,14 +56,17 @@ public class PageLanguageAudit implements IExecutablePageStateAudit {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
+	 *
+	 * Checks that the page has a valid lang attribute on the html element.
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -97,7 +105,8 @@ public class PageLanguageAudit implements IExecutablePageStateAudit {
 								why_it_matters,
 								description,
 								true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
@@ -127,6 +136,8 @@ public class PageLanguageAudit implements IExecutablePageStateAudit {
     /**
      * Validates whether the provided language code is a valid ISO 639-1 language code.
      *
+     * @pre none (null is handled gracefully, returning false)
+     * @post returns {@code true} if and only if {@code lang} is a valid ISO 639-1 code
      * @param lang The language code to validate.
      * @return true if the language code is valid, false otherwise.
      */
@@ -140,14 +151,15 @@ public class PageLanguageAudit implements IExecutablePageStateAudit {
 
     /**
      * Checks the HTML document for compliance with WCAG 2.1 Section 3.1.1 regarding the language of the page.
-     * This method verifies that the <html> element has a valid "lang" attribute that specifies the primary language of the document.
+     * Verifies the html element has a valid "lang" attribute specifying the primary language.
      *
-     * @param doc The Jsoup Document object representing the HTML content to be evaluated. Must not be null.
-     * @return A list of GenericIssue objects representing compliance issues found. The list is never null but may be empty.
+     * @pre {@code doc != null}
+     * @post returned list is non-null
+     * @param doc The Jsoup Document to evaluate. Must not be null.
+     * @return A list of UXIssueMessage objects representing compliance issues found.
      */
     public static List<UXIssueMessage> checkLanguageCompliance(Document doc) {
-        // Preconditions
-        assert doc != null : "Document must not be null";
+        Objects.requireNonNull(doc, "Document must not be null");
 
         List<UXIssueMessage> issues = new ArrayList<>();
 
@@ -218,10 +230,7 @@ public class PageLanguageAudit implements IExecutablePageStateAudit {
                             recommendation));
         }
 
-        // Postconditions
-        assert issues != null : "Issues list must not be null";
-
-        // Return list of issues found
+        Objects.requireNonNull(issues, "Postcondition failed: issues list must not be null");
         return issues;
     }
 }

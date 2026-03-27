@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -34,7 +35,11 @@ import com.looksee.services.AuditService;
 import com.looksee.services.ElementStateService;
 
 /**
- * Responsible for executing an audit on the hyperlinks on a page for the information architecture audit category
+ * Audits page elements for WCAG 2.1 Section 1.4.1 compliance, checking that color is not
+ * the sole means of conveying information.
+ *
+ * <p><b>Class invariant:</b> All {@code @Autowired} dependencies ({@code auditService},
+ * {@code elementStateService}) are non-null after Spring construction.</p>
  */
 @Component
 public class UseOfColorAudit implements IExecutablePageStateAudit {
@@ -71,17 +76,17 @@ public class UseOfColorAudit implements IExecutablePageStateAudit {
 	
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * Scores links on a page based on if the link has an href value present, the url format is valid and the 
-	 *   url goes to a location that doesn't produce a 4xx error 
-	 *   
-	 * @throws MalformedURLException 
-	 * @throws URISyntaxException 
+	 *
+	 * Checks elements for color-only information conveyance per WCAG 2.1 Section 1.4.1.
+	 *
+	 * @pre {@code page_state != null}
+	 * @pre {@code audit_record != null}
+	 * @post returned {@code Audit} is non-null and persisted
 	 */
 	@Override
 	public Audit execute(PageState page_state, AuditRecord audit_record, DesignSystem design_system) {
-		assert page_state != null;
-		assert audit_record != null;
+		Objects.requireNonNull(page_state, "page_state must not be null");
+		Objects.requireNonNull(audit_record, "audit_record must not be null");
 
 		//check if page state already had a link audit performed.
 		Set<UXIssueMessage> issue_messages = new HashSet<>();
@@ -136,12 +141,21 @@ public class UseOfColorAudit implements IExecutablePageStateAudit {
 								 why_it_matters,
 								 description,
 								 true);
-		
+
+		Objects.requireNonNull(audit, "Postcondition failed: audit must not be null");
 		return auditService.save(audit);
 	}
 
-    // Method to check compliance with WCAG 2.1 Section 1.4.1
+    /**
+     * Checks the document for WCAG 2.1 Section 1.4.1 (Use of Color) compliance.
+     *
+     * @pre {@code doc != null}
+     * @post returned list is non-null
+     * @param doc the parsed HTML document
+     * @return list of color-only information issues found
+     */
     public static List<GenericIssue> checkCompliance(Document doc) {
+        Objects.requireNonNull(doc, "Document must not be null");
         List<GenericIssue> issues = new ArrayList<>();
 
         // Check for elements that use inline styles or attributes to convey information by color
