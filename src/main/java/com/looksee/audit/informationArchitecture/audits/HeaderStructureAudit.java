@@ -40,7 +40,6 @@ import com.looksee.services.UXIssueMessageService;
  */
 @Component
 public class HeaderStructureAudit implements IExecutablePageStateAudit {
-	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(HeaderStructureAudit.class);
 
 	@Autowired

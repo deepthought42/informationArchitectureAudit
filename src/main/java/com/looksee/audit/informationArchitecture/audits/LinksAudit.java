@@ -43,7 +43,6 @@ import com.looksee.utils.BrowserUtils;
  */
 @Component
 public class LinksAudit implements IExecutablePageStateAudit {
-	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
 		
 	@Autowired
@@ -548,26 +547,9 @@ public class LinksAudit implements IExecutablePageStateAudit {
 					issue_messages.add(issue_message);
 				 }
 			}
-			 
-			//TODO : Does link have a hover styling? yes(1) / No(0)
-			
-			//TODO : Is link label relevant to destination url or content? yes(1) / No(0)
-				//TODO :does link text exist in url?
-			//	if(href.contains(element.ownText())) {
-				//	score++;
-				//}
-				
-				//TODO :does target content relate to link?
-			
-			
 		}
 		
 		
-		/*
-		String why_it_matters = "Dead links are links whose source can't be found. When users encounter dead links"
-				+ " they perceive the validity of what you have to say as less valuable. Often, after experiencing a"
-				+ " dead link, users bounce in search of a more reputable source.";
-		*/
 		String why_it_matters = "Links without text are less accessible as well as generally impacting usability. "
 				+ "When links don't have text, users that rely on screen readers are unable to understand what links without text are meant to accomplish."
 				+ "Links without text also affect how usable your site seems, because users may not be familiar with any images or icons used as links.";		
@@ -575,40 +557,14 @@ public class LinksAudit implements IExecutablePageStateAudit {
 		Set<String> categories = new HashSet<>();
 		categories.add(AuditCategory.INFORMATION_ARCHITECTURE.getShortName());
 		
-		//log.warn("LINKS AUDIT SCORE ::  "+score + " / " + (link_elements.size()*5));
 		
 		String description = "Making sure your links are setup correctly is incredibly important";
-		//Review link audit issues
-		//separate issues into 2 buckets. "good examples"(aka perfect scores) and everything else
-		
-		//randomly associate the elementState from the "good examples" set with the UXIssues that have less than a 100% score
 		
 		int points_earned = 0;
 		int max_points = 0;
 		for(UXIssueMessage issue_msg : issue_messages) {
 			points_earned += issue_msg.getPoints();
 			max_points += issue_msg.getMaxPoints();		 
-/*
-			if(issue_msg.getScore() < 90 && issue_msg instanceof ElementStateIssueMessage) {
-				ElementStateIssueMessage element_issue_msg = (ElementStateIssueMessage)issue_msg;
-				List<ElementState> good_examples = audit_service.findGoodExample(AuditName.LINKS, 100);
-				if(good_examples.isEmpty()) {
-					log.warn("Could not find element for good example...");
-					continue;
-				}
-				
-				if(good_examples.size() > 1) {					
-					Random random = new Random();
-					ElementState good_example = good_examples.get(random.nextInt(good_examples.size()-1));
-					element_issue_msg.setGoodExample(good_example);
-				}
-				else {
-					ElementState good_example = good_examples.get(0);
-					element_issue_msg.setGoodExample(good_example);
-				}
-				issue_message_service.save(element_issue_msg);
-			}
-			*/
 		}
 		
 		Audit audit = new Audit(AuditCategory.INFORMATION_ARCHITECTURE,

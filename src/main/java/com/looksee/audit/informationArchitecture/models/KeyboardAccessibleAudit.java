@@ -5,12 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.looksee.audit.informationArchitecture.audits.LinksAudit;
 import com.looksee.models.ElementState;
 import com.looksee.models.PageState;
 import com.looksee.models.audit.Audit;
@@ -33,8 +30,6 @@ import com.looksee.services.PageStateService;
  */
 @Component
 public class KeyboardAccessibleAudit implements IExecutablePageStateAudit {
-	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(LinksAudit.class);
 
 	@Autowired
 	private AuditService auditService;
